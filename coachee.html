@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PQI Connect | Coachee Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
+        
+        .glass-card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 24px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05); }
+        .sidebar-gradient { background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%); }
+        .nav-item { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); position: relative; }
+        .nav-item.active { background: rgba(59, 130, 246, 0.1); border-left: 4px solid #3b82f6; color: white; }
+        .nav-item:not(.active):hover { background: rgba(255, 255, 255, 0.03); color: #cbd5e1; }
+        .accent-text { font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; font-size: 0.6rem; }
+        .fade-in { animation: fadeIn 0.4s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        @media (min-width: 1024px) { body { overflow: hidden; } .main-content-height { height: 100vh; } }
+    </style>
+</head>
+<body class="antialiased text-slate-800">
+
+    <div class="flex flex-col lg:flex-row min-h-screen">
+        <aside class="w-full lg:w-80 sidebar-gradient text-slate-400 flex flex-col shadow-2xl z-50 lg:h-screen">
+            <div class="p-8 pb-12">
+                <div class="flex items-center gap-3 italic font-black text-2xl uppercase tracking-tighter text-white">
+                    <i class="fas fa-handshake-angle text-blue-500"></i>
+                    <span>PQI <span class="text-blue-500">CONNECT</span></span>
+                </div>
+            </div>
+
+            <div class="px-6 mb-10">
+                <div class="bg-white/5 border border-white/10 rounded-3xl p-5 relative overflow-hidden group">
+                    <div class="flex items-center gap-4">
+                        <div class="h-12 w-12 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-black italic">ST</div>
+                        <div>
+                            <h4 class="text-sm font-black italic text-white leading-none uppercase">Sarah Thompson</h4>
+                            <p class="text-[8px] font-black text-blue-400 mt-1.5 uppercase tracking-widest opacity-80">Physician Coachee</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <nav class="hidden lg:flex flex-1 px-4 space-y-2 flex-col">
+                <span class="px-4 accent-text text-slate-600 block mb-4">Management</span>
+                <a href="#" class="nav-item active flex items-center gap-4 px-6 py-4 rounded-2xl group">
+                    <i class="fas fa-grid-2 text-sm transition-transform group-hover:scale-110"></i>
+                    <span class="text-[11px] font-black uppercase tracking-[0.2em] italic">Dashboard</span>
+                </a>
+                <a href="#" class="nav-item flex items-center gap-4 px-6 py-4 rounded-2xl group">
+                    <i class="fas fa-briefcase text-sm"></i>
+                    <span class="text-[11px] font-black uppercase tracking-[0.2em] italic">Portfolio</span>
+                </a>
+            </nav>
+        </aside>
+
+        <main class="flex-1 bg-[#f8fafc] p-6 lg:p-10 fade-in lg:overflow-y-auto main-content-height">
+            <header class="flex justify-between items-center mb-12">
+                <div>
+                    <h1 class="text-3xl font-black italic text-slate-900 tracking-tighter uppercase">Coachee Dashboard</h1>
+                    <div class="h-1 w-12 bg-blue-600 mt-2"></div>
+                </div>
+            </header>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
+                <div class="glass-card p-8 group hover:border-blue-500 transition-all cursor-pointer">
+                    <span class="accent-text text-blue-600 block mb-4">Upcoming Session</span>
+                    <div class="flex items-center gap-4">
+                        <div class="text-center bg-slate-50 px-3 py-2 rounded-xl border border-slate-100">
+                            <p class="text-[8px] font-bold uppercase leading-none mb-1 text-slate-400">Feb</p>
+                            <p class="text-xl font-black italic leading-none text-slate-900">12</p>
+                        </div>
+                        <div>
+                            <p class="text-xs font-black italic text-slate-900 uppercase">Coach Michael Cho</p>
+                            <p class="text-[9px] font-bold text-slate-300 mt-1 uppercase tracking-tight italic">04:30 PM · Zoom Meeting</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="glass-card p-8 group hover:border-blue-500 transition-all cursor-pointer">
+                    <span class="accent-text text-blue-600 block mb-4">Suggested Toolkit</span>
+                    <div class="flex items-center justify-between">
+                        <p class="text-sm font-black italic text-slate-900 uppercase leading-tight">Data Collection<br>Baseline Template</p>
+                        <i class="fas fa-chevron-right text-slate-200 group-hover:text-blue-600 transition-all"></i>
+                    </div>
+                </div>
+
+                <div class="glass-card p-8 bg-slate-900 border-none">
+                    <span class="accent-text text-blue-400 block mb-2 tracking-[0.2em]">Program Support</span>
+                    <p class="text-white text-sm font-black italic mb-4 uppercase leading-tight">Administrative Help</p>
+                    <button class="w-full bg-blue-600 text-white py-3 rounded-xl font-black text-[9px] uppercase tracking-widest shadow-lg hover:bg-blue-500 transition">Message Admin</button>
+                </div>
+            </div>
+
+            <section class="glass-card p-8">
+                <h3 class="text-sm font-black italic uppercase tracking-widest text-slate-900 mb-8">My Projects</h3>
+                <div class="space-y-4">
+                    
+                    <div class="flex items-center justify-between p-6 rounded-[32px] bg-white border-2 border-blue-500 shadow-xl shadow-blue-50 group cursor-pointer transition-all duration-300">
+                        <div class="flex items-center gap-6">
+                            <div class="w-14 h-14 rounded-2xl bg-blue-600 shadow-sm flex items-center justify-center font-black italic text-white uppercase tracking-tighter">New</div>
+                            <div>
+                                <h4 class="text-md font-black italic text-slate-900 uppercase">Post-Op Recovery Flow</h4>
+                                <p class="text-[10px] font-bold text-blue-600 italic mt-1 uppercase tracking-tight">Status: Staff Reviewing for Coach Match</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-8">
+                            <div class="hidden md:block w-32 text-right">
+                                <div class="flex justify-between items-center mb-1 font-black italic text-[8px] uppercase">
+                                    <span class="text-blue-600 tracking-widest">Matching Progress</span>
+                                    <span class="text-blue-600">65%</span>
+                                </div>
+                                <div class="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden">
+                                    <div class="bg-blue-600 h-full w-[65%] animate-pulse"></div>
+                                </div>
+                            </div>
+                            <i class="fas fa-chevron-right text-slate-200 group-hover:text-blue-600 group-hover:translate-x-1 transition-all"></i>
+                        </div>
+                    </div>
+
+                    <div onclick="showCoacheeDetail('Dr. Sarah Thompson', 'ST')" class="flex items-center justify-between p-6 rounded-[32px] bg-slate-50/50 border border-transparent hover:border-slate-200 hover:bg-white transition-all duration-300 cursor-pointer group">                        <div class="flex items-center gap-6">
+                            <div class="w-14 h-14 rounded-2xl bg-white shadow-sm flex items-center justify-center font-black italic text-slate-400 group-hover:text-blue-600">ST</div>
+                            <div>
+                                <h4 class="text-md font-black italic text-slate-900 uppercase">ER Surgery Wait Times</h4>
+                                <p class="text-[10px] font-bold text-slate-400 italic mt-1 uppercase tracking-tight italic">Currently Active · Coach: Dr. Michael Cho</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-4">
+                            <span class="text-[8px] font-black text-slate-400 border border-slate-200 px-2 py-1 rounded uppercase group-hover:text-blue-600 group-hover:border-blue-600 transition-all">Live Session Mode</span>
+                            <i class="fas fa-chevron-right text-slate-200 group-hover:text-blue-600 transition-all"></i>
+                        </div>
+                    </div>
+
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+    let sessionInterval;
+    let sessionSeconds = 0;
+
+    function showCoacheeDetail(name, initials) {
+        const mainContent = document.querySelector('main');
+        
+        mainContent.innerHTML = `
+            <div class="fade-in">
+                <div class="flex flex-col lg:flex-row justify-between lg:items-center mb-6 lg:mb-8 gap-4">
+                    <button onclick="location.reload()" class="w-fit flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-widest hover:text-blue-600 transition">
+                        <i class="fas fa-arrow-left"></i> Dashboard
+                    </button>
+                    <div class="flex items-center gap-4 text-left lg:text-right">
+                        <div class="flex-1">
+                            <h1 class="text-xl lg:text-2xl font-black italic text-slate-900 uppercase leading-none">${name}</h1>
+                            <p class="text-[9px] font-bold text-blue-600 uppercase tracking-widest mt-1 italic leading-tight">PQI Coaching Program</p>
+                        </div>
+                        <div class="w-10 h-10 lg:w-12 lg:h-12 rounded-2xl bg-blue-600 flex items-center justify-center text-white text-md lg:text-lg font-black italic shadow-lg">${initials}</div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 lg:h-[calc(100vh-220px)]">
+                    <div class="col-span-1 lg:col-span-8 flex flex-col min-h-[500px] lg:h-full">
+                        <section class="glass-card bg-slate-900 flex flex-col flex-1 overflow-hidden shadow-2xl border-none">
+                            <div class="px-6 lg:px-8 py-5 lg:py-6 border-b border-white/5 flex justify-between items-center bg-white/5">
+                                <div>
+                                    <span class="accent-text text-blue-400 tracking-[0.2em] block">Meeting Agenda</span>
+                                    <span class="text-[8px] text-slate-500 font-bold uppercase italic opacity-60">Collaborative Workspace</span>
+                                </div>
+                                <div id="auto-tracker-status" class="flex items-center gap-2 px-3 py-1 bg-blue-500/10 rounded-full border border-blue-500/20">
+                                    <div class="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse"></div>
+                                    <span class="text-[9px] font-black text-blue-400 uppercase italic">Ready</span>
+                                </div>
+                            </div>
+                            <div class="p-6 lg:p-8 flex-1 overflow-y-auto space-y-4">
+                                <ul id="detail-agenda-list" class="space-y-4">
+                                    <li class="flex items-start gap-4 lg:gap-5 p-4 lg:p-5 rounded-[20px] lg:rounded-[24px] bg-white/5 border border-white/10 text-slate-200 text-sm lg:text-md italic">
+                                        <i class="far fa-square mt-1.5 text-blue-500"></i>
+                                        <span class="leading-relaxed font-medium tracking-tight">Reviewing baseline data for ER surgery wait times.</span>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div class="p-6 lg:p-8 bg-black/20 border-t border-white/5">
+                                <input type="text" id="detail-agenda-input" placeholder="Type new agenda..." 
+                                       class="w-full bg-white/5 border border-white/10 rounded-[20px] py-4 lg:py-5 pl-10 lg:pl-12 pr-6 text-sm text-slate-100 outline-none focus:ring-2 focus:ring-blue-500/50 transition-all font-medium">
+                            </div>
+                        </section>
+                    </div>
+
+                    <div class="col-span-1 lg:col-span-4 flex flex-col gap-6 lg:h-full">
+                        <section id="scheduler-card" class="glass-card p-5 lg:p-6 border-2 border-blue-600 shadow-2xl transition-all duration-500">
+                            <div class="flex justify-between items-center mb-4 lg:mb-6">
+                                <span class="accent-text text-blue-600 tracking-widest text-[9px] lg:text-[10px]">Sessions Scheduler</span>
+                                <div class="flex items-center gap-2">
+                                    <button class="text-[9px] font-black text-blue-600 bg-blue-50 px-2 py-1 rounded-md uppercase tracking-tighter">Book</button>
+                                    <div id="timer-badge" class="hidden flex items-center gap-2 bg-red-50 px-2 py-1 rounded-md italic">
+                                        <span id="live-timer" class="text-[10px] font-black text-red-600">00:00</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="p-4 rounded-2xl bg-blue-600 text-white shadow-lg flex items-center gap-4 relative overflow-hidden group">
+                                <div class="text-center bg-white/20 px-3 py-2 rounded-xl italic font-black">
+                                    <p class="text-[8px] uppercase leading-none mb-1">Feb</p><p class="text-xl">10</p>
+                                </div>
+                                <div class="flex-1">
+                                    <p class="text-[8px] font-black text-blue-100 uppercase italic mb-1 opacity-70">Today · 11:00 AM</p>
+                                    <p class="text-xs font-bold uppercase tracking-tight">Data Strategy Review</p>
+                                </div>
+                                <button id="start-btn" class="bg-white text-blue-600 px-3 py-2 rounded-xl text-[9px] font-black uppercase shadow-md hover:bg-slate-50 transition">Start</button>
+                            </div>
+                        </section>
+
+                        <section class="glass-card p-5 lg:p-6 flex-1 flex flex-col bg-slate-50 border-slate-200 overflow-hidden">
+                            <span class="accent-text text-slate-400 mb-6 tracking-widest block">Project Context & Progress</span>
+                            <div class="space-y-6 flex-1 lg:overflow-y-auto pr-1">
+                                <div>
+                                    <h4 class="text-[9px] font-black text-slate-900 uppercase italic mb-2 tracking-tighter opacity-60">Primary Objective</h4>
+                                    <p class="text-[11px] text-slate-600 font-medium leading-relaxed italic border-l-2 border-blue-500 pl-3 italic">
+                                        "Reduce ER surgical wait times for elective cases by 15% within the first 6 months by optimizing the pre-op triage flow."
+                                    </p>
+                                </div>
+                                <div class="pt-6 border-t border-slate-200 mt-auto">
+                                    <div class="flex justify-between items-end">
+                                        <div>
+                                            <span class="accent-text text-slate-400 block mb-1">Contracted Hours</span>
+                                            <p class="text-lg lg:text-xl font-black italic text-slate-900">2.5 <span class="text-slate-300 not-italic text-sm">/ 10.0h</span></p>
+                                        </div>
+                                    </div>
+                                    <div class="w-full bg-slate-200 h-1 rounded-full mt-3 overflow-hidden">
+                                        <div class="bg-blue-600 h-full w-[25%] transition-all duration-1000"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+                        <button class="w-full bg-slate-900 text-white py-4 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] shadow-xl hover:bg-blue-600 transition-all flex items-center justify-center gap-3">
+                            <i class="fas fa-paper-plane text-xs"></i> Message
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        setupDetailLogic();
+    }
+
+    function setupDetailLogic() {
+        const startBtn = document.getElementById('start-btn');
+        const schedulerCard = document.getElementById('scheduler-card');
+        const timerBadge = document.getElementById('timer-badge');
+        const liveTimerDisplay = document.getElementById('live-timer');
+        const statusIndicator = document.getElementById('auto-tracker-status');
+
+        if(startBtn) {
+            startBtn.addEventListener('click', function() {
+                if (this.innerText === 'START') {
+                    this.innerText = 'FINISH';
+                    this.classList.replace('bg-white', 'bg-red-500');
+                    this.classList.replace('text-blue-600', 'text-white');
+                    schedulerCard.classList.replace('border-blue-600', 'border-red-500');
+                    timerBadge.classList.remove('hidden');
+                    statusIndicator.innerHTML = '<div class="w-1.5 h-1.5 rounded-full bg-red-500 animate-ping"></div><span class="text-[9px] font-black text-red-500 uppercase italic">Live</span>';
+                    sessionInterval = setInterval(() => {
+                        sessionSeconds++;
+                        let m = Math.floor(sessionSeconds / 60).toString().padStart(2, '0');
+                        let s = (sessionSeconds % 60).toString().padStart(2, '0');
+                        liveTimerDisplay.innerText = `${m}:${s}`;
+                    }, 1000);
+                } else {
+                    clearInterval(sessionInterval);
+                    alert(`Session Logged: ${(sessionSeconds / 60).toFixed(1)} minutes.`);
+                    location.reload();
+                }
+            });
+        }
+
+        const agendaInput = document.getElementById('detail-agenda-input');
+        const agendaList = document.getElementById('detail-agenda-list');
+        if(agendaInput) {
+            agendaInput.addEventListener('keypress', function (e) {
+                if (e.key === 'Enter' && this.value.trim() !== "") {
+                    const li = document.createElement('li');
+                    li.className = "flex items-start gap-4 lg:gap-5 p-4 lg:p-5 rounded-[20px] lg:rounded-[24px] bg-white/5 border border-white/10 text-slate-200 text-sm lg:text-md italic hover:bg-white/10 transition-all group fade-in";
+                    li.innerHTML = `<i class="far fa-square mt-1.5 text-blue-500 group-hover:scale-110 transition"></i> <span class="font-medium tracking-tight leading-relaxed">${this.value.trim()}</span>`;
+                    agendaList.appendChild(li);
+                    this.value = "";
+                }
+            });
+        }
+    }
+</script>
+
+</body>
+</html>
