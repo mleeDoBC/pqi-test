@@ -188,32 +188,19 @@
         clearErrors();
         if (!validate()) return;
         setLoading(true);
-
+    
         const frame = document.getElementById('caspio-frame');
-        if (!frame) {
-            setLoading(false);
-            return;
-        }
-
         const data = {
             type: 'CASPIO_SUBMIT',
             fullname: document.getElementById('ui-fullname').value.trim(),
             email: document.getElementById('ui-email').value.trim(),
             password: document.getElementById('ui-password').value
         };
-
-        // Wait for iframe to load then send
-        function sendMessage() {
-            frame.contentWindow.postMessage(data, 'https://c0abr823.caspio.com');
-        }
-
-        if (frame.contentDocument && frame.contentDocument.readyState === 'complete') {
-            sendMessage();
-        } else {
-            frame.onload = sendMessage;
-        }
+    
+        setTimeout(function() {
+            frame.contentWindow.postMessage(data, '*');
+        }, 500);
     }
-
     // Clear error on input
     ['ui-fullname', 'ui-email', 'ui-password', 'ui-confirm'].forEach(id => {
         document.getElementById(id).addEventListener('input', () => {
