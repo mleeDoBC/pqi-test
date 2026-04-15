@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PQI Connect | Complete Your Profile</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
+        .sidebar-gradient { background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%); }
+        .accent-text { font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; font-size: 0.6rem; }
+
+        .progress-track { background: rgba(255,255,255,0.08); border-radius: 99px; height: 4px; }
+        .progress-fill { background: linear-gradient(90deg, #3b82f6, #6366f1); border-radius: 99px; height: 4px; transition: width 0.5s cubic-bezier(0.4,0,0.2,1); }
+
+        .step-dot { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 900; transition: all 0.3s ease; flex-shrink: 0; }
+        .step-dot.done { background: #3b82f6; color: white; }
+        .step-dot.active { background: white; color: #0f172a; box-shadow: 0 0 0 3px rgba(59,130,246,0.4); }
+        .step-dot.pending { background: rgba(255,255,255,0.08); color: #475569; }
+
+        .qi-tag { cursor: pointer; border: 1.5px solid #e2e8f0; border-radius: 99px; padding: 6px 14px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; transition: all 0.2s ease; color: #64748b; background: white; user-select: none; }
+        .qi-tag:hover { border-color: #93c5fd; color: #3b82f6; }
+        .qi-tag.selected { background: #eff6ff; border-color: #3b82f6; color: #3b82f6; }
+
+        .radio-card { border: 2px solid #e2e8f0; border-radius: 16px; padding: 16px 20px; cursor: pointer; transition: all 0.2s ease; }
+        .radio-card:hover { border-color: #93c5fd; }
+        .radio-card.selected { border-color: #3b82f6; background: #eff6ff; }
+        .radio-dot { width: 16px; height: 16px; border-radius: 50%; border: 2px solid #cbd5e1; transition: all 0.2s ease; flex-shrink: 0; }
+        .radio-card.selected .radio-dot { background: #3b82f6; border-color: #3b82f6; }
+
+        .form-input { width: 100%; border: 1.5px solid #e2e8f0; border-radius: 12px; padding: 12px 16px; font-size: 14px; font-family: 'Inter', sans-serif; outline: none; transition: border-color 0.2s; resize: none; color: #1e293b; background: white; }
+        .form-input:focus { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59,130,246,0.1); }
+        .form-input::placeholder { color: #94a3b8; }
+        .form-input.error { border-color: #ef4444; box-shadow: 0 0 0 3px rgba(239,68,68,0.1); }
+
+        .step-panel { display: none; animation: fadeUp 0.35s ease-out; }
+        .step-panel.active { display: block; }
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+
+        .btn-primary { background: linear-gradient(135deg, #3b82f6, #6366f1); color: white; border: none; border-radius: 12px; padding: 14px 32px; font-size: 12px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.15em; cursor: pointer; transition: all 0.2s ease; }
+        .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 8px 24px rgba(99,102,241,0.3); }
+        .btn-secondary { background: transparent; color: #64748b; border: 1.5px solid #e2e8f0; border-radius: 12px; padding: 14px 24px; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; cursor: pointer; transition: all 0.2s ease; }
+        .btn-secondary:hover { border-color: #94a3b8; color: #334155; }
+
+        .avatar-upload { position: relative; width: 100px; height: 100px; cursor: pointer; }
+        .avatar-circle { width: 100px; height: 100px; border-radius: 24px; background: linear-gradient(135deg, #3b82f6, #6366f1); display: flex; align-items: center; justify-content: center; overflow: hidden; transition: all 0.2s ease; }
+        .avatar-circle:hover { transform: scale(1.03); box-shadow: 0 8px 24px rgba(99,102,241,0.3); }
+        .avatar-overlay { position: absolute; inset: 0; border-radius: 24px; background: rgba(0,0,0,0.45); display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.2s; }
+        .avatar-upload:hover .avatar-overlay { opacity: 1; }
+        #avatar-preview { width: 100%; height: 100%; object-fit: cover; display: none; }
+
+        .char-count { font-size: 11px; color: #94a3b8; text-align: right; margin-top: 4px; }
+
+        @media (min-width: 1024px) { body { overflow: hidden; } }
+    </style>
+</head>
+<body class="antialiased text-slate-800">
+
+<div class="flex flex-col lg:flex-row min-h-screen">
+
+    <!-- Sidebar -->
+    <aside class="w-full lg:w-80 sidebar-gradient text-slate-400 flex flex-col shadow-2xl z-50 lg:h-screen lg:sticky lg:top-0">
+        <div class="p-8 pb-6">
+            <div class="flex items-center gap-3 italic font-black text-2xl uppercase tracking-tighter text-white">
+                <i class="fas fa-handshake-angle text-blue-500"></i>
+                <span>PQI <span class="text-blue-500">CONNECT</span></span>
+            </div>
+        </div>
+
+        <div class="px-6 mb-8">
+            <div class="bg-white/5 border border-white/10 rounded-3xl p-5">
+                <div class="flex items-center gap-4">
+                    <div class="h-12 w-12 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-black italic text-lg">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div>
+                        <h4 class="text-sm font-black italic text-white leading-none uppercase">New Coach</h4>
+                        <p class="text-[8px] font-black text-blue-400 mt-1.5 uppercase tracking-widest opacity-80">Setting up profile</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="px-6 flex-1">
+            <span class="accent-text text-slate-600 block mb-5">Setup Progress</span>
+            <div class="space-y-1">
+                <div class="flex items-center gap-4 px-2 py-3 rounded-2xl">
+                    <div class="step-dot active" id="dot-1">1</div>
+                    <div>
+                        <p class="text-xs font-black text-white uppercase tracking-wider">About You</p>
+                        <p class="text-[10px] text-slate-500 mt-0.5">Photo & background</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-4 px-2 py-3 rounded-2xl">
+                    <div class="step-dot pending" id="dot-2">2</div>
+                    <div>
+                        <p class="text-xs font-black uppercase tracking-wider text-slate-500" id="label-2">Your Practice</p>
+                        <p class="text-[10px] text-slate-600 mt-0.5">Strengths & style</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="p-8 border-t border-white/5">
+            <div class="flex justify-between items-center mb-2">
+                <span class="text-[10px] font-black text-slate-500 uppercase tracking-wider">Profile Complete</span>
+                <span class="text-[10px] font-black text-blue-400" id="progress-label">0%</span>
+            </div>
+            <div class="progress-track">
+                <div class="progress-fill" id="progress-bar" style="width: 0%"></div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main -->
+    <main class="flex-1 lg:h-screen lg:overflow-y-auto">
+        <div class="max-w-2xl mx-auto px-6 py-12">
+
+            <div class="mb-10">
+                <p class="text-[10px] font-black text-blue-500 uppercase tracking-widest mb-2">Step <span id="step-num">1</span> of 2</p>
+                <h1 class="text-3xl font-black text-slate-900 leading-tight" id="step-title">Tell us about yourself</h1>
+                <p class="text-slate-500 text-sm mt-2" id="step-subtitle">Add a photo and share your story with potential coachees.</p>
+            </div>
+
+            <!-- Step 1: Photo + About -->
+            <div class="step-panel active" id="panel-1">
+                <div class="space-y-7">
+
+                    <div>
+                        <label class="block text-xs font-black text-slate-700 uppercase tracking-wider mb-3">Profile Photo</label>
+                        <div class="flex items-center gap-5">
+                            <div class="avatar-upload" onclick="document.getElementById('avatar-input').click()">
+                                <div class="avatar-circle">
+                                    <img id="avatar-preview" src="" alt="preview">
+                                    <i class="fas fa-camera text-white text-3xl" id="avatar-icon"></i>
+                                </div>
+                                <div class="avatar-overlay">
+                                    <i class="fas fa-camera text-white text-sm"></i>
+                                </div>
+                            </div>
+                            <div>
+                                <p class="text-sm font-semibold text-slate-700">Upload a photo</p>
+                                <p class="text-xs text-slate-400 mt-1">JPG or PNG · max 5MB</p>
+                                <button class="mt-2 text-xs font-black text-blue-500 uppercase tracking-wider hover:text-blue-700 transition-colors" type="button" onclick="document.getElementById('avatar-input').click()">Choose file</button>
+                            </div>
+                            <input type="file" id="avatar-input" accept="image/*" class="hidden" onchange="previewAvatar(event)">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-black text-slate-700 uppercase tracking-wider mb-2">About You <span class="text-blue-500">*</span></label>
+                        <p class="text-xs text-slate-400 mb-3">What is your education/background? When and how did you end up in QI? Any personal hobbies or interests?</p>
+                        <textarea class="form-input" id="about" rows="7" maxlength="1000" placeholder="I'm a family physician with 15 years of experience who discovered QI after a quality improvement project in our clinic..." oninput="updateChar('about', 'count-about', 1000)"></textarea>
+                        <p class="char-count"><span id="count-about">0</span>/1000</p>
+                    </div>
+                </div>
+
+                <div class="flex justify-end mt-10">
+                    <button class="btn-primary" onclick="goToStep(2)">
+                        Continue <i class="fas fa-arrow-right ml-2"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Step 2: Everything else -->
+            <div class="step-panel" id="panel-2">
+                <div class="space-y-8">
+
+                    <div>
+                        <label class="block text-xs font-black text-slate-700 uppercase tracking-wider mb-2">
+                            Practice & Location
+                            <span class="text-slate-400 font-normal normal-case tracking-normal ml-1">(optional)</span>
+                        </label>
+                        <p class="text-xs text-slate-400 mb-3">Clinical specialty, community, facility, region and/or health authority.</p>
+                        <input type="text" class="form-input" id="practice" placeholder="e.g. Family Medicine, Vancouver Coastal Health, St. Paul's Hospital">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-black text-slate-700 uppercase tracking-wider mb-2">QI Strengths <span class="text-blue-500">*</span></label>
+                        <p class="text-xs text-slate-400 mb-4">Select all areas where you feel confident coaching others.</p>
+                        <div class="flex flex-wrap gap-2" id="qi-tags"></div>
+                        <p class="text-xs text-slate-400 mt-3"><span id="selected-count" class="font-black text-blue-500">0</span> areas selected</p>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-black text-slate-700 uppercase tracking-wider mb-4">Coaching Style <span class="text-blue-500">*</span></label>
+                        <div class="space-y-3">
+                            <div class="radio-card" id="card-1on1" onclick="selectStyle('1-on-1')">
+                                <div class="flex items-center gap-4">
+                                    <div class="radio-dot" id="rdot-1on1"></div>
+                                    <div>
+                                        <p class="font-black text-slate-800 text-sm">1-on-1 Coaching Only</p>
+                                        <p class="text-xs text-slate-400 mt-0.5">I prefer focused, individual coaching relationships.</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="radio-card" id="card-team" onclick="selectStyle('Open to team coaching')">
+                                <div class="flex items-center gap-4">
+                                    <div class="radio-dot" id="rdot-team"></div>
+                                    <div>
+                                        <p class="font-black text-slate-800 text-sm">Open to Team Coaching</p>
+                                        <p class="text-xs text-slate-400 mt-0.5">I'm comfortable with both individual and team coaching engagements.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-black text-slate-700 uppercase tracking-wider mb-2">
+                            Anything else?
+                            <span class="text-slate-400 font-normal normal-case tracking-normal ml-1">(optional)</span>
+                        </label>
+                        <p class="text-xs text-slate-400 mb-3">Additional interests or areas of expertise you'd like to share.</p>
+                        <input type="text" class="form-input" id="additional" placeholder="e.g. Interested in rural health equity, passionate about medical education...">
+                    </div>
+                </div>
+
+                <div class="flex justify-between mt-10 pb-12">
+                    <button class="btn-secondary" onclick="goToStep(1)">
+                        <i class="fas fa-arrow-left mr-2"></i> Back
+                    </button>
+                    <button class="btn-primary" onclick="submitBio()">
+                        Complete Profile <i class="fas fa-check ml-2"></i>
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </main>
+</div>
+
+<script>
+    const QI_SKILLS = [
+        "Driver Diagrams", "Process Mapping", "Building a Business Case for QI",
+        "PDSA Cycles", "Project Ethics", "QI Measures & Evaluation",
+        "Working with Teams", "Communication Plans", "Relationship Theory & Skills",
+        "Leadership Skills", "Basic QI Data Analysis", "Advanced QI Data Analysis",
+        "Shewhart Charts", "Scale Up", "Implementation & Sustainability",
+        "Spread", "Publishing", "Human Side of Change"
+    ];
+
+    const selectedSkills = new Set();
+    let coachingStyle = null;
+    let currentStep = 1;
+
+    const stepMeta = {
+        1: { title: "Tell us about yourself", sub: "Add a photo and share your story with potential coachees." },
+        2: { title: "Your practice & strengths", sub: "Help coachees understand what you do and how you work." }
+    };
+
+    // Render QI tags
+    QI_SKILLS.forEach(skill => {
+        const tag = document.createElement('span');
+        tag.className = 'qi-tag';
+        tag.textContent = skill;
+        tag.onclick = () => {
+            if (selectedSkills.has(skill)) {
+                selectedSkills.delete(skill);
+                tag.classList.remove('selected');
+            } else {
+                selectedSkills.add(skill);
+                tag.classList.add('selected');
+            }
+            document.getElementById('selected-count').textContent = selectedSkills.size;
+        };
+        document.getElementById('qi-tags').appendChild(tag);
+    });
+
+    function selectStyle(style) {
+        coachingStyle = style;
+        ['card-1on1', 'card-team'].forEach(id => document.getElementById(id).classList.remove('selected'));
+        document.getElementById(style === '1-on-1' ? 'card-1on1' : 'card-team').classList.add('selected');
+    }
+
+    function goToStep(step) {
+        if (step === 2) {
+            const about = document.getElementById('about').value.trim();
+            if (!about) {
+                const el = document.getElementById('about');
+                el.classList.add('error');
+                el.focus();
+                setTimeout(() => el.classList.remove('error'), 2000);
+                return;
+            }
+        }
+
+        document.getElementById(`panel-${currentStep}`).classList.remove('active');
+        document.getElementById(`panel-${step}`).classList.add('active');
+
+        const dot1 = document.getElementById('dot-1');
+        const dot2 = document.getElementById('dot-2');
+
+        if (step === 2) {
+            dot1.className = 'step-dot done';
+            dot1.innerHTML = '<i class="fas fa-check" style="font-size:9px"></i>';
+            dot2.className = 'step-dot active';
+            dot2.textContent = '2';
+            document.getElementById('label-2').classList.replace('text-slate-500', 'text-white');
+            document.getElementById('progress-bar').style.width = '50%';
+            document.getElementById('progress-label').textContent = '50%';
+        } else {
+            dot1.className = 'step-dot active';
+            dot1.textContent = '1';
+            dot2.className = 'step-dot pending';
+            dot2.textContent = '2';
+            document.getElementById('label-2').classList.replace('text-white', 'text-slate-500');
+            document.getElementById('progress-bar').style.width = '0%';
+            document.getElementById('progress-label').textContent = '0%';
+        }
+
+        document.getElementById('step-num').textContent = step;
+        document.getElementById('step-title').textContent = stepMeta[step].title;
+        document.getElementById('step-subtitle').textContent = stepMeta[step].sub;
+
+        currentStep = step;
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function updateChar(fieldId, countId) {
+        document.getElementById(countId).textContent = document.getElementById(fieldId).value.length;
+    }
+
+    function previewAvatar(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = e => {
+            const preview = document.getElementById('avatar-preview');
+            preview.src = e.target.result;
+            preview.style.display = 'block';
+            document.getElementById('avatar-icon').style.display = 'none';
+        };
+        reader.readAsDataURL(file);
+    }
+
+    function submitBio() {
+        if (selectedSkills.size === 0) {
+            document.getElementById('qi-tags').scrollIntoView({ behavior: 'smooth', block: 'center' });
+            document.getElementById('qi-tags').style.opacity = '0.4';
+            setTimeout(() => document.getElementById('qi-tags').style.opacity = '1', 600);
+            return;
+        }
+        if (!coachingStyle) {
+            ['card-1on1', 'card-team'].forEach(id => {
+                document.getElementById(id).style.borderColor = '#ef4444';
+                setTimeout(() => document.getElementById(id).style.borderColor = '', 2000);
+            });
+            return;
+        }
+
+        const data = {
+            about: document.getElementById('about').value.trim(),
+            practice: document.getElementById('practice').value.trim(),
+            qi_strengths: Array.from(selectedSkills).join(', '),
+            coaching_style: coachingStyle,
+            additional: document.getElementById('additional').value.trim()
+        };
+
+        console.log('Submitting to Caspio:', data);
+
+        // TODO: POST to Caspio Submission Form DataPage
+        // On success → update Bio_Complete = Yes → redirect to coach.html
+
+        document.getElementById('progress-bar').style.width = '100%';
+        document.getElementById('progress-label').textContent = '100%';
+        alert('Profile complete! Redirecting to your dashboard...');
+        // window.location.href = 'coach.html';
+    }
+</script>
+
+</body>
+</html>
