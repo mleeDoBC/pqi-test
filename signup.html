@@ -46,8 +46,8 @@
 <body class="flex items-center justify-center px-4 py-12">
 
     <!-- Hidden Caspio form -->
-    <div id="caspio-container" style="position:absolute;left:-9999px;top:-9999px;">
-        <iframe id="caspio-frame" name="Coach_SignUp_Form" title="Coach_SignUp_Form" src="https://c0abr823.caspio.com/dp/1c9f50005a14d3489d1e43f5a042" style="width:500px;height:500px;border:none;"></iframe>
+    <div id="caspio-container">
+        <script type="text/javascript" src="https://c0abr823.caspio.com/dp/1c9f50005a14d3489d1e43f5a042/emb"></script>
     </div>
 
     <div class="w-full max-w-md">
@@ -83,7 +83,7 @@
                     <label class="block text-xs font-black text-slate-600 uppercase tracking-wider mb-2">Email</label>
                     <div class="input-icon">
                         <i class="fas fa-envelope"></i>
-                        <input type="email" class="form-input" id="ui-email" placeholder="you@doctorsofbc.ca" autocomplete="email">
+                        <input type="email" class="form-input" id="ui-email" placeholder="best email for communication" autocomplete="email">
                     </div>
                     <p class="error-msg" id="err-email">Please enter a valid email address.</p>
                 </div>
@@ -92,7 +92,7 @@
                     <label class="block text-xs font-black text-slate-600 uppercase tracking-wider mb-2">Password</label>
                     <div class="input-icon">
                         <i class="fas fa-lock"></i>
-                        <input type="password" class="form-input" id="ui-password" placeholder="Min. 8 characters" autocomplete="new-password">
+                        <input type="password" class="form-input" id="ui-password" placeholder="Enter a safe password" autocomplete="new-password">
                     </div>
                     <p class="error-msg" id="err-password">Password must be at least 8 characters.</p>
                 </div>
@@ -172,35 +172,61 @@
         return valid;
     }
 
-    // Listen for result from Caspio iframe
+    // Listen for signup success from Caspio
     window.addEventListener('message', function(event) {
         if (event.data.type === 'CASPIO_SUCCESS') {
             window.location.href = 'login.html';
-        } else if (event.data.type === 'CASPIO_ERROR') {
-            setLoading(false);
-            const err = document.getElementById('err-general');
-            err.textContent = event.data.message || 'Signup failed. Please try again.';
-            err.classList.add('show');
         }
     });
+
+    function waitForCaspio(callback, tries = 0) {
+        const emailField = document.getElementById('InsertRecordEmail');
+        if (emailField) {
+            callback();
+        } else if (tries < 30) {
+            setTimeout(() => waitForCaspio(callback, tries + 1), 300);
+        } else {
+            setLoading(false);
+            const err = document.getElementById('err-general');
+            err.textContent = 'Could not connect to server. Please refresh and try again.';
+            err.classList.add('show');
+        }
+    }
 
     function handleSignup() {
         clearErrors();
         if (!validate()) return;
         setLoading(true);
-    
-        const frame = document.getElementById('caspio-frame');
-        const data = {
-            type: 'CASPIO_SUBMIT',
-            fullname: document.getElementById('ui-fullname').value.trim(),
-            email: document.getElementById('ui-email').value.trim(),
-            password: document.getElementById('ui-password').value
-        };
-    
-        setTimeout(function() {
-            frame.contentWindow.postMessage(data, '*');
-        }, 500);
+
+        waitForCaspio(() => {
+            const fullname = document.getElementById('ui-fullname').value.trim();
+            const email = document.getElementById('ui-email').value.trim();
+            const password = document.getElementById('ui-password').value;
+
+            // Fill hidden Caspio form
+            document.getElementById('InsertRecordFull_Name').value = fullname;
+            document.getElementById('InsertRecordEmail').value = email;
+            document.getElementById('InsertRecordPassword').value = password;
+            document.getElementById('InsertRecordPassword@Confirm').value = password;
+
+            // Find and click Caspio submit button
+            const caspioForm = document.querySelector('#caspio-container form');
+            if (caspioForm) {
+                const submitBtn = caspioForm.querySelector('input[type="submit"], button[type="submit"]');
+                if (submitBtn) {
+                    submitBtn.click();
+                } else {
+                    caspioForm.submit();
+                }
+            } else {
+                setLoading(false);
+                const err = document.getElementById('err-general');
+                err.textContent = 'Submission error. Please try again.';
+                err.classList.add('show');
+            }
+        });
     }
+
     // Clear error on input
     ['ui-fullname', 'ui-email', 'ui-password', 'ui-confirm'].forEach(id => {
         document.getElementById(id).addEventListener('input', () => {
