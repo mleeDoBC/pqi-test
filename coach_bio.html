@@ -351,25 +351,46 @@
             return;
         }
 
-        const data = {
-            about: document.getElementById('about').value.trim(),
-            practice: document.getElementById('practice').value.trim(),
-            qi_strengths: Array.from(selectedSkills).join(', '),
-            coaching_style: coachingStyle,
-            additional: document.getElementById('additional').value.trim()
-        };
+        // Wait for Caspio form to load
+        function trySubmit(tries) {
+            const aboutField = document.getElementById('InsertRecordAbout');
+            if (aboutField) {
+                // Fill Caspio hidden form
+                document.getElementById('InsertRecordAbout').value = document.getElementById('about').value.trim();
+                document.getElementById('InsertRecordPractice').value = document.getElementById('practice').value.trim();
+                document.getElementById('InsertRecordQI_Strengths').value = Array.from(selectedSkills).join(', ');
+                document.getElementById('InsertRecordCoaching_Style').value = coachingStyle;
+                document.getElementById('InsertRecordAdditional').value = document.getElementById('additional').value.trim();
 
-        console.log('Submitting to Caspio:', data);
+                // Handle profile image
+                const avatarInput = document.getElementById('avatar-input');
+                const caspioFileInput = document.getElementById('InsertRecordProfile_Image');
+                if (avatarInput && avatarInput.files[0] && caspioFileInput) {
+                    const dataTransfer = new DataTransfer();
+                    dataTransfer.items.add(avatarInput.files[0]);
+                    caspioFileInput.files = dataTransfer.files;
+                }
 
-        // TODO: POST to Caspio Submission Form DataPage
-        // On success → update Bio_Complete = Yes → redirect to coach.html
+                // Submit
+                const form = document.querySelector('#caspio-container form');
+                if (form) {
+                    document.getElementById('progress-bar').style.width = '100%';
+                    document.getElementById('progress-label').textContent = '100%';
+                    form.submit();
+                }
+            } else if (tries < 30) {
+                setTimeout(() => trySubmit(tries + 1), 300);
+            }
+        }
 
-        document.getElementById('progress-bar').style.width = '100%';
-        document.getElementById('progress-label').textContent = '100%';
-        alert('Profile complete! Redirecting to your dashboard...');
-        // window.location.href = 'coach.html';
+        trySubmit(0);
     }
 </script>
+
+<!-- Hidden Caspio Coach_Profile form -->
+<div id="caspio-container" style="position:absolute;left:-9999px;top:-9999px;">
+    <script type="text/javascript" src="https://c0abr823.caspio.com/dp/1c9f500034a6b3bfe06f45b59571/emb"></script>
+</div>
 
 </body>
 </html>
