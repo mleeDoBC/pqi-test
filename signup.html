@@ -46,8 +46,8 @@
 <body class="flex items-center justify-center px-4 py-12">
 
     <!-- Hidden Caspio form -->
-    <div id="caspio-container">
-        <script type="text/javascript" src="https://c0abr823.caspio.com/dp/1c9f50003d8805c2354d42c1845f/emb"></script>
+    <div id="caspio-container" style="position:absolute;left:-9999px;top:-9999px;">
+        <iframe id="caspio-frame" name="Coach_SignUp_Form" title="Coach_SignUp_Form" src="https://c0abr823.caspio.com/dp/1c9f50005a14d3489d1e43f5a042" style="width:500px;height:500px;border:none;"></iframe>
     </div>
 
     <div class="w-full max-w-md">
@@ -172,52 +172,46 @@
         return valid;
     }
 
-    function waitForCaspio(callback, tries = 0) {
-        const emailField = document.getElementById('InsertRecordEmail');
-        if (emailField) {
-            callback();
-        } else if (tries < 30) {
-            setTimeout(() => waitForCaspio(callback, tries + 1), 300);
-        } else {
+    // Listen for result from Caspio iframe
+    window.addEventListener('message', function(event) {
+        if (event.data.type === 'CASPIO_SUCCESS') {
+            window.location.href = 'login.html';
+        } else if (event.data.type === 'CASPIO_ERROR') {
             setLoading(false);
             const err = document.getElementById('err-general');
-            err.textContent = 'Could not connect to server. Please refresh and try again.';
+            err.textContent = event.data.message || 'Signup failed. Please try again.';
             err.classList.add('show');
         }
-    }
+    });
 
     function handleSignup() {
         clearErrors();
         if (!validate()) return;
         setLoading(true);
 
-        waitForCaspio(() => {
-            const fullname = document.getElementById('ui-fullname').value.trim();
-            const email = document.getElementById('ui-email').value.trim();
-            const password = document.getElementById('ui-password').value;
+        const frame = document.getElementById('caspio-frame');
+        if (!frame) {
+            setLoading(false);
+            return;
+        }
 
-            // Fill hidden Caspio form
-            document.getElementById('InsertRecordFull_Name').value = fullname;
-            document.getElementById('InsertRecordEmail').value = email;
-            document.getElementById('InsertRecordPassword').value = password;
-            document.getElementById('InsertRecordPassword@Confirm').value = password;
+        const data = {
+            type: 'CASPIO_SUBMIT',
+            fullname: document.getElementById('ui-fullname').value.trim(),
+            email: document.getElementById('ui-email').value.trim(),
+            password: document.getElementById('ui-password').value
+        };
 
-            // Find and click Caspio submit button
-            const caspioForm = document.querySelector('#caspio-container form');
-            if (caspioForm) {
-                const submitBtn = caspioForm.querySelector('input[type="submit"], button[type="submit"]');
-                if (submitBtn) {
-                    submitBtn.click();
-                } else {
-                    caspioForm.submit();
-                }
-            } else {
-                setLoading(false);
-                const err = document.getElementById('err-general');
-                err.textContent = 'Submission error. Please try again.';
-                err.classList.add('show');
-            }
-        });
+        // Wait for iframe to load then send
+        function sendMessage() {
+            frame.contentWindow.postMessage(data, 'https://c0abr823.caspio.com');
+        }
+
+        if (frame.contentDocument && frame.contentDocument.readyState === 'complete') {
+            sendMessage();
+        } else {
+            frame.onload = sendMessage;
+        }
     }
 
     // Clear error on input
