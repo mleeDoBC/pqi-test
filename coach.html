@@ -44,9 +44,9 @@
                 <div class="bg-white/5 border border-white/10 rounded-3xl p-5 relative overflow-hidden group">
                     <div class="absolute top-0 right-0 p-3"><div class="neon-dot"></div></div>
                     <div class="flex items-center gap-4">
-                        <div class="h-12 w-12 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-black italic">MC</div>
+                        <div class="h-12 w-12 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-black italic" id="avatar-initials">MC</div>
                         <div>
-                            <h4 class="text-sm font-black italic text-white leading-none uppercase">Dr. Michael Cho</h4>
+                            <h4 class="text-sm font-black italic text-white leading-none uppercase" id="coach-name">Dr. Michael Cho</h4>
                             <p class="text-[8px] font-black text-blue-400 mt-1.5 uppercase tracking-widest opacity-80">Active Coach</p>
                         </div>
                     </div>
@@ -459,6 +459,16 @@
     `;
     }
     
+    // Read name from URL param
+    const urlParams = new URLSearchParams(window.location.search);
+    const coachName = urlParams.get('name');
+    if (coachName) {
+        document.getElementById('coach-name').textContent = 'Dr. ' + coachName;
+        const parts = coachName.trim().split(' ');
+        const initials = parts.map(p => p[0]).join('').toUpperCase().slice(0, 2);
+        document.getElementById('avatar-initials').textContent = initials;
+    }
+
     </script>
 </body>
 </html>
