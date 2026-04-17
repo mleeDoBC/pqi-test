@@ -143,8 +143,9 @@
                             </div>
                             <div>
                                 <p class="text-sm font-semibold text-slate-700">Upload a photo</p>
-                                <p class="text-xs text-slate-400 mt-1">JPG or PNG · max 5MB</p>
+                                <p class="text-xs text-slate-400 mt-1">JPG or PNG · Square image · max 5MB</p>
                                 <button class="mt-2 text-xs font-black text-blue-500 uppercase tracking-wider hover:text-blue-700 transition-colors" type="button" onclick="document.getElementById('avatar-input').click()">Choose file</button>
+                                <p class="text-xs text-amber-500 font-semibold mt-1.5 hidden" id="avatar-warning"></p>
                             </div>
                             <input type="file" id="avatar-input" accept="image/*" class="hidden" onchange="previewAvatar(event)">
                         </div>
@@ -334,12 +335,34 @@
     function previewAvatar(event) {
         const file = event.target.files[0];
         if (!file) return;
+
+        const warning = document.getElementById('avatar-warning');
+        warning.classList.add('hidden');
+        warning.textContent = '';
+
+        // Check file size (5MB)
+        if (file.size > 5 * 1024 * 1024) {
+            warning.textContent = 'File too large. Please upload an image under 5MB.';
+            warning.classList.remove('hidden');
+            event.target.value = '';
+            return;
+        }
+
         const reader = new FileReader();
         reader.onload = e => {
-            const preview = document.getElementById('avatar-preview');
-            preview.src = e.target.result;
-            preview.style.display = 'block';
-            document.getElementById('avatar-icon').style.display = 'none';
+            const img = new Image();
+            img.onload = () => {
+                // Check square ratio
+                if (Math.abs(img.width - img.height) > 50) {
+                    warning.textContent = 'For best results, please upload a square image.';
+                    warning.classList.remove('hidden');
+                }
+                const preview = document.getElementById('avatar-preview');
+                preview.src = e.target.result;
+                preview.style.display = 'block';
+                document.getElementById('avatar-icon').style.display = 'none';
+            };
+            img.src = e.target.result;
         };
         reader.readAsDataURL(file);
     }
