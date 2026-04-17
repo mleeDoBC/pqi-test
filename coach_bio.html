@@ -224,9 +224,14 @@
                     <button class="btn-secondary" onclick="goToStep(1)">
                         <i class="fas fa-arrow-left mr-2"></i> Back
                     </button>
-                    <button class="btn-primary" onclick="submitBio()">
-                        Complete Profile <i class="fas fa-check ml-2"></i>
-                    </button>
+                    <div class="flex gap-3">
+                        <button class="btn-secondary" id="cancel-btn" style="display:none" onclick="window.location.href='coach.html?name=' + encodeURIComponent(urlParams.get('name') || '')">
+                            Cancel
+                        </button>
+                        <button class="btn-primary" id="submit-btn" onclick="submitBio()">
+                            Complete Profile <i class="fas fa-check ml-2"></i>
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -238,8 +243,61 @@
     // Read name from URL param
     const urlParams = new URLSearchParams(window.location.search);
     const coachName = urlParams.get('name');
+    const isEditMode = urlParams.get('mode') === 'edit';
+
     if (coachName) {
         document.getElementById('sidebar-name').textContent = 'Dr. ' + coachName;
+    }
+
+    // If edit mode, load existing data from Details DataPage
+    if (isEditMode) {
+        // Update UI for edit mode
+        document.getElementById('step-title') && (document.getElementById('step-title').textContent = 'Edit your profile');
+
+        function loadExistingData(tries) {
+            const details = document.getElementById('caspio-details');
+            if (!details) return;
+            const spans = details.querySelectorAll('.cbFormData');
+            if (spans.length >= 5) {
+                // About (index 1), Practice (2), QI_Strengths (3), Coaching_Style (4), Additional (5)
+                const about = spans[1] ? spans[1].textContent.trim() : '';
+                const practice = spans[2] ? spans[2].textContent.trim() : '';
+                const qi = spans[3] ? spans[3].textContent.trim() : '';
+                const style = spans[4] ? spans[4].textContent.trim() : '';
+                const additional = spans[5] ? spans[5].textContent.trim() : '';
+
+                // Fill form fields
+                if (about) document.getElementById('about').value = about;
+                if (practice) document.getElementById('practice').value = practice;
+                if (additional) document.getElementById('additional').value = additional;
+
+                // Select QI tags
+                if (qi) {
+                    const skills = qi.split(', ');
+                    skills.forEach(skill => {
+                        selectedSkills.add(skill.trim());
+                        document.querySelectorAll('.qi-tag').forEach(tag => {
+                            if (tag.textContent.trim() === skill.trim()) {
+                                tag.classList.add('selected');
+                            }
+                        });
+                    });
+                    document.getElementById('selected-count').textContent = selectedSkills.size;
+                }
+
+                // Select coaching style
+                if (style) {
+                    selectStyle(style);
+                }
+            } else if (tries < 30) {
+                setTimeout(() => loadExistingData(tries + 1), 300);
+            }
+        }
+        setTimeout(() => loadExistingData(0), 1000);
+
+        // Update button text and show cancel
+        document.getElementById('submit-btn').innerHTML = 'Save <i class="fas fa-save ml-2"></i>';
+        document.getElementById('cancel-btn').style.display = 'block';
     }
 
     const QI_SKILLS = [
@@ -433,6 +491,11 @@
 <!-- Hidden Caspio Coach_Profile form -->
 <div id="caspio-container" style="position:absolute;left:-9999px;top:-9999px;">
     <script type="text/javascript" src="https://c0abr823.caspio.com/dp/1c9f500034a6b3bfe06f45b59571/emb"></script>
+</div>
+
+<!-- Hidden Caspio Details DataPage for loading existing data -->
+<div id="caspio-details" style="position:absolute;left:-9999px;top:-9999px;">
+    <script type="text/javascript" src="https://c0abr823.caspio.com/dp/1c9f50007723793e9ab84cefb35f/emb"></script>
 </div>
 
 </body>
