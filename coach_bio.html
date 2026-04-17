@@ -105,6 +105,9 @@
         </div>
 
         <div class="p-8 border-t border-white/5">
+            <a href="#" id="back-to-dashboard" style="display:none" class="flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-wider hover:text-white transition-colors mb-4">
+                <i class="fas fa-arrow-left text-[8px]"></i> Back to Dashboard
+            </a>
             <div class="flex justify-between items-center mb-2">
                 <span class="text-[10px] font-black text-slate-500 uppercase tracking-wider">Profile Complete</span>
                 <span class="text-[10px] font-black text-blue-400" id="progress-label">0%</span>
@@ -289,6 +292,15 @@
                 if (style) {
                     selectStyle(style);
                 }
+
+                // Load profile image
+                const img = details.querySelector('img.cbFormData, .cbFormData img');
+                if (img && img.src) {
+                    const preview = document.getElementById('avatar-preview');
+                    preview.src = img.src;
+                    preview.style.display = 'block';
+                    document.getElementById('avatar-icon').style.display = 'none';
+                }
             } else if (tries < 30) {
                 setTimeout(() => loadExistingData(tries + 1), 300);
             }
@@ -298,6 +310,11 @@
         // Update button text and show cancel
         document.getElementById('submit-btn').innerHTML = 'Save <i class="fas fa-save ml-2"></i>';
         document.getElementById('cancel-btn').style.display = 'block';
+
+        // Show back to dashboard
+        const backBtn = document.getElementById('back-to-dashboard');
+        backBtn.style.display = 'flex';
+        backBtn.href = 'coach.html?name=' + encodeURIComponent(coachName || '');
     }
 
     const QI_SKILLS = [
