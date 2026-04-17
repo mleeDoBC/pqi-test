@@ -47,7 +47,7 @@
                         <div class="h-12 w-12 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-black italic" id="avatar-initials">MC</div>
                         <div>
                             <h4 class="text-sm font-black italic text-white leading-none uppercase" id="coach-name">Dr. Michael Cho</h4>
-                            <p class="text-[8px] font-black text-blue-400 mt-1.5 uppercase tracking-widest opacity-80">Active Coach</p>
+                            <a href="#" onclick="viewProfile()" class="text-[8px] font-black text-blue-400 mt-1.5 uppercase tracking-widest opacity-80 hover:opacity-100 transition-opacity">View Profile →</a>
                         </div>
                     </div>
                 </div>
@@ -467,6 +467,11 @@
         const parts = coachName.trim().split(' ');
         const initials = parts.map(p => p[0]).join('').toUpperCase().slice(0, 2);
         document.getElementById('avatar-initials').textContent = initials;
+    }
+
+    function viewProfile() {
+        const name = urlParams.get('name') || '';
+        window.location.href = 'coach_bio.html?name=' + encodeURIComponent(name) + '&mode=edit';
     }
 
     </script>
