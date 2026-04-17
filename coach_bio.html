@@ -145,9 +145,9 @@
                                 <p class="text-sm font-semibold text-slate-700">Upload a photo</p>
                                 <p class="text-xs text-slate-400 mt-1">JPG or PNG · Square image · max 5MB</p>
                                 <button class="mt-2 text-xs font-black text-blue-500 uppercase tracking-wider hover:text-blue-700 transition-colors" type="button" onclick="document.getElementById('avatar-input').click()">Choose file</button>
-                                <p class="text-xs text-amber-500 font-semibold mt-1.5 hidden" id="avatar-warning"></p>
+                                <p class="text-xs text-red-500 font-semibold mt-1.5 hidden" id="avatar-warning"></p>
                             </div>
-                            <input type="file" id="avatar-input" accept="image/*" class="hidden" onchange="previewAvatar(event)">
+                            <input type="file" id="avatar-input" accept=".jpg,.jpeg,.png" class="hidden" onchange="previewAvatar(event)">
                         </div>
                     </div>
 
@@ -340,6 +340,14 @@
         warning.classList.add('hidden');
         warning.textContent = '';
 
+        // Check file type
+        if (!['image/jpeg', 'image/png'].includes(file.type)) {
+            warning.textContent = 'Only JPG or PNG files are accepted.';
+            warning.classList.remove('hidden');
+            event.target.value = '';
+            return;
+        }
+
         // Check file size (5MB)
         if (file.size > 5 * 1024 * 1024) {
             warning.textContent = 'File too large. Please upload an image under 5MB.';
@@ -352,10 +360,14 @@
         reader.onload = e => {
             const img = new Image();
             img.onload = () => {
-                // Check square ratio
+                // Block non-square images
                 if (Math.abs(img.width - img.height) > 50) {
-                    warning.textContent = 'For best results, please upload a square image.';
+                    warning.textContent = 'Please upload a square image (equal width and height).';
                     warning.classList.remove('hidden');
+                    event.target.value = '';
+                    document.getElementById('avatar-preview').style.display = 'none';
+                    document.getElementById('avatar-icon').style.display = 'block';
+                    return;
                 }
                 const preview = document.getElementById('avatar-preview');
                 preview.src = e.target.result;
