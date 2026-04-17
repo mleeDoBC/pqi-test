@@ -258,16 +258,13 @@
         document.getElementById('step-title') && (document.getElementById('step-title').textContent = 'Edit your profile');
 
         function loadExistingData(tries) {
-            const details = document.getElementById('caspio-details');
-            if (!details) return;
-            const spans = details.querySelectorAll('.cbFormData');
-            if (spans.length >= 5) {
-                // About (index 1), Practice (2), QI_Strengths (3), Coaching_Style (4), Additional (5)
-                const about = spans[1] ? spans[1].textContent.trim() : '';
-                const practice = spans[2] ? spans[2].textContent.trim() : '';
-                const qi = spans[3] ? spans[3].textContent.trim() : '';
-                const style = spans[4] ? spans[4].textContent.trim() : '';
-                const additional = spans[5] ? spans[5].textContent.trim() : '';
+            const aboutField = document.getElementById('EditRecordAbout');
+            if (aboutField) {
+                const about = document.getElementById('EditRecordAbout').value;
+                const practice = document.getElementById('EditRecordPractice').value;
+                const qi = document.getElementById('EditRecordQI_Strengths').value;
+                const style = document.getElementById('EditRecordCoaching_Style').value;
+                const additional = document.getElementById('EditRecordAdditional').value;
 
                 // Fill form fields
                 if (about) document.getElementById('about').value = about;
@@ -289,12 +286,10 @@
                 }
 
                 // Select coaching style
-                if (style) {
-                    selectStyle(style);
-                }
+                if (style) selectStyle(style);
 
                 // Load profile image
-                const img = details.querySelector('img.cbFormData, .cbFormData img');
+                const img = document.querySelector('#caspio-details img[alt]');
                 if (img && img.src) {
                     const preview = document.getElementById('avatar-preview');
                     preview.src = img.src;
