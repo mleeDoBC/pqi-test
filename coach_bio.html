@@ -46,6 +46,7 @@
 
         .avatar-upload { position: relative; width: 100px; height: 100px; cursor: pointer; }
         .avatar-circle { width: 100px; height: 100px; border-radius: 24px; background: linear-gradient(135deg, #3b82f6, #6366f1); display: flex; align-items: center; justify-content: center; overflow: hidden; transition: all 0.2s ease; }
+        .avatar-circle img { width: 100px; height: 100px; object-fit: cover; object-position: center; display: none; }
         .avatar-circle:hover { transform: scale(1.03); box-shadow: 0 8px 24px rgba(99,102,241,0.3); }
         .avatar-overlay { position: absolute; inset: 0; border-radius: 24px; background: rgba(0,0,0,0.45); display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.2s; }
         .avatar-upload:hover .avatar-overlay { opacity: 1; }
@@ -76,7 +77,7 @@
                         <i class="fas fa-user"></i>
                     </div>
                     <div>
-                        <h4 class="text-sm font-black italic text-white leading-none uppercase">New Coach</h4>
+                        <h4 class="text-sm font-black italic text-white leading-none uppercase" id="sidebar-name">Dr. ...</h4>
                         <p class="text-[8px] font-black text-blue-400 mt-1.5 uppercase tracking-widest opacity-80">Setting up profile</p>
                     </div>
                 </div>
@@ -233,6 +234,13 @@
 </div>
 
 <script>
+    // Read name from URL param
+    const urlParams = new URLSearchParams(window.location.search);
+    const coachName = urlParams.get('name');
+    if (coachName) {
+        document.getElementById('sidebar-name').textContent = 'Dr. ' + coachName;
+    }
+
     const QI_SKILLS = [
         "Driver Diagrams", "Process Mapping", "Building a Business Case for QI",
         "PDSA Cycles", "Project Ethics", "QI Measures & Evaluation",
