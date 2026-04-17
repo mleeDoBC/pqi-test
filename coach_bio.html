@@ -307,6 +307,17 @@
         }
         setTimeout(() => loadExistingData(0), 1000);
 
+        // Hide Caspio Save button
+        function hideUpdateBtn(tries) {
+            const btn = document.querySelector('.cbUpdateButton');
+            if (btn) {
+                btn.style.display = 'none';
+            } else if (tries < 20) {
+                setTimeout(() => hideUpdateBtn(tries + 1), 300);
+            }
+        }
+        hideUpdateBtn(0);
+
         // Update button text and show cancel
         document.getElementById('submit-btn').innerHTML = 'Save <i class="fas fa-save ml-2"></i>';
         document.getElementById('cancel-btn').style.display = 'block';
@@ -469,39 +480,69 @@
             return;
         }
 
-        // Wait for Caspio form to load
-        function trySubmit(tries) {
-            const aboutField = document.getElementById('InsertRecordAbout');
-            if (aboutField) {
-                // Fill Caspio hidden form
-                document.getElementById('InsertRecordAbout').value = document.getElementById('about').value.trim();
-                document.getElementById('InsertRecordPractice').value = document.getElementById('practice').value.trim();
-                document.getElementById('InsertRecordQI_Strengths').value = Array.from(selectedSkills).join(', ');
-                document.getElementById('InsertRecordCoaching_Style').value = coachingStyle;
-                document.getElementById('InsertRecordAdditional').value = document.getElementById('additional').value.trim();
+        if (isEditMode) {
+            // Update mode — fill Update DataPage fields and click Save
+            function tryUpdate(tries) {
+                const editAbout = document.getElementById('EditRecordAbout');
+                if (editAbout) {
+                    document.getElementById('EditRecordAbout').value = document.getElementById('about').value.trim();
+                    document.getElementById('EditRecordPractice').value = document.getElementById('practice').value.trim();
+                    document.getElementById('EditRecordQI_Strengths').value = Array.from(selectedSkills).join(', ');
+                    document.getElementById('EditRecordCoaching_Style').value = coachingStyle;
+                    document.getElementById('EditRecordAdditional').value = document.getElementById('additional').value.trim();
 
-                // Handle profile image
-                const avatarInput = document.getElementById('avatar-input');
-                const caspioFileInput = document.getElementById('InsertRecordProfile_Image');
-                if (avatarInput && avatarInput.files[0] && caspioFileInput) {
-                    const dataTransfer = new DataTransfer();
-                    dataTransfer.items.add(avatarInput.files[0]);
-                    caspioFileInput.files = dataTransfer.files;
-                }
+                    // Handle profile image
+                    const avatarInput = document.getElementById('avatar-input');
+                    const caspioFileInput = document.getElementById('EditRecordProfile_Image');
+                    if (avatarInput && avatarInput.files[0] && caspioFileInput) {
+                        const dataTransfer = new DataTransfer();
+                        dataTransfer.items.add(avatarInput.files[0]);
+                        caspioFileInput.files = dataTransfer.files;
+                    }
 
-                // Submit
-                const form = document.querySelector('#caspio-container form');
-                if (form) {
-                    document.getElementById('progress-bar').style.width = '100%';
-                    document.getElementById('progress-label').textContent = '100%';
-                    form.submit();
+                    const saveBtn = document.querySelector('.cbUpdateButton');
+                    if (saveBtn) {
+                        document.getElementById('progress-bar').style.width = '100%';
+                        document.getElementById('progress-label').textContent = '100%';
+                        saveBtn.click();
+                    }
+                } else if (tries < 30) {
+                    setTimeout(() => tryUpdate(tries + 1), 300);
                 }
-            } else if (tries < 30) {
-                setTimeout(() => trySubmit(tries + 1), 300);
             }
-        }
+            tryUpdate(0);
+        } else {
+            // Insert mode — fill Submission Form and submit
+            function trySubmit(tries) {
+                const aboutField = document.getElementById('InsertRecordAbout');
+                if (aboutField) {
+                    document.getElementById('InsertRecordAbout').value = document.getElementById('about').value.trim();
+                    document.getElementById('InsertRecordPractice').value = document.getElementById('practice').value.trim();
+                    document.getElementById('InsertRecordQI_Strengths').value = Array.from(selectedSkills).join(', ');
+                    document.getElementById('InsertRecordCoaching_Style').value = coachingStyle;
+                    document.getElementById('InsertRecordAdditional').value = document.getElementById('additional').value.trim();
 
-        trySubmit(0);
+                    // Handle profile image
+                    const avatarInput = document.getElementById('avatar-input');
+                    const caspioFileInput = document.getElementById('InsertRecordProfile_Image');
+                    if (avatarInput && avatarInput.files[0] && caspioFileInput) {
+                        const dataTransfer = new DataTransfer();
+                        dataTransfer.items.add(avatarInput.files[0]);
+                        caspioFileInput.files = dataTransfer.files;
+                    }
+
+                    const form = document.querySelector('#caspio-container form');
+                    if (form) {
+                        document.getElementById('progress-bar').style.width = '100%';
+                        document.getElementById('progress-label').textContent = '100%';
+                        form.submit();
+                    }
+                } else if (tries < 30) {
+                    setTimeout(() => trySubmit(tries + 1), 300);
+                }
+            }
+            trySubmit(0);
+        }
     }
 </script>
 
