@@ -155,6 +155,15 @@
                     </div>
 
                     <div>
+                        <label class="block text-xs font-black text-slate-700 uppercase tracking-wider mb-2">
+                            Booking Link
+                            <span class="text-slate-400 font-normal normal-case tracking-normal ml-1">(optional)</span>
+                        </label>
+                        <p class="text-xs text-slate-400 mb-3">Do you have a booking link? (e.g. Calendly, Jane App)</p>
+                        <input type="url" class="form-input" id="booking-link" placeholder="https://calendly.com/yourname">
+                    </div>
+
+                    <div>
                         <label class="block text-xs font-black text-slate-700 uppercase tracking-wider mb-2">About You <span class="text-blue-500">*</span></label>
                         <p class="text-xs text-slate-400 mb-3">What is your education/background? When and how did you end up in QI? Any personal hobbies or interests?</p>
                         <textarea class="form-input" id="about" rows="7" maxlength="1000" placeholder="I'm a family physician with 15 years of experience who discovered QI after a quality improvement project in our clinic..." oninput="updateChar('about', 'count-about', 1000)"></textarea>
@@ -287,6 +296,12 @@
 
                 // Select coaching style
                 if (style) selectStyle(style);
+
+                // Load booking link
+                const bookingLink = document.getElementById('EditRecordBooking_Link');
+                if (bookingLink && bookingLink.value) {
+                    document.getElementById('booking-link').value = bookingLink.value;
+                }
 
                 // Load profile image
                 const img = document.querySelector('#caspio-details img[alt]');
@@ -485,6 +500,9 @@
                     document.getElementById('EditRecordQI_Strengths').value = Array.from(selectedSkills).join(', ');
                     document.getElementById('EditRecordCoaching_Style').value = coachingStyle;
                     document.getElementById('EditRecordAdditional').value = document.getElementById('additional').value.trim();
+                    if (document.getElementById('EditRecordBooking_Link')) {
+                        document.getElementById('EditRecordBooking_Link').value = document.getElementById('booking-link').value.trim();
+                    }
 
                     // Handle profile image
                     const avatarInput = document.getElementById('avatar-input');
@@ -516,6 +534,9 @@
                     document.getElementById('InsertRecordQI_Strengths').value = Array.from(selectedSkills).join(', ');
                     document.getElementById('InsertRecordCoaching_Style').value = coachingStyle;
                     document.getElementById('InsertRecordAdditional').value = document.getElementById('additional').value.trim();
+                    if (document.getElementById('InsertRecordBooking_Link')) {
+                        document.getElementById('InsertRecordBooking_Link').value = document.getElementById('booking-link').value.trim();
+                    }
 
                     // Handle profile image
                     const avatarInput = document.getElementById('avatar-input');
