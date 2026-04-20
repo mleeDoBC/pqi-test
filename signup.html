@@ -89,13 +89,17 @@
 
             <div class="space-y-4">
 
-                <div>
-                    <label class="block text-xs font-black text-slate-600 uppercase tracking-wider mb-2">Full Name</label>
-                    <div class="input-icon">
-                        <i class="fas fa-user"></i>
-                        <input type="text" class="form-input" id="ui-fullname" placeholder="Dr. Jane Smith" autocomplete="name">
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-black text-slate-600 uppercase tracking-wider mb-2">First Name</label>
+                        <input type="text" class="form-input" id="ui-firstname" placeholder="Jane" autocomplete="given-name">
+                        <p class="error-msg" id="err-firstname">Required.</p>
                     </div>
-                    <p class="error-msg" id="err-fullname">Please enter your full name.</p>
+                    <div>
+                        <label class="block text-xs font-black text-slate-600 uppercase tracking-wider mb-2">Last Name</label>
+                        <input type="text" class="form-input" id="ui-lastname" placeholder="Smith" autocomplete="family-name">
+                        <p class="error-msg" id="err-lastname">Required.</p>
+                    </div>
                 </div>
 
                 <div>
@@ -180,20 +184,22 @@
     }
 
     function clearErrors() {
-        ['fullname', 'email', 'password', 'confirm'].forEach(f => showError('err-' + f, false));
+        ['firstname', 'lastname', 'email', 'password', 'confirm'].forEach(f => showError('err-' + f, false));
         document.getElementById('err-general').classList.remove('show');
         document.getElementById('err-general').textContent = '';
     }
 
     function validate() {
         let valid = true;
-        const fullname = document.getElementById('ui-fullname').value.trim();
+        const firstname = document.getElementById('ui-firstname').value.trim();
+        const lastname = document.getElementById('ui-lastname').value.trim();
         const email = document.getElementById('ui-email').value.trim();
         const password = document.getElementById('ui-password').value;
         const confirm = document.getElementById('ui-confirm').value;
 
         if (!selectedRole) { showError('err-role', true); valid = false; }
-        if (!fullname) { showError('err-fullname', true); valid = false; }
+        if (!firstname) { showError('err-firstname', true); valid = false; }
+        if (!lastname) { showError('err-lastname', true); valid = false; }
         if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { showError('err-email', true); valid = false; }
         if (password.length < 8) { showError('err-password', true); valid = false; }
         if (password !== confirm) { showError('err-confirm', true); valid = false; }
@@ -228,12 +234,14 @@
         setLoading(true);
 
         waitForCaspio(() => {
-            const fullname = document.getElementById('ui-fullname').value.trim();
+            const firstname = document.getElementById('ui-firstname').value.trim();
+            const lastname = document.getElementById('ui-lastname').value.trim();
             const email = document.getElementById('ui-email').value.trim();
             const password = document.getElementById('ui-password').value;
 
             // Fill hidden Caspio form
-            document.getElementById('InsertRecordFull_Name').value = fullname;
+            document.getElementById('InsertRecordFirst_Name').value = firstname;
+            document.getElementById('InsertRecordLast_Name').value = lastname;
             document.getElementById('InsertRecordEmail').value = email;
             document.getElementById('InsertRecordPassword').value = password;
             document.getElementById('InsertRecordPassword@Confirm').value = password;
@@ -260,7 +268,7 @@
     }
 
     // Clear error on input
-    ['ui-fullname', 'ui-email', 'ui-password', 'ui-confirm'].forEach(id => {
+    ['ui-firstname', 'ui-lastname', 'ui-email', 'ui-password', 'ui-confirm'].forEach(id => {
         document.getElementById(id).addEventListener('input', () => {
             const field = id.replace('ui-', '');
             showError('err-' + field, false);
