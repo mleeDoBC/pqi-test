@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PQI Connect | Coachee Setup</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
+        .sidebar-gradient { background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%); }
+        .accent-text { font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; font-size: 0.6rem; }
+
+        .progress-track { background: rgba(255,255,255,0.08); border-radius: 99px; height: 4px; }
+        .progress-fill { background: linear-gradient(90deg, #6366f1, #8b5cf6); border-radius: 99px; height: 4px; transition: width 0.5s cubic-bezier(0.4,0,0.2,1); }
+
+        .step-dot { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 900; transition: all 0.3s ease; flex-shrink: 0; }
+        .step-dot.done { background: #6366f1; color: white; }
+        .step-dot.active { background: white; color: #0f172a; box-shadow: 0 0 0 3px rgba(99,102,241,0.4); }
+        .step-dot.pending { background: rgba(255,255,255,0.08); color: #475569; }
+
+        .check-tag { cursor: pointer; border: 1.5px solid #e2e8f0; border-radius: 99px; padding: 6px 14px; font-size: 11px; font-weight: 700; transition: all 0.2s ease; color: #64748b; background: white; user-select: none; }
+        .check-tag:hover { border-color: #a5b4fc; color: #6366f1; }
+        .check-tag.selected { background: #eef2ff; border-color: #6366f1; color: #6366f1; }
+
+        .radio-card { border: 2px solid #e2e8f0; border-radius: 16px; padding: 14px 18px; cursor: pointer; transition: all 0.2s ease; }
+        .radio-card:hover { border-color: #a5b4fc; }
+        .radio-card.selected { border-color: #6366f1; background: #eef2ff; }
+        .radio-dot { width: 16px; height: 16px; border-radius: 50%; border: 2px solid #cbd5e1; transition: all 0.2s ease; flex-shrink: 0; }
+        .radio-card.selected .radio-dot { background: #6366f1; border-color: #6366f1; }
+
+        .form-input { width: 100%; border: 1.5px solid #e2e8f0; border-radius: 12px; padding: 12px 16px; font-size: 14px; font-family: 'Inter', sans-serif; outline: none; transition: border-color 0.2s; resize: none; color: #1e293b; background: white; }
+        .form-input:focus { border-color: #6366f1; box-shadow: 0 0 0 3px rgba(99,102,241,0.1); }
+        .form-input::placeholder { color: #94a3b8; }
+        .form-input.error { border-color: #ef4444; }
+
+        .step-panel { display: none; animation: fadeUp 0.35s ease-out; }
+        .step-panel.active { display: block; }
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+
+        .btn-primary { background: linear-gradient(135deg, #6366f1, #8b5cf6); color: white; border: none; border-radius: 12px; padding: 14px 32px; font-size: 12px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.15em; cursor: pointer; transition: all 0.2s ease; }
+        .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 8px 24px rgba(99,102,241,0.3); }
+        .btn-secondary { background: transparent; color: #64748b; border: 1.5px solid #e2e8f0; border-radius: 12px; padding: 14px 24px; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; cursor: pointer; transition: all 0.2s ease; }
+        .btn-secondary:hover { border-color: #94a3b8; color: #334155; }
+
+        .char-count { font-size: 11px; color: #94a3b8; text-align: right; margin-top: 4px; }
+
+        @media (min-width: 1024px) { body { overflow: hidden; } }
+    </style>
+</head>
+<body class="antialiased text-slate-800">
+
+<div class="flex flex-col lg:flex-row min-h-screen">
+
+    <!-- Sidebar -->
+    <aside class="w-full lg:w-80 sidebar-gradient text-slate-400 flex flex-col shadow-2xl z-50 lg:h-screen lg:sticky lg:top-0">
+        <div class="p-8 pb-6">
+            <div class="flex items-center gap-3 italic font-black text-2xl uppercase tracking-tighter text-white">
+                <i class="fas fa-handshake-angle text-indigo-400"></i>
+                <span>PQI <span class="text-indigo-400">CONNECT</span></span>
+            </div>
+        </div>
+
+        <div class="px-6 mb-8">
+            <div class="bg-white/5 border border-white/10 rounded-3xl p-5">
+                <div class="flex items-center gap-4">
+                    <div class="h-12 w-12 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-black italic text-lg">
+                        <i class="fas fa-user-md"></i>
+                    </div>
+                    <div>
+                        <h4 class="text-sm font-black italic text-white leading-none uppercase" id="sidebar-name">New Coachee</h4>
+                        <p class="text-[8px] font-black text-indigo-400 mt-1.5 uppercase tracking-widest opacity-80">Setting up profile</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="px-6 flex-1">
+            <span class="accent-text text-slate-600 block mb-5">Setup Progress</span>
+            <div class="space-y-1" id="sidebar-steps">
+                <div class="flex items-center gap-4 px-2 py-3 rounded-2xl">
+                    <div class="step-dot active" id="dot-1">1</div>
+                    <div>
+                        <p class="text-xs font-black text-white uppercase tracking-wider">About You</p>
+                        <p class="text-[10px] text-slate-500 mt-0.5">Contact & background</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-4 px-2 py-3 rounded-2xl">
+                    <div class="step-dot pending" id="dot-2">2</div>
+                    <div>
+                        <p class="text-xs font-black text-slate-500 uppercase tracking-wider" id="label-2">Your Project</p>
+                        <p class="text-[10px] text-slate-600 mt-0.5">Problem & funding</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-4 px-2 py-3 rounded-2xl">
+                    <div class="step-dot pending" id="dot-3">3</div>
+                    <div>
+                        <p class="text-xs font-black text-slate-500 uppercase tracking-wider" id="label-3">Support & Training</p>
+                        <p class="text-[10px] text-slate-600 mt-0.5">Needs & QI background</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-4 px-2 py-3 rounded-2xl">
+                    <div class="step-dot pending" id="dot-4">4</div>
+                    <div>
+                        <p class="text-xs font-black text-slate-500 uppercase tracking-wider" id="label-4">Availability</p>
+                        <p class="text-[10px] text-slate-600 mt-0.5">Schedule & preferences</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="p-8 border-t border-white/5">
+            <div class="flex justify-between items-center mb-2">
+                <span class="text-[10px] font-black text-slate-500 uppercase tracking-wider">Profile Complete</span>
+                <span class="text-[10px] font-black text-indigo-400" id="progress-label">0%</span>
+            </div>
+            <div class="progress-track">
+                <div class="progress-fill" id="progress-bar" style="width: 0%"></div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main -->
+    <main class="flex-1 lg:h-screen lg:overflow-y-auto">
+        <div class="max-w-2xl mx-auto px-6 py-12">
+
+            <div class="mb-10">
+                <p class="text-[10px] font-black text-indigo-500 uppercase tracking-widest mb-2">Step <span id="step-num">1</span> of 4</p>
+                <h1 class="text-3xl font-black text-slate-900 leading-tight" id="step-title">Tell us about yourself</h1>
+                <p class="text-slate-500 text-sm mt-2" id="step-subtitle">Your information will remain confidential.</p>
+            </div>
+
+            <!-- Step 1: Contact & Background -->
+            <div class="step-panel active" id="panel-1">
+                <div class="space-y-5">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-black text-slate-700 uppercase tracking-wider mb-2">First Name <span class="text-indigo-500">*</span></label>
+                            <input type="text" class="form-input" id="first-name" placeholder="Jane">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-black text-slate-700 uppercase tracking-wider mb-2">Last Name <span class="text-indigo-500">*</span></label>
+                            <input type="text" class="form-input" id="last-name" placeholder="Smith">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-black text-slate-700 uppercase tracking-wider mb-2">Phone <span class="text-slate-400 font-normal normal-case tracking-normal">(optional)</span></label>
+                        <input type="tel" class="form-input" id="phone" placeholder="604-555-0000">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-black text-slate-700 uppercase tracking-wider mb-2">Site / Community <span class="text-indigo-500">*</span></label>
+                        <input type="text" class="form-input" id="site" placeholder="e.g. St. Paul's Hospital, Vancouver">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-black text-slate-700 uppercase tracking-wider mb-2">Role & Specialty <span class="text-indigo-500">*</span></label>
+                        <input type="text" class="form-input" id="role-specialty" placeholder="e.g. Family Physician, General Practice">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-black text-slate-700 uppercase tracking-wider mb-2">About You <span class="text-indigo-500">*</span></label>
+                        <p class="text-xs text-slate-400 mb-3">Where are you located? What is your role in the health system? What kind of work are you doing?</p>
+                        <textarea class="form-input" id="about" rows="5" maxlength="1000" placeholder="I'm a family physician based in Vancouver..." oninput="updateChar('about', 'count-about')"></textarea>
+                        <p class="char-count"><span id="count-about">0</span>/1000</p>
+                    </div>
+                </div>
+                <div class="flex justify-end mt-10">
+                    <button class="btn-primary" onclick="goToStep(2)">Continue <i class="fas fa-arrow-right ml-2"></i></button>
+                </div>
+            </div>
+
+            <!-- Step 2: Your Project -->
+            <div class="step-panel" id="panel-2">
+                <div class="space-y-7">
+                    <div>
+                        <label class="block text-xs font-black text-slate-700 uppercase tracking-wider mb-2">The Problem <span class="text-indigo-500">*</span></label>
+                        <p class="text-xs text-slate-400 mb-3">Tell us about the problem you are trying to solve and why it is important to you.</p>
+                        <textarea class="form-input" id="problem" rows="5" maxlength="1000" oninput="updateChar('problem', 'count-problem')"></textarea>
+                        <p class="char-count"><span id="count-problem">0</span>/1000</p>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-black text-slate-700 uppercase tracking-wider mb-4">Your Situation <span class="text-indigo-500">*</span></label>
+                        <div class="space-y-3" id="situation-cards">
+                            <div class="radio-card" onclick="selectSingle('situation', 'idea')">
+                                <div class="flex items-center gap-4">
+                                    <div class="radio-dot" id="rdot-situation-idea"></div>
+                                    <p class="text-sm font-semibold text-slate-700">I have an idea for a QI project but I don't know where to go from here</p>
+                                </div>
+                            </div>
+                            <div class="radio-card" onclick="selectSingle('situation', 'starting')">
+                                <div class="flex items-center gap-4">
+                                    <div class="radio-dot" id="rdot-situation-starting"></div>
+                                    <p class="text-sm font-semibold text-slate-700">I have a QI project with funding in place and I'm just starting the work</p>
+                                </div>
+                            </div>
+                            <div class="radio-card" onclick="selectSingle('situation', 'stuck')">
+                                <div class="flex items-center gap-4">
+                                    <div class="radio-dot" id="rdot-situation-stuck"></div>
+                                    <p class="text-sm font-semibold text-slate-700">I have a QI project with funding in place but I feel stuck</p>
+                                </div>
+                            </div>
+                            <div class="radio-card" onclick="selectSingle('situation', 'other')">
+                                <div class="flex items-center gap-4">
+                                    <div class="radio-dot" id="rdot-situation-other"></div>
+                                    <p class="text-sm font-semibold text-slate-700">Other</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-black text-slate-700 uppercase tracking-wider mb-2">Funding Source <span class="text-slate-400 font-normal normal-case tracking-normal">(optional)</span></label>
+                        <p class="text-xs text-slate-400 mb-4">If you have funding, who is supporting your QI project?</p>
+                        <div class="flex flex-wrap gap-2" id="funding-tags">
+                            <span class="check-tag" onclick="toggleTag(this, 'funding')">Shared Care</span>
+                            <span class="check-tag" onclick="toggleTag(this, 'funding')">Perioperative Clinical Action Network</span>
+                            <span class="check-tag" onclick="toggleTag(this, 'funding')">Facility Engagement</span>
+                            <span class="check-tag" onclick="toggleTag(this, 'funding')">Health System Redesign</span>
+                            <span class="check-tag" onclick="toggleTag(this, 'funding')">My Health Authority</span>
+                            <span class="check-tag" onclick="toggleTag(this, 'funding')">Specialist Wellness (SWELL)</span>
+                            <span class="check-tag" onclick="toggleTag(this, 'funding')">Other</span>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-black text-slate-700 uppercase tracking-wider mb-2">Physician Lead <span class="text-slate-400 font-normal normal-case tracking-normal">(optional)</span></label>
+                        <p class="text-xs text-slate-400 mb-3">If you are not the physician lead, please indicate the name of the physician lead for this project.</p>
+                        <input type="text" class="form-input" id="physician-lead" placeholder="Dr. ...">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-black text-slate-700 uppercase tracking-wider mb-2">Project Title <span class="text-indigo-500">*</span></label>
+                        <input type="text" class="form-input" id="project-title" placeholder="e.g. Reducing ER Wait Times for Elective Cases">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-black text-slate-700 uppercase tracking-wider mb-2">Project Region / Community <span class="text-indigo-500">*</span></label>
+                        <input type="text" class="form-input" id="project-region" placeholder="e.g. Vancouver Coastal Health">
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-black text-slate-700 uppercase tracking-wider mb-2">Anticipated Start Date</label>
+                            <input type="date" class="form-input" id="start-date">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-black text-slate-700 uppercase tracking-wider mb-2">Anticipated End Date</label>
+                            <input type="date" class="form-input" id="end-date">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex justify-between mt-10 pb-4">
+                    <button class="btn-secondary" onclick="goToStep(1)"><i class="fas fa-arrow-left mr-2"></i> Back</button>
+                    <button class="btn-primary" onclick="goToStep(3)">Continue <i class="fas fa-arrow-right ml-2"></i></button>
+                </div>
+            </div>
+
+            <!-- Step 3: Support & Training -->
+            <div class="step-panel" id="panel-3">
+                <div class="space-y-7">
+                    <div>
+                        <label class="block text-xs font-black text-slate-700 uppercase tracking-wider mb-2">What are you looking for in a coach? <span class="text-indigo-500">*</span></label>
+                        <p class="text-xs text-slate-400 mb-3">e.g. a technical expert, a friendly advisor/educator, someone to help take your project to the next level</p>
+                        <textarea class="form-input" id="coach-looking-for" rows="4" maxlength="500" oninput="updateChar('coach-looking-for', 'count-coach')"></textarea>
+                        <p class="char-count"><span id="count-coach">0</span>/500</p>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-black text-slate-700 uppercase tracking-wider mb-2">What do you need the most support with? <span class="text-indigo-500">*</span></label>
+                        <p class="text-xs text-slate-400 mb-4">Select all that apply.</p>
+                        <div class="flex flex-wrap gap-2" id="support-tags">
+                            <span class="check-tag" onclick="toggleTag(this, 'support')">Sourcing appropriate funding and support</span>
+                            <span class="check-tag" onclick="toggleTag(this, 'support')">Understanding the problem</span>
+                            <span class="check-tag" onclick="toggleTag(this, 'support')">Measurement and evaluation</span>
+                            <span class="check-tag" onclick="toggleTag(this, 'support')">Communication and team engagement</span>
+                            <span class="check-tag" onclick="toggleTag(this, 'support')">Patient partner engagement</span>
+                            <span class="check-tag" onclick="toggleTag(this, 'support')">Leadership skills</span>
+                            <span class="check-tag" onclick="toggleTag(this, 'support')">Project ethics</span>
+                            <span class="check-tag" onclick="toggleTag(this, 'support')">Testing change ideas (PDSA cycles)</span>
+                            <span class="check-tag" onclick="toggleTag(this, 'support')">Implementation and sustainability</span>
+                            <span class="check-tag" onclick="toggleTag(this, 'support')">Spread</span>
+                            <span class="check-tag" onclick="toggleTag(this, 'support')">Publishing</span>
+                            <span class="check-tag" onclick="toggleTag(this, 'support')">Other</span>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-black text-slate-700 uppercase tracking-wider mb-4">Previous QI Training? <span class="text-indigo-500">*</span></label>
+                        <div class="flex gap-3">
+                            <div class="radio-card flex-1" onclick="selectSingle('qi-training', 'yes')">
+                                <div class="flex items-center gap-4">
+                                    <div class="radio-dot" id="rdot-qi-training-yes"></div>
+                                    <p class="text-sm font-semibold text-slate-700">Yes</p>
+                                </div>
+                            </div>
+                            <div class="radio-card flex-1" onclick="selectSingle('qi-training', 'no')">
+                                <div class="flex items-center gap-4">
+                                    <div class="radio-dot" id="rdot-qi-training-no"></div>
+                                    <p class="text-sm font-semibold text-slate-700">No</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="qi-level-section" style="display:none">
+                        <label class="block text-xs font-black text-slate-700 uppercase tracking-wider mb-4">Highest Level of QI Training</label>
+                        <div class="space-y-3">
+                            <div class="radio-card" onclick="selectSingle('qi-level', 'level1')">
+                                <div class="flex items-center gap-4">
+                                    <div class="radio-dot" id="rdot-qi-level-level1"></div>
+                                    <p class="text-sm font-semibold text-slate-700">PQI Level 1</p>
+                                </div>
+                            </div>
+                            <div class="radio-card" onclick="selectSingle('qi-level', 'level2')">
+                                <div class="flex items-center gap-4">
+                                    <div class="radio-dot" id="rdot-qi-level-level2"></div>
+                                    <p class="text-sm font-semibold text-slate-700">PQI Level 2</p>
+                                </div>
+                            </div>
+                            <div class="radio-card" onclick="selectSingle('qi-level', 'level3')">
+                                <div class="flex items-center gap-4">
+                                    <div class="radio-dot" id="rdot-qi-level-level3"></div>
+                                    <p class="text-sm font-semibold text-slate-700">PQI Level 3</p>
+                                </div>
+                            </div>
+                            <div class="radio-card" onclick="selectSingle('qi-level', 'other')">
+                                <div class="flex items-center gap-4">
+                                    <div class="radio-dot" id="rdot-qi-level-other"></div>
+                                    <p class="text-sm font-semibold text-slate-700">Other</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex justify-between mt-10 pb-4">
+                    <button class="btn-secondary" onclick="goToStep(2)"><i class="fas fa-arrow-left mr-2"></i> Back</button>
+                    <button class="btn-primary" onclick="goToStep(4)">Continue <i class="fas fa-arrow-right ml-2"></i></button>
+                </div>
+            </div>
+
+            <!-- Step 4: Availability & Preferences -->
+            <div class="step-panel" id="panel-4">
+                <div class="space-y-7">
+                    <div>
+                        <label class="block text-xs font-black text-slate-700 uppercase tracking-wider mb-2">General Availability <span class="text-indigo-500">*</span></label>
+                        <p class="text-xs text-slate-400 mb-4">What is your general availability for the next 1-2 months?</p>
+                        <div class="flex flex-wrap gap-2" id="availability-tags">
+                            <span class="check-tag" onclick="toggleTag(this, 'availability')">Mornings</span>
+                            <span class="check-tag" onclick="toggleTag(this, 'availability')">Afternoons</span>
+                            <span class="check-tag" onclick="toggleTag(this, 'availability')">Evenings</span>
+                            <span class="check-tag" onclick="toggleTag(this, 'availability')">Weekdays</span>
+                            <span class="check-tag" onclick="toggleTag(this, 'availability')">Weekends</span>
+                            <span class="check-tag" onclick="toggleTag(this, 'availability')">Other</span>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-black text-slate-700 uppercase tracking-wider mb-4">Meeting Frequency <span class="text-indigo-500">*</span></label>
+                        <p class="text-xs text-slate-400 mb-4">How frequently are you hoping to meet with your coach?</p>
+                        <div class="space-y-3">
+                            <div class="radio-card" onclick="selectSingle('frequency', 'biweekly')">
+                                <div class="flex items-center gap-4">
+                                    <div class="radio-dot" id="rdot-frequency-biweekly"></div>
+                                    <p class="text-sm font-semibold text-slate-700">Every 2 weeks</p>
+                                </div>
+                            </div>
+                            <div class="radio-card" onclick="selectSingle('frequency', 'monthly')">
+                                <div class="flex items-center gap-4">
+                                    <div class="radio-dot" id="rdot-frequency-monthly"></div>
+                                    <p class="text-sm font-semibold text-slate-700">Once a month</p>
+                                </div>
+                            </div>
+                            <div class="radio-card" onclick="selectSingle('frequency', 'bimonthly')">
+                                <div class="flex items-center gap-4">
+                                    <div class="radio-dot" id="rdot-frequency-bimonthly"></div>
+                                    <p class="text-sm font-semibold text-slate-700">Every 2 months</p>
+                                </div>
+                            </div>
+                            <div class="radio-card" onclick="selectSingle('frequency', 'unsure')">
+                                <div class="flex items-center gap-4">
+                                    <div class="radio-dot" id="rdot-frequency-unsure"></div>
+                                    <p class="text-sm font-semibold text-slate-700">I'm not sure</p>
+                                </div>
+                            </div>
+                            <div class="radio-card" onclick="selectSingle('frequency', 'other')">
+                                <div class="flex items-center gap-4">
+                                    <div class="radio-dot" id="rdot-frequency-other"></div>
+                                    <p class="text-sm font-semibold text-slate-700">Other</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-black text-slate-700 uppercase tracking-wider mb-4">Preferred Meeting Method <span class="text-indigo-500">*</span></label>
+                        <div class="space-y-3">
+                            <div class="radio-card" onclick="selectSingle('method', 'inperson')">
+                                <div class="flex items-center gap-4">
+                                    <div class="radio-dot" id="rdot-method-inperson"></div>
+                                    <p class="text-sm font-semibold text-slate-700">In person</p>
+                                </div>
+                            </div>
+                            <div class="radio-card" onclick="selectSingle('method', 'virtual')">
+                                <div class="flex items-center gap-4">
+                                    <div class="radio-dot" id="rdot-method-virtual"></div>
+                                    <p class="text-sm font-semibold text-slate-700">Virtual (Zoom, Teams)</p>
+                                </div>
+                            </div>
+                            <div class="radio-card" onclick="selectSingle('method', 'phone')">
+                                <div class="flex items-center gap-4">
+                                    <div class="radio-dot" id="rdot-method-phone"></div>
+                                    <p class="text-sm font-semibold text-slate-700">By phone</p>
+                                </div>
+                            </div>
+                            <div class="radio-card" onclick="selectSingle('method', 'other')">
+                                <div class="flex items-center gap-4">
+                                    <div class="radio-dot" id="rdot-method-other"></div>
+                                    <p class="text-sm font-semibold text-slate-700">Other</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-black text-slate-700 uppercase tracking-wider mb-2">Anything else for your coach? <span class="text-slate-400 font-normal normal-case tracking-normal">(optional)</span></label>
+                        <textarea class="form-input" id="additional-info" rows="3" maxlength="500" oninput="updateChar('additional-info', 'count-additional')"></textarea>
+                        <p class="char-count"><span id="count-additional">0</span>/500</p>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-black text-slate-700 uppercase tracking-wider mb-4">How did you hear about us? <span class="text-indigo-500">*</span></label>
+                        <div class="space-y-3">
+                            <div class="radio-card" onclick="selectSingle('referral', 'website')">
+                                <div class="flex items-center gap-4">
+                                    <div class="radio-dot" id="rdot-referral-website"></div>
+                                    <p class="text-sm font-semibold text-slate-700">Website</p>
+                                </div>
+                            </div>
+                            <div class="radio-card" onclick="selectSingle('referral', 'staff')">
+                                <div class="flex items-center gap-4">
+                                    <div class="radio-dot" id="rdot-referral-staff"></div>
+                                    <p class="text-sm font-semibold text-slate-700">From a DoBC staff (Engagement Partner, Liaison etc.)</p>
+                                </div>
+                            </div>
+                            <div class="radio-card" onclick="selectSingle('referral', 'peer')">
+                                <div class="flex items-center gap-4">
+                                    <div class="radio-dot" id="rdot-referral-peer"></div>
+                                    <p class="text-sm font-semibold text-slate-700">From a current coach or coachee in the program</p>
+                                </div>
+                            </div>
+                            <div class="radio-card" onclick="selectSingle('referral', 'physician')">
+                                <div class="flex items-center gap-4">
+                                    <div class="radio-dot" id="rdot-referral-physician"></div>
+                                    <p class="text-sm font-semibold text-slate-700">From another physician</p>
+                                </div>
+                            </div>
+                            <div class="radio-card" onclick="selectSingle('referral', 'other')">
+                                <div class="flex items-center gap-4">
+                                    <div class="radio-dot" id="rdot-referral-other"></div>
+                                    <p class="text-sm font-semibold text-slate-700">Other</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex justify-between mt-10 pb-12">
+                    <button class="btn-secondary" onclick="goToStep(3)"><i class="fas fa-arrow-left mr-2"></i> Back</button>
+                    <button class="btn-primary" onclick="submitSetup()">Submit <i class="fas fa-check ml-2"></i></button>
+                </div>
+            </div>
+
+        </div>
+    </main>
+</div>
+
+<!-- Hidden Caspio form -->
+<div id="caspio-container" style="position:absolute;left:-9999px;top:-9999px;">
+    <script type="text/javascript" src="https://c0abr823.caspio.com/dp/1c9f5000c0aaafeea05b430bbe10/emb"></script>
+</div>
+
+<script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const coacheeName = urlParams.get('name');
+    if (coacheeName) {
+        document.getElementById('sidebar-name').textContent = coacheeName;
+    }
+
+    const selections = {
+        situation: null,
+        'qi-training': null,
+        'qi-level': null,
+        frequency: null,
+        method: null,
+        referral: null
+    };
+
+    const tagSelections = {
+        funding: new Set(),
+        support: new Set(),
+        availability: new Set()
+    };
+
+    let currentStep = 1;
+    const totalSteps = 4;
+
+    const stepMeta = {
+        1: { title: "Tell us about yourself", sub: "Your information will remain confidential." },
+        2: { title: "Your project", sub: "Tell us about the problem you're working on." },
+        3: { title: "Support & training", sub: "Help us understand what you need and your QI background." },
+        4: { title: "Availability & preferences", sub: "Help us find the right coach for your schedule." }
+    };
+
+    const stepLabels = { 2: 'label-2', 3: 'label-3', 4: 'label-4' };
+
+    function selectSingle(group, value) {
+        selections[group] = value;
+        // Clear all radio dots in group
+        document.querySelectorAll(`[id^="rdot-${group}-"]`).forEach(dot => {
+            dot.style.background = '';
+            dot.style.borderColor = '';
+            dot.closest('.radio-card').classList.remove('selected');
+        });
+        // Select chosen
+        const dot = document.getElementById(`rdot-${group}-${value}`);
+        if (dot) {
+            dot.closest('.radio-card').classList.add('selected');
+        }
+        // Show QI level if yes
+        if (group === 'qi-training') {
+            document.getElementById('qi-level-section').style.display = value === 'yes' ? 'block' : 'none';
+        }
+    }
+
+    function toggleTag(el, group) {
+        const val = el.textContent.trim();
+        if (tagSelections[group].has(val)) {
+            tagSelections[group].delete(val);
+            el.classList.remove('selected');
+        } else {
+            tagSelections[group].add(val);
+            el.classList.add('selected');
+        }
+    }
+
+    function goToStep(step) {
+        // Validate step 1
+        if (step > 1 && currentStep === 1) {
+            const fn = document.getElementById('first-name').value.trim();
+            const ln = document.getElementById('last-name').value.trim();
+            const site = document.getElementById('site').value.trim();
+            const rs = document.getElementById('role-specialty').value.trim();
+            const about = document.getElementById('about').value.trim();
+            if (!fn || !ln || !site || !rs || !about) {
+                alert('Please fill in all required fields.');
+                return;
+            }
+        }
+        // Validate step 2
+        if (step > 2 && currentStep === 2) {
+            if (!document.getElementById('problem').value.trim() || !selections['situation'] ||
+                !document.getElementById('project-title').value.trim() || !document.getElementById('project-region').value.trim()) {
+                alert('Please fill in all required fields.');
+                return;
+            }
+        }
+        // Validate step 3
+        if (step > 3 && currentStep === 3) {
+            if (!document.getElementById('coach-looking-for').value.trim() || tagSelections['support'].size === 0 || !selections['qi-training']) {
+                alert('Please fill in all required fields.');
+                return;
+            }
+        }
+
+        document.getElementById(`panel-${currentStep}`).classList.remove('active');
+        document.getElementById(`panel-${step}`).classList.add('active');
+
+        // Update dots
+        for (let i = 1; i <= totalSteps; i++) {
+            const dot = document.getElementById(`dot-${i}`);
+            if (i < step) {
+                dot.className = 'step-dot done';
+                dot.innerHTML = '<i class="fas fa-check" style="font-size:9px"></i>';
+            } else if (i === step) {
+                dot.className = 'step-dot active';
+                dot.textContent = i;
+            } else {
+                dot.className = 'step-dot pending';
+                dot.textContent = i;
+            }
+            if (i > 1 && document.getElementById(`label-${i}`)) {
+                document.getElementById(`label-${i}`).className = i <= step
+                    ? 'text-xs font-black text-white uppercase tracking-wider'
+                    : 'text-xs font-black text-slate-500 uppercase tracking-wider';
+            }
+        }
+
+        document.getElementById('step-num').textContent = step;
+        document.getElementById('step-title').textContent = stepMeta[step].title;
+        document.getElementById('step-subtitle').textContent = stepMeta[step].sub;
+
+        const pct = Math.round(((step - 1) / totalSteps) * 100);
+        document.getElementById('progress-bar').style.width = pct + '%';
+        document.getElementById('progress-label').textContent = pct + '%';
+
+        currentStep = step;
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function updateChar(fieldId, countId) {
+        document.getElementById(countId).textContent = document.getElementById(fieldId).value.length;
+    }
+
+    const situationMap = {
+        idea: 'I have an idea for a QI project but I don\'t know where to go from here',
+        starting: 'I have a QI project with funding in place and I\'m just starting the work',
+        stuck: 'I have a QI project with funding in place but I feel stuck',
+        other: 'Other'
+    };
+
+    const frequencyMap = {
+        biweekly: 'Every 2 weeks', monthly: 'Once a month',
+        bimonthly: 'Every 2 months', unsure: 'I\'m not sure', other: 'Other'
+    };
+
+    const methodMap = {
+        inperson: 'In person', virtual: 'Virtual (Zoom, Teams)',
+        phone: 'By phone', other: 'Other'
+    };
+
+    const referralMap = {
+        website: 'Website', staff: 'From a DoBC staff',
+        peer: 'From a current coach or coachee', physician: 'From another physician', other: 'Other'
+    };
+
+    const qiLevelMap = {
+        level1: 'PQI Level 1', level2: 'PQI Level 2',
+        level3: 'PQI Level 3', other: 'Other'
+    };
+
+    function submitSetup() {
+        // Validate step 4
+        if (tagSelections['availability'].size === 0 || !selections['frequency'] || !selections['method'] || !selections['referral']) {
+            alert('Please fill in all required fields.');
+            return;
+        }
+
+        function trySubmit(tries) {
+            const field = document.getElementById('InsertRecordFirst_Name');
+            if (field) {
+                document.getElementById('InsertRecordFirst_Name').value = document.getElementById('first-name').value.trim();
+                document.getElementById('InsertRecordLast_Name').value = document.getElementById('last-name').value.trim();
+                document.getElementById('InsertRecordPhone').value = document.getElementById('phone').value.trim();
+                document.getElementById('InsertRecordSite').value = document.getElementById('site').value.trim();
+                document.getElementById('InsertRecordRole_Specialty').value = document.getElementById('role-specialty').value.trim();
+                document.getElementById('InsertRecordAbout').value = document.getElementById('about').value.trim();
+                document.getElementById('InsertRecordProblem').value = document.getElementById('problem').value.trim();
+                document.getElementById('InsertRecordSituation').value = situationMap[selections['situation']] || '';
+                document.getElementById('InsertRecordFunding').value = Array.from(tagSelections['funding']).join(', ');
+                document.getElementById('InsertRecordPhysician_Lead').value = document.getElementById('physician-lead').value.trim();
+                document.getElementById('InsertRecordProject_Title').value = document.getElementById('project-title').value.trim();
+                document.getElementById('InsertRecordProject_Region').value = document.getElementById('project-region').value.trim();
+                document.getElementById('InsertRecordStart_Date').value = document.getElementById('start-date').value;
+                document.getElementById('InsertRecordEnd_Date').value = document.getElementById('end-date').value;
+                document.getElementById('InsertRecordCoach_Looking_For').value = document.getElementById('coach-looking-for').value.trim();
+                document.getElementById('InsertRecordSupport_Needed').value = Array.from(tagSelections['support']).join(', ');
+                document.getElementById('InsertRecordQI_Training').value = selections['qi-training'] === 'yes' ? 'Yes' : 'No';
+                document.getElementById('InsertRecordQI_Level').value = selections['qi-level'] ? qiLevelMap[selections['qi-level']] : '';
+                document.getElementById('InsertRecordAvailability').value = Array.from(tagSelections['availability']).join(', ');
+                document.getElementById('InsertRecordMeeting_Frequency').value = frequencyMap[selections['frequency']] || '';
+                document.getElementById('InsertRecordMeeting_Method').value = methodMap[selections['method']] || '';
+                document.getElementById('InsertRecordAdditional_Info').value = document.getElementById('additional-info').value.trim();
+                document.getElementById('InsertRecordReferral').value = referralMap[selections['referral']] || '';
+
+                const form = document.querySelector('#caspio-container form');
+                if (form) {
+                    document.getElementById('progress-bar').style.width = '100%';
+                    document.getElementById('progress-label').textContent = '100%';
+                    form.submit();
+                }
+            } else if (tries < 30) {
+                setTimeout(() => trySubmit(tries + 1), 300);
+            }
+        }
+
+        trySubmit(0);
+    }
+</script>
+
+</body>
+</html>
