@@ -36,6 +36,9 @@
         .divider hr { flex: 1; border: none; border-top: 1px solid #e2e8f0; }
         .divider span { font-size: 11px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.1em; }
 
+        .role-btn.selected { background: white; color: #3b82f6; box-shadow: 0 1px 4px rgba(0,0,0,0.1); }
+        .role-btn:not(.selected):hover { color: #64748b; }
+
         @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
         .glass-card { animation: fadeUp 0.5s ease-out; }
 
@@ -65,7 +68,23 @@
         <div class="glass-card p-8">
             <div class="mb-7">
                 <h2 class="text-2xl font-black text-slate-900">Create your account</h2>
-                <p class="text-slate-500 text-sm mt-1">Join as a QI Coach</p>
+                <p class="text-slate-500 text-sm mt-1">Join the PQI Coaching Network</p>
+            </div>
+
+            <!-- Role toggle -->
+            <div class="mb-6">
+                <label class="block text-xs font-black text-slate-600 uppercase tracking-wider mb-3">I am a</label>
+                <div class="flex rounded-xl bg-slate-100 p-1 gap-1" id="role-toggle">
+                    <button type="button" id="role-coach" onclick="selectRole('Coach')"
+                        class="role-btn flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-xs font-black uppercase tracking-wider transition-all text-slate-400">
+                        <i class="fas fa-user-tie text-sm"></i> Coach
+                    </button>
+                    <button type="button" id="role-coachee" onclick="selectRole('Coachee')"
+                        class="role-btn flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-xs font-black uppercase tracking-wider transition-all text-slate-400">
+                        <i class="fas fa-user-md text-sm"></i> Coachee
+                    </button>
+                </div>
+                <p class="error-msg mt-1" id="err-role">Please select your role.</p>
             </div>
 
             <div class="space-y-4">
@@ -130,6 +149,15 @@
     </div>
 
 <script>
+    let selectedRole = null;
+
+    function selectRole(role) {
+        selectedRole = role;
+        document.querySelectorAll('.role-btn').forEach(btn => btn.classList.remove('selected'));
+        document.getElementById('role-' + role.toLowerCase()).classList.add('selected');
+        showError('err-role', false);
+    }
+
     function setLoading(on) {
         const btn = document.getElementById('submit-btn');
         const text = document.getElementById('btn-text');
@@ -164,6 +192,7 @@
         const password = document.getElementById('ui-password').value;
         const confirm = document.getElementById('ui-confirm').value;
 
+        if (!selectedRole) { showError('err-role', true); valid = false; }
         if (!fullname) { showError('err-fullname', true); valid = false; }
         if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { showError('err-email', true); valid = false; }
         if (password.length < 8) { showError('err-password', true); valid = false; }
@@ -208,6 +237,9 @@
             document.getElementById('InsertRecordEmail').value = email;
             document.getElementById('InsertRecordPassword').value = password;
             document.getElementById('InsertRecordPassword@Confirm').value = password;
+            if (document.getElementById('InsertRecordRole')) {
+                document.getElementById('InsertRecordRole').value = selectedRole;
+            }
 
             // Find and click Caspio submit button
             const caspioForm = document.querySelector('#caspio-container form');
