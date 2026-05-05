@@ -37,6 +37,7 @@
 
     <!-- Hidden Caspio DataPages -->
     <div id="caspio-insert"></div>
+    <div id="caspio-update"></div>
     <div id="caspio-session"></div>
     <div id="caspio-coachee-profile"></div>
 
@@ -108,6 +109,9 @@
                         <div class="flex gap-3">
                             <button id="start-btn" onclick="startTimer()" class="flex-1 bg-blue-600 text-white py-3 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-blue-500 transition shadow-lg">
                                 <i class="fas fa-play mr-1"></i> Start
+                            </button>
+                            <button id="stop-btn" onclick="stopTimer()" class="flex-1 bg-slate-800 text-white py-3 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-red-600 transition shadow-lg" style="display:none">
+                                <i class="fas fa-stop mr-1"></i> Stop
                             </button>
                             <button onclick="resetTimer()" class="px-4 bg-slate-100 text-slate-500 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-slate-200 transition">
                                 <i class="fas fa-undo"></i>
@@ -203,13 +207,7 @@
 
     function saveAgenda() {
         if (!sessionId) return;
-        const agendaJson = JSON.stringify(agendaItems);
-        const field = document.getElementById('EditRecordAgenda');
-        if (field) {
-            field.value = agendaJson;
-            const form = document.querySelector('#caspio-session form');
-            if (form) form.submit();
-        }
+        saveSession({ agenda: JSON.stringify(agendaItems) });
     }
 
     // ── Timer ────────────────────────────────────────────────
@@ -230,15 +228,24 @@
         timerStartMs = Date.now();
         document.getElementById('timer-display').classList.replace('timer-idle', 'timer-active');
         document.getElementById('timer-status-label').textContent = 'In progress';
-        document.getElementById('start-btn').disabled = true;
-        document.getElementById('start-btn').classList.add('opacity-50');
+        document.getElementById('start-btn').style.display = 'none';
+        document.getElementById('stop-btn').style.display = 'flex';
 
-        saveTimerStart();
+        saveSession({ timerStart: new Date().toISOString() });
 
         timerInterval = setInterval(() => {
             const elapsed = Math.floor((Date.now() - timerStartMs) / 1000);
             updateTimerDisplay(elapsed);
         }, 1000);
+    }
+
+    function stopTimer() {
+        clearInterval(timerInterval);
+        timerRunning = false;
+        document.getElementById('timer-display').classList.replace('timer-active', 'timer-idle');
+        document.getElementById('timer-status-label').textContent = 'Stopped';
+        document.getElementById('start-btn').style.display = 'flex';
+        document.getElementById('stop-btn').style.display = 'none';
     }
 
     function resetTimer() {
@@ -248,16 +255,34 @@
         updateTimerDisplay(0);
         document.getElementById('timer-display').classList.replace('timer-active', 'timer-idle');
         document.getElementById('timer-status-label').textContent = 'Not started';
-        document.getElementById('start-btn').disabled = false;
-        document.getElementById('start-btn').classList.remove('opacity-50');
+        document.getElementById('start-btn').style.display = 'flex';
+        document.getElementById('stop-btn').style.display = 'none';
+        saveSession({ timerStart: '' });
     }
 
-    function saveTimerStart() {
-        const field = document.getElementById('EditRecordTimer_Start');
-        if (field) {
-            field.value = new Date().toISOString();
-            const form = document.querySelector('#caspio-session form');
+    function saveSession(data) {
+        if (!sessionId) return;
+        // Load update DataPage with session_id param
+        const container = document.getElementById('caspio-update');
+        container.innerHTML = '';
+        const s = document.createElement('script');
+        s.src = 'https://c0abr823.caspio.com/dp/1c9f500037d48cb67ee441fc8907/emb?Session_ID=' + encodeURIComponent(sessionId);
+        container.appendChild(s);
+        waitForUpdateForm(data, 0);
+    }
+
+    function waitForUpdateForm(data, tries) {
+        const agendaField = document.getElementById('EditRecordAgenda');
+        if (agendaField) {
+            if (data.agenda !== undefined) agendaField.value = data.agenda;
+            if (data.timerStart !== undefined) {
+                const tf = document.getElementById('EditRecordTimer_Start');
+                if (tf) tf.value = data.timerStart;
+            }
+            const form = document.querySelector('#caspio-update form');
             if (form) form.submit();
+        } else if (tries < 30) {
+            setTimeout(() => waitForUpdateForm(data, tries + 1), 300);
         }
     }
 
@@ -270,8 +295,8 @@
         timerStartMs = startMs;
         document.getElementById('timer-display').classList.replace('timer-idle', 'timer-active');
         document.getElementById('timer-status-label').textContent = 'In progress';
-        document.getElementById('start-btn').disabled = true;
-        document.getElementById('start-btn').classList.add('opacity-50');
+        document.getElementById('start-btn').style.display = 'none';
+        document.getElementById('stop-btn').style.display = 'flex';
         updateTimerDisplay(elapsed);
         timerInterval = setInterval(() => {
             const e = Math.floor((Date.now() - timerStartMs) / 1000);
