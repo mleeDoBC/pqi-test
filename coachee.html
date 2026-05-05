@@ -38,7 +38,7 @@
                     <div class="flex items-center gap-4">
                         <div class="h-12 w-12 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-black italic">ST</div>
                         <div>
-                            <h4 class="text-sm font-black italic text-white leading-none uppercase">Sarah Thompson</h4>
+                            <h4 class="text-sm font-black italic text-white leading-none uppercase" id="coachee-name">Loading...</h4>
                             <p class="text-[8px] font-black text-blue-400 mt-1.5 uppercase tracking-widest opacity-80">Physician Coachee</p>
                         </div>
                     </div>
@@ -141,6 +141,19 @@
     </div>
 
     <script>
+    // Read params from URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const coacheeName = urlParams.get('name');
+    const uid = urlParams.get('uid');
+
+    // Store in sessionStorage
+    if (uid) sessionStorage.setItem('uid', uid);
+    if (coacheeName) sessionStorage.setItem('name', coacheeName);
+
+    if (coacheeName) {
+        document.getElementById('coachee-name').textContent = coacheeName;
+    }
+
     let sessionInterval;
     let sessionSeconds = 0;
 
