@@ -165,6 +165,7 @@
     let agendaItems = [];
     let sessionId = null;
     let saveTimeout = null;
+    let sessionInitialized = false;
 
     function renderAgenda() {
         const list = document.getElementById('agenda-list');
@@ -320,7 +321,15 @@
         } else if (tries < 40) {
             setTimeout(() => waitForSession(tries + 1), 300);
         } else {
-            initNewSession();
+            // No session found — create one (only once)
+            if (!sessionInitialized) {
+                sessionInitialized = true;
+                initNewSession();
+            } else {
+                document.getElementById('sync-status').textContent = 'Ready';
+                agendaItems = [];
+                renderAgenda();
+            }
         }
     }
 
@@ -376,14 +385,45 @@
         const matchField = document.getElementById('InsertRecordMatch_ID');
         if (matchField) {
             matchField.value = matchId;
+            const agendaField = document.getElementById('InsertRecordAgenda');
+            if (agendaField) agendaField.value = '[]';
             const form = document.querySelector('#caspio-insert form');
             if (form) {
                 form.submit();
-                // After submit, reload session
-                setTimeout(loadSession, 2000);
+                // Mark session as initialized locally — don't reload
+                document.getElementById('sync-status').textContent = 'Ready';
+                agendaItems = [];
+                renderAgenda();
+                // Wait for insert to complete, then load session once to get Session_ID
+                setTimeout(() => loadSessionOnce(), 3000);
             }
         } else if (tries < 30) {
             setTimeout(() => waitForInsertForm(tries + 1), 300);
+        }
+    }
+
+    function loadSessionOnce() {
+        const container = document.getElementById('caspio-session');
+        container.innerHTML = '';
+        const s = document.createElement('script');
+        s.src = 'https://c0abr823.caspio.com/dp/1c9f5000c3f1daa2f4f94e0995f2/emb';
+        container.appendChild(s);
+        waitForSessionId(0);
+    }
+
+    function waitForSessionId(tries) {
+        const table = document.querySelector('#caspio-session table');
+        if (table) {
+            const rows = table.querySelectorAll('tr');
+            rows.forEach(row => {
+                const cells = row.querySelectorAll('td');
+                if (cells.length >= 2 && getCellText(cells[1]) === matchId) {
+                    sessionId = getCellText(cells[0]);
+                    document.getElementById('sync-status').textContent = 'Live';
+                }
+            });
+        } else if (tries < 20) {
+            setTimeout(() => waitForSessionId(tries + 1), 300);
         }
     }
 
