@@ -30,10 +30,8 @@
 </head>
 <body class="antialiased text-slate-800">
 
-    <!-- Hidden Matches DataPage -->
-    <div id="caspio-matches" style="position:absolute;left:-9999px;top:-9999px;visibility:hidden;">
-        <script type="text/javascript" src="https://c0abr823.caspio.com/dp/1c9f5000779680124c1248afbd6f/emb"></script>
-    </div>
+    <!-- Hidden Matches DataPage (script injected dynamically with uid) -->
+    <div id="caspio-matches" style="position:absolute;left:-9999px;top:-9999px;visibility:hidden;"></div>
 
     <div class="flex flex-col lg:flex-row min-h-screen">
         <aside class="w-full lg:w-80 sidebar-gradient text-slate-400 flex flex-col shadow-2xl z-50 lg:h-screen">
@@ -487,14 +485,12 @@
             return;
         }
 
-        // Pass uid to Caspio DataPage via URL param
-        const caspioScript = document.querySelector('#caspio-matches script');
-        if (caspioScript) {
-            const src = caspioScript.src;
-            if (!src.includes('uid=')) {
-                caspioScript.src = src + '?uid=' + encodeURIComponent(currentUid);
-            }
-        }
+        // Dynamically inject Caspio script with uid param
+        const container = document.getElementById('caspio-matches');
+        const s = document.createElement('script');
+        s.type = 'text/javascript';
+        s.src = 'https://c0abr823.caspio.com/dp/1c9f5000779680124c1248afbd6f/emb?uid=' + encodeURIComponent(currentUid);
+        container.appendChild(s);
 
         waitForMatches(0);
     }
