@@ -507,6 +507,13 @@
         }
     }
 
+    function getCellText(cell) {
+        // Remove label span added by Caspio, get only the value
+        const span = cell.querySelector('span');
+        if (span) span.remove();
+        return cell.textContent.trim();
+    }
+
     function parseAndRenderMatches(table) {
         const rows = table.querySelectorAll('tr');
         const matches = [];
@@ -515,10 +522,10 @@
             const cells = row.querySelectorAll('td');
             if (cells.length >= 4) {
                 matches.push({
-                    matchId:   cells[0].textContent.trim(),
-                    coachId:   cells[1].textContent.trim(),
-                    coacheeId: cells[2].textContent.trim(),
-                    status:    cells[3].textContent.trim()
+                    matchId:   getCellText(cells[0]),
+                    coachId:   getCellText(cells[1]),
+                    coacheeId: getCellText(cells[2]),
+                    status:    getCellText(cells[3])
                 });
             }
         });
