@@ -237,7 +237,7 @@
                         <i class="fas fa-arrow-left mr-2"></i> Back
                     </button>
                     <div class="flex gap-3">
-                        <button class="btn-secondary" id="cancel-btn" style="display:none" onclick="window.location.href='coach.html?name=' + encodeURIComponent(urlParams.get('name') || '')">
+                        <button class="btn-secondary" id="cancel-btn" style="display:none" onclick="window.location.href='coach.html?uid=' + encodeURIComponent(uid || sessionStorage.getItem('uid') || '') + '&name=' + encodeURIComponent(urlParams.get('name') || '')">
                             Cancel
                         </button>
                         <button class="btn-primary" id="submit-btn" onclick="submitBio()">
@@ -252,10 +252,15 @@
 </div>
 
 <script>
-    // Read name from URL param
+    // Read params from URL
     const urlParams = new URLSearchParams(window.location.search);
     const coachName = urlParams.get('name');
+    const uid = urlParams.get('uid');
     const isEditMode = urlParams.get('mode') === 'edit';
+
+    // Store in sessionStorage
+    if (uid) sessionStorage.setItem('uid', uid);
+    if (coachName) sessionStorage.setItem('name', coachName);
 
     if (coachName) {
         document.getElementById('sidebar-name').textContent = 'Dr. ' + coachName;
@@ -335,7 +340,7 @@
         // Show back to dashboard
         const backBtn = document.getElementById('back-to-dashboard');
         backBtn.style.display = 'flex';
-        backBtn.href = 'coach.html?name=' + encodeURIComponent(coachName || '');
+        backBtn.href = 'coach.html?uid=' + encodeURIComponent(uid || '') + '&name=' + encodeURIComponent(coachName || '');
     }
 
     const QI_SKILLS = [
@@ -536,6 +541,10 @@
                     document.getElementById('InsertRecordAdditional').value = document.getElementById('additional').value.trim();
                     if (document.getElementById('InsertRecordBooking_Link')) {
                         document.getElementById('InsertRecordBooking_Link').value = document.getElementById('booking-link').value.trim();
+                    }
+                    const currentUid = uid || sessionStorage.getItem('uid');
+                    if (currentUid && document.getElementById('InsertRecordUser_ID')) {
+                        document.getElementById('InsertRecordUser_ID').value = currentUid;
                     }
 
                     // Handle profile image
