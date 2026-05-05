@@ -529,7 +529,9 @@
                     status:         getCellText(cells[3]),
                     coacheeFirst:   getCellText(cells[4]),
                     coacheeLast:    getCellText(cells[5]),
-                    projectTitle:   getCellText(cells[6])
+                    projectTitle:   getCellText(cells[6]),
+                    problem:        getCellText(cells[7]),
+                    about:          getCellText(cells[8])
                 });
             }
         });
@@ -552,7 +554,9 @@
                 + '&coach_uid=' + encodeURIComponent(currentUid)
                 + '&name=' + encodeURIComponent(currentName)
                 + '&coachee_name=' + encodeURIComponent(m.coacheeFirst + ' ' + m.coacheeLast)
-                + '&project_title=' + encodeURIComponent(m.projectTitle || '');
+                + '&project_title=' + encodeURIComponent(m.projectTitle || '')
+                + '&problem=' + encodeURIComponent(m.problem || '')
+                + '&about=' + encodeURIComponent(m.about || '');
             return `
                 <div onclick="window.location.href='${meetingUrl}'"
                     class="flex items-center justify-between p-5 lg:p-6 rounded-[24px] lg:rounded-[32px] bg-slate-50/50 border border-transparent hover:border-slate-200 hover:bg-white hover:shadow-xl transition-all duration-300 cursor-pointer group">
