@@ -673,6 +673,17 @@
                     document.getElementById('InsertRecordUser_ID').value = currentUid;
                 }
 
+                const currentName = coacheeName || sessionStorage.getItem('name') || '';
+                const nameParts = currentName.trim().split(' ');
+                const firstName = nameParts[0] || '';
+                const lastName = nameParts.slice(1).join(' ') || '';
+                if (document.getElementById('InsertRecordFirst_Name')) {
+                    document.getElementById('InsertRecordFirst_Name').value = firstName;
+                }
+                if (document.getElementById('InsertRecordLast_Name')) {
+                    document.getElementById('InsertRecordLast_Name').value = lastName;
+                }
+
                 const form = document.querySelector('#caspio-container form');
                 if (form) {
                     document.getElementById('progress-bar').style.width = '100%';
