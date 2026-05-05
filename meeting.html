@@ -381,34 +381,51 @@
         }
     }
 
-    // Use a hidden form targeting iframe so main page doesn't reload
+    // Save via Caspio embed form, targeting hidden iframe to prevent page reload
+    let updateDataPageLoaded = false;
+
+    function ensureUpdateDataPage(callback) {
+        if (updateDataPageLoaded) {
+            callback();
+            return;
+        }
+        const container = document.getElementById('caspio-update');
+        container.innerHTML = '';
+        const s = document.createElement('script');
+        s.src = 'https://c0abr823.caspio.com/dp/1c9f500037d48cb67ee441fc8907/emb?Session_ID=' + encodeURIComponent(currentSessionId);
+        container.appendChild(s);
+        waitForUpdatePage(callback, 0);
+    }
+
+    function waitForUpdatePage(callback, tries) {
+        const form = document.querySelector('#caspio-update form');
+        if (form) {
+            updateDataPageLoaded = true;
+            callback();
+        } else if (tries < 30) {
+            setTimeout(() => waitForUpdatePage(callback, tries + 1), 300);
+        }
+    }
+
     function saveSession(data) {
         if (!currentSessionId) return;
+        ensureUpdateDataPage(() => {
+            const form = document.querySelector('#caspio-update form');
+            if (!form) return;
 
-        const agendaVal = data.agenda !== undefined ? data.agenda : null;
-        const timerVal  = data.timerStart !== undefined ? data.timerStart : null;
+            if (data.agenda !== undefined) {
+                const f = document.getElementById('EditRecordAgenda');
+                if (f) f.value = data.agenda;
+            }
+            if (data.timerStart !== undefined) {
+                const f = document.getElementById('EditRecordTimer_Start');
+                if (f) f.value = data.timerStart;
+            }
 
-        // Build a form that posts directly to Caspio update DataPage via iframe
-        const form = document.createElement('form');
-        form.method = 'POST';
-        form.action = 'https://c0abr823.caspio.com/dp/1c9f500037d48cb67ee441fc8907/';
-        form.target = 'caspio-update-frame';
-
-        const addField = (name, value) => {
-            const input = document.createElement('input');
-            input.type = 'hidden';
-            input.name = name;
-            input.value = value;
-            form.appendChild(input);
-        };
-
-        addField('Session_ID', currentSessionId);
-        if (agendaVal !== null) addField('EditRecordAgenda', agendaVal);
-        if (timerVal !== null) addField('EditRecordTimer_Start', timerVal);
-
-        document.body.appendChild(form);
-        form.submit();
-        document.body.removeChild(form);
+            // Target hidden iframe so main page doesn't reload
+            form.target = 'caspio-update-frame';
+            form.submit();
+        });
     }
 
     // Hook save into agenda and timer
