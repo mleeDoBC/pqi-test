@@ -167,7 +167,9 @@
                     coacheeLast:  getCellText(cells[5]),
                     projectTitle: getCellText(cells[6]),
                     problem:      cells[7] ? getCellText(cells[7]) : '',
-                    about:        cells[8] ? getCellText(cells[8]) : ''
+                    about:        cells[8] ? getCellText(cells[8]) : '',
+                    coachFirst:   cells[9] ? getCellText(cells[9]) : '',
+                    coachLast:    cells[10] ? getCellText(cells[10]) : ''
                 });
             }
         });
@@ -198,7 +200,7 @@
                         </div>
                         <div>
                             <h4 class="text-md font-black italic text-slate-900 uppercase">${m.projectTitle || 'Active Project'}</h4>
-                            <p class="text-[10px] font-bold text-slate-400 italic mt-1 uppercase tracking-tight">Currently Active · Coach: Dr. ${m.coacheeFirst} ${m.coacheeLast}</p>
+                            <p class="text-[10px] font-bold text-slate-400 italic mt-1 uppercase tracking-tight">Currently Active · Coach: Dr. ${m.coachFirst} ${m.coachLast}</p>
                         </div>
                     </div>
                     <div class="flex items-center gap-4">
