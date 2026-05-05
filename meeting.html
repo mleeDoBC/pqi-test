@@ -315,43 +315,33 @@
     let currentSessionId = sessionId || '';
 
     function initSession() {
-        if (currentSessionId) {
-            // Session exists — load agenda from Caspio
-            document.getElementById('sync-status').textContent = 'Loading...';
-            loadExistingSession();
-        } else {
-            // No session — create one via Insert DataPage
-            document.getElementById('sync-status').textContent = 'Starting...';
+        // Always check for existing session first by match_id
+        document.getElementById('sync-status').textContent = 'Loading...';
+        checkExistingSession(0);
+    }
+
+    function checkExistingSession(tries) {
+        // Use Meeting_Sessions_By_Match DataPage — reads match_id from page URL
+        if (tries === 0) {
             const container = document.getElementById('caspio-insert');
+            container.innerHTML = '';
             const s = document.createElement('script');
-            s.src = 'https://c0abr823.caspio.com/dp/1c9f500099edf2611dd64a8fa537/emb';
+            s.src = 'https://c0abr823.caspio.com/dp/1c9f50008d6578f1dda0494d85a7/emb';
             container.appendChild(s);
-            waitForInsertForm(0);
         }
-    }
-
-    // Load existing session agenda from Caspio
-    function loadExistingSession() {
-        // Inject Meeting_Sessions_By_Match DataPage — it will read match_id from URL
-        const container = document.getElementById('caspio-insert');
-        container.innerHTML = '';
-        const s = document.createElement('script');
-        s.src = 'https://c0abr823.caspio.com/dp/1c9f50008d6578f1dda0494d85a7/emb';
-        container.appendChild(s);
-        waitForSessionData(0);
-    }
-
-    function waitForSessionData(tries) {
         const table = document.querySelector('#caspio-insert table');
         if (table) {
             const rows = table.querySelectorAll('tr');
+            let found = false;
             rows.forEach(row => {
                 const cells = row.querySelectorAll('td');
                 if (cells.length >= 3) {
+                    found = true;
+                    currentSessionId = getCellText(cells[0]);
+                    sessionStorage.setItem('session_id', currentSessionId);
                     const agendaRaw = getCellText(cells[2]);
                     try {
                         const loaded = JSON.parse(agendaRaw);
-                        // Only show unchecked items
                         agendaItems = loaded.filter(item => !item.done);
                     } catch(e) {
                         agendaItems = [];
@@ -359,13 +349,30 @@
                     renderAgenda();
                 }
             });
+            if (!found) {
+                // No session yet — create one (Coach only)
+                createNewSession();
+            }
             document.getElementById('sync-status').textContent = 'Live';
         } else if (tries < 40) {
-            setTimeout(() => waitForSessionData(tries + 1), 300);
+            setTimeout(() => checkExistingSession(tries + 1), 300);
         } else {
-            document.getElementById('sync-status').textContent = 'Live';
+            // Timeout — create new session
+            createNewSession();
         }
     }
+
+    function createNewSession() {
+        document.getElementById('sync-status').textContent = 'Starting...';
+        const container = document.getElementById('caspio-insert');
+        container.innerHTML = '';
+        const s = document.createElement('script');
+        s.src = 'https://c0abr823.caspio.com/dp/1c9f500099edf2611dd64a8fa537/emb';
+        container.appendChild(s);
+        waitForInsertForm(0);
+    }
+
+
 
     function waitForInsertForm(tries) {
         const matchField = document.getElementById('InsertRecordMatch_ID');
