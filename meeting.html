@@ -136,6 +136,8 @@
     const projectTitle = params.get('project_title') || '';
     const myName      = params.get('name') || sessionStorage.getItem('name') || '';
     const myUid       = coachUid || sessionStorage.getItem('uid') || '';
+    const problemParam = params.get('problem') || '';
+    const aboutParam   = params.get('about') || '';
 
     // Set header
     if (coacheeName) {
@@ -276,8 +278,8 @@
 
     function renderProjectContext(p) {
         const title   = p.projectTitle || projectTitle || 'No title provided';
-        const problem = p.problem || 'No problem statement provided.';
-        const about   = p.about   || 'No background provided.';
+        const problem = p.problem || problemParam || 'No problem statement provided.';
+        const about   = p.about   || aboutParam   || 'No background provided.';
         document.getElementById('project-context').innerHTML = `
             <div>
                 <h4 class="text-[9px] font-black text-slate-900 uppercase italic mb-2 tracking-tighter opacity-60">Project Title</h4>
