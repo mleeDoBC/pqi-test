@@ -474,6 +474,12 @@
 <script>
     const urlParams = new URLSearchParams(window.location.search);
     const coacheeName = urlParams.get('name');
+    const uid = urlParams.get('uid');
+
+    // Store in sessionStorage
+    if (uid) sessionStorage.setItem('uid', uid);
+    if (coacheeName) sessionStorage.setItem('name', coacheeName);
+
     if (coacheeName) {
         document.getElementById('sidebar-name').textContent = coacheeName;
     }
@@ -661,6 +667,11 @@
                 document.getElementById('InsertRecordMeeting_Method').value = methodMap[selections['method']] || '';
                 document.getElementById('InsertRecordAdditional_Info').value = document.getElementById('additional-info').value.trim();
                 document.getElementById('InsertRecordReferral').value = referralMap[selections['referral']] || '';
+
+                const currentUid = uid || sessionStorage.getItem('uid');
+                if (currentUid && document.getElementById('InsertRecordUser_ID')) {
+                    document.getElementById('InsertRecordUser_ID').value = currentUid;
+                }
 
                 const form = document.querySelector('#caspio-container form');
                 if (form) {
