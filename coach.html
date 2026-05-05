@@ -459,9 +459,15 @@
     `;
     }
     
-    // Read name from URL param
+    // Read params from URL
     const urlParams = new URLSearchParams(window.location.search);
     const coachName = urlParams.get('name');
+    const uid = urlParams.get('uid');
+
+    // Store in sessionStorage
+    if (uid) sessionStorage.setItem('uid', uid);
+    if (coachName) sessionStorage.setItem('name', coachName);
+
     if (coachName) {
         document.getElementById('coach-name').textContent = 'Dr. ' + coachName;
         const parts = coachName.trim().split(' ');
@@ -470,8 +476,9 @@
     }
 
     function viewProfile() {
-        const name = urlParams.get('name') || '';
-        window.location.href = 'coach_bio.html?name=' + encodeURIComponent(name) + '&mode=edit';
+        const currentUid = uid || sessionStorage.getItem('uid') || '';
+        const currentName = coachName || sessionStorage.getItem('name') || '';
+        window.location.href = 'coach_bio.html?uid=' + encodeURIComponent(currentUid) + '&name=' + encodeURIComponent(currentName) + '&mode=edit';
     }
 
     </script>
