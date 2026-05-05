@@ -34,6 +34,8 @@
 <body class="bg-slate-50">
 
     <!-- Hidden Caspio DataPages -->
+    <div id="caspio-insert"></div>
+    <div id="caspio-update"></div>
     <div id="caspio-coachee-profile"></div>
 
     <div class="flex flex-col min-h-screen lg:h-screen lg:overflow-hidden">
@@ -129,15 +131,26 @@
 <script>
     // ── URL Params ───────────────────────────────────────────
     const params      = new URLSearchParams(window.location.search);
-    const matchId     = params.get('match_id') || '';
-    const coacheeUid  = params.get('coachee_uid') || '';
-    const coachUid    = params.get('coach_uid') || '';
-    const coacheeName = params.get('coachee_name') || '';
-    const projectTitle = params.get('project_title') || '';
+    const matchId     = params.get('match_id') || sessionStorage.getItem('match_id') || '';
+    const sessionId   = params.get('session_id') || sessionStorage.getItem('session_id') || '';
+    const coacheeUid  = params.get('coachee_uid') || sessionStorage.getItem('coachee_uid') || '';
+    const coachUid    = params.get('coach_uid') || sessionStorage.getItem('coach_uid') || '';
+    const coacheeName = params.get('coachee_name') || sessionStorage.getItem('coachee_name') || '';
+    const projectTitle = params.get('project_title') || sessionStorage.getItem('project_title') || '';
     const myName      = params.get('name') || sessionStorage.getItem('name') || '';
     const myUid       = coachUid || sessionStorage.getItem('uid') || '';
-    const problemParam = params.get('problem') || '';
-    const aboutParam   = params.get('about') || '';
+    const problemParam = params.get('problem') || sessionStorage.getItem('problem') || '';
+    const aboutParam   = params.get('about') || sessionStorage.getItem('about') || '';
+
+    // Save all params to sessionStorage for after redirect
+    if (matchId) sessionStorage.setItem('match_id', matchId);
+    if (sessionId) sessionStorage.setItem('session_id', sessionId);
+    if (coacheeUid) sessionStorage.setItem('coachee_uid', coacheeUid);
+    if (coachUid) sessionStorage.setItem('coach_uid', coachUid);
+    if (coacheeName) sessionStorage.setItem('coachee_name', coacheeName);
+    if (projectTitle) sessionStorage.setItem('project_title', projectTitle);
+    if (problemParam) sessionStorage.setItem('problem', problemParam);
+    if (aboutParam) sessionStorage.setItem('about', aboutParam);
 
     // Set header
     if (coacheeName) {
@@ -148,7 +161,8 @@
     }
 
     function goBack() {
-        window.location.href = 'coach.html?uid=' + encodeURIComponent(myUid) + '&name=' + encodeURIComponent(myName);
+        const page = sessionStorage.getItem('role') === 'Coachee' ? 'coachee.html' : 'coach.html';
+        window.location.href = page + '?uid=' + encodeURIComponent(myUid) + '&name=' + encodeURIComponent(myName);
     }
 
     // ── Helpers ──────────────────────────────────────────────
@@ -296,11 +310,104 @@
         `;
     }
 
+    // ── Session ──────────────────────────────────────────────
+    let currentSessionId = sessionId || '';
+
+    function initSession() {
+        if (currentSessionId) {
+            // Session exists — ready to save
+            document.getElementById('sync-status').textContent = 'Live';
+        } else {
+            // No session — create one via Insert DataPage
+            document.getElementById('sync-status').textContent = 'Starting...';
+            const container = document.getElementById('caspio-insert');
+            const s = document.createElement('script');
+            s.src = 'https://c0abr823.caspio.com/dp/1c9f500099edf2611dd64a8fa537/emb';
+            container.appendChild(s);
+            waitForInsertForm(0);
+        }
+    }
+
+    function waitForInsertForm(tries) {
+        const matchField = document.getElementById('InsertRecordMatch_ID');
+        if (matchField) {
+            matchField.value = matchId;
+            const agendaField = document.getElementById('InsertRecordAgenda');
+            if (agendaField) agendaField.value = '[]';
+            const statusField = document.getElementById('InsertRecordStatus');
+            if (statusField) statusField.value = 'Active';
+            const form = document.querySelector('#caspio-insert form');
+            if (form) form.submit(); // Redirects back with session_id
+        } else if (tries < 30) {
+            setTimeout(() => waitForInsertForm(tries + 1), 300);
+        }
+    }
+
+    function saveSession(data) {
+        if (!currentSessionId) return;
+        const container = document.getElementById('caspio-update');
+        container.innerHTML = '';
+        const s = document.createElement('script');
+        s.src = 'https://c0abr823.caspio.com/dp/1c9f500037d48cb67ee441fc8907/emb?Session_ID=' + encodeURIComponent(currentSessionId);
+        container.appendChild(s);
+        waitForUpdateForm(data, 0);
+    }
+
+    function waitForUpdateForm(data, tries) {
+        const agendaField = document.getElementById('EditRecordAgenda');
+        if (agendaField) {
+            if (data.agenda !== undefined) agendaField.value = data.agenda;
+            if (data.timerStart !== undefined) {
+                const tf = document.getElementById('EditRecordTimer_Start');
+                if (tf) tf.value = data.timerStart;
+            }
+            const form = document.querySelector('#caspio-update form');
+            if (form) form.submit();
+        } else if (tries < 30) {
+            setTimeout(() => waitForUpdateForm(data, tries + 1), 300);
+        }
+    }
+
+    // Hook save into agenda and timer
+    const _origToggle = toggleAgenda;
+    toggleAgenda = function(index) {
+        agendaItems[index].done = !agendaItems[index].done;
+        renderAgenda();
+        saveSession({ agenda: JSON.stringify(agendaItems) });
+    };
+
+    const _origAdd = addAgendaItem;
+    addAgendaItem = function() {
+        const input = document.getElementById('agenda-input');
+        const text = input.value.trim();
+        if (!text) return;
+        agendaItems.push({ text, done: false });
+        input.value = '';
+        renderAgenda();
+        saveSession({ agenda: JSON.stringify(agendaItems) });
+    };
+
+    const _origStart = startTimer;
+    startTimer = function() {
+        if (timerRunning) return;
+        timerRunning = true;
+        timerStartMs = Date.now();
+        document.getElementById('timer-display').classList.replace('timer-idle', 'timer-active');
+        document.getElementById('timer-status-label').textContent = 'In progress';
+        document.getElementById('start-btn').style.display = 'none';
+        document.getElementById('stop-btn').style.display = 'flex';
+        saveSession({ timerStart: new Date().toISOString() });
+        timerInterval = setInterval(() => {
+            updateTimerDisplay(Math.floor((Date.now() - timerStartMs) / 1000));
+        }, 1000);
+    };
+
     // ── Init ─────────────────────────────────────────────────
     document.getElementById('sync-status').textContent = 'Ready';
     renderAgenda();
     updateTimerDisplay(0);
     loadCoacheeProfile();
+    initSession();
 </script>
 
 </body>
