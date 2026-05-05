@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PQI Connect | Meeting</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
+        .glass-card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 24px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05); }
+        .accent-text { font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; font-size: 0.6rem; }
+        .fade-in { animation: fadeIn 0.4s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @media (min-width: 1024px) { body { overflow: hidden; } }
+
+        #caspio-insert { position: absolute; left: -9999px; top: -9999px; visibility: hidden; }
+        #caspio-session { position: absolute; left: -9999px; top: -9999px; visibility: hidden; }
+        #caspio-coachee-profile { position: absolute; left: -9999px; top: -9999px; visibility: hidden; }
+
+        .agenda-item { display: flex; align-items: flex-start; gap: 16px; padding: 16px 20px; border-radius: 20px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #e2e8f0; font-size: 14px; font-style: italic; cursor: pointer; transition: all 0.2s; }
+        .agenda-item:hover { background: rgba(255,255,255,0.08); }
+        .agenda-item.done { opacity: 0.4; text-decoration: line-through; }
+        .agenda-item i { color: #3b82f6; margin-top: 2px; flex-shrink: 0; }
+        .agenda-item.done i { color: #10b981; }
+
+        .timer-display { font-size: 2.5rem; font-weight: 900; font-style: italic; font-variant-numeric: tabular-nums; letter-spacing: -0.02em; }
+        .timer-active { color: #ef4444; }
+        .timer-idle { color: #1e293b; }
+
+        .pulse-dot { width: 6px; height: 6px; border-radius: 50%; background: #3b82f6; animation: pulse 2s infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+    </style>
+</head>
+<body class="bg-slate-50">
+
+    <!-- Hidden Caspio DataPages -->
+    <div id="caspio-insert"></div>
+    <div id="caspio-session"></div>
+    <div id="caspio-coachee-profile"></div>
+
+    <div class="flex flex-col min-h-screen lg:h-screen lg:overflow-hidden">
+
+        <!-- Top Nav -->
+        <header class="bg-white border-b border-slate-100 px-6 lg:px-10 py-4 flex items-center justify-between flex-shrink-0">
+            <button onclick="goBack()" class="flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-widest hover:text-blue-600 transition">
+                <i class="fas fa-arrow-left"></i> Dashboard
+            </button>
+            <div class="flex items-center gap-4 text-right">
+                <div>
+                    <h1 class="text-lg lg:text-xl font-black italic text-slate-900 uppercase leading-none" id="coachee-name-header">Loading...</h1>
+                    <p class="text-[9px] font-bold text-blue-600 uppercase tracking-widest mt-0.5 italic">PQI Coaching Program</p>
+                </div>
+                <div class="w-10 h-10 lg:w-11 lg:h-11 rounded-2xl bg-blue-600 flex items-center justify-center text-white font-black italic shadow-lg text-sm" id="coachee-initials">--</div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="flex-1 overflow-hidden p-4 lg:p-8">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 h-full fade-in">
+
+                <!-- Left: Agenda -->
+                <div class="col-span-1 lg:col-span-8 flex flex-col min-h-[500px] lg:h-full">
+                    <section class="glass-card bg-slate-900 flex flex-col flex-1 overflow-hidden shadow-2xl border-none">
+                        <div class="px-6 lg:px-8 py-5 border-b border-white/5 flex justify-between items-center bg-white/5">
+                            <div>
+                                <span class="accent-text text-blue-400 tracking-[0.2em] block">Meeting Agenda</span>
+                                <span class="text-[8px] text-slate-500 font-bold uppercase italic opacity-60">Collaborative Workspace</span>
+                            </div>
+                            <div class="flex items-center gap-2 px-3 py-1 bg-blue-500/10 rounded-full border border-blue-500/20">
+                                <div class="pulse-dot"></div>
+                                <span class="text-[9px] font-black text-blue-400 uppercase italic" id="sync-status">Loading</span>
+                            </div>
+                        </div>
+
+                        <div class="p-6 lg:p-8 flex-1 overflow-y-auto">
+                            <ul class="space-y-3" id="agenda-list">
+                                <li class="text-slate-500 text-xs italic text-center py-8">Loading agenda...</li>
+                            </ul>
+                        </div>
+
+                        <div class="p-6 lg:p-8 bg-black/20 border-t border-white/5">
+                            <div class="relative">
+                                <input type="text" id="agenda-input" placeholder="Type new agenda item..."
+                                    class="w-full bg-white/5 border border-white/10 rounded-[20px] py-4 pl-5 pr-14 text-sm text-slate-100 outline-none focus:ring-2 focus:ring-blue-500/50 transition-all font-medium placeholder-slate-600">
+                                <button onclick="addAgendaItem()" class="absolute right-3 top-1/2 -translate-y-1/2 w-8 h-8 bg-blue-600 rounded-xl flex items-center justify-center hover:bg-blue-500 transition">
+                                    <i class="fas fa-plus text-white text-xs"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+
+                <!-- Right: Timer + Project -->
+                <div class="col-span-1 lg:col-span-4 flex flex-col gap-6 lg:h-full">
+
+                    <!-- Timer Card -->
+                    <section class="glass-card p-5 lg:p-6 border-2 border-blue-600 shadow-2xl">
+                        <div class="flex justify-between items-center mb-5">
+                            <span class="accent-text text-blue-600 tracking-widest">Session Timer</span>
+                            <span class="text-[9px] font-black text-slate-400 uppercase" id="timer-duration-label">30 min</span>
+                        </div>
+                        <div class="text-center mb-5">
+                            <div class="timer-display timer-idle" id="timer-display">30:00</div>
+                            <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-1" id="timer-status-label">Not started</p>
+                        </div>
+                        <div class="flex gap-3">
+                            <button id="start-btn" onclick="startTimer()" class="flex-1 bg-blue-600 text-white py-3 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-blue-500 transition shadow-lg">
+                                <i class="fas fa-play mr-1"></i> Start
+                            </button>
+                            <button onclick="resetTimer()" class="px-4 bg-slate-100 text-slate-500 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-slate-200 transition">
+                                <i class="fas fa-undo"></i>
+                            </button>
+                        </div>
+                    </section>
+
+                    <!-- Project Context -->
+                    <section class="glass-card p-5 lg:p-6 flex-1 flex flex-col bg-slate-50 border-slate-200 overflow-hidden">
+                        <span class="accent-text text-slate-400 mb-5 tracking-widest block">Project Context</span>
+                        <div class="space-y-5 flex-1 lg:overflow-y-auto pr-1" id="project-context">
+                            <div class="text-center py-8 text-slate-400 text-xs italic">Loading project info...</div>
+                        </div>
+                    </section>
+                </div>
+            </div>
+        </main>
+    </div>
+
+<script>
+    // ── URL Params ───────────────────────────────────────────
+    const params      = new URLSearchParams(window.location.search);
+    const matchId     = params.get('match_id') || '';
+    const coacheeUid  = params.get('coachee_uid') || '';
+    const coachUid    = params.get('coach_uid') || '';
+    const coacheeName = params.get('coachee_name') || '';
+    const projectTitle = params.get('project_title') || '';
+    const myName      = params.get('name') || sessionStorage.getItem('name') || '';
+    const myUid       = coachUid || sessionStorage.getItem('uid') || '';
+
+    // Set header
+    if (coacheeName) {
+        document.getElementById('coachee-name-header').textContent = 'Dr. ' + coacheeName;
+        const parts = coacheeName.trim().split(' ');
+        const initials = parts.map(p => p[0]).join('').toUpperCase().slice(0, 2);
+        document.getElementById('coachee-initials').textContent = initials;
+    }
+
+    function goBack() {
+        window.location.href = 'coach.html?uid=' + encodeURIComponent(myUid) + '&name=' + encodeURIComponent(myName);
+    }
+
+    // ── Helpers ──────────────────────────────────────────────
+    function getCellText(cell) {
+        const span = cell.querySelector('span');
+        if (span) span.remove();
+        return cell.textContent.trim();
+    }
+
+    // ── Agenda ───────────────────────────────────────────────
+    let agendaItems = [];
+    let sessionId = null;
+    let saveTimeout = null;
+
+    function renderAgenda() {
+        const list = document.getElementById('agenda-list');
+        if (agendaItems.length === 0) {
+            list.innerHTML = '<li class="text-slate-500 text-xs italic text-center py-8">No agenda items yet. Add one below.</li>';
+            return;
+        }
+        list.innerHTML = agendaItems.map((item, i) => `
+            <li class="agenda-item ${item.done ? 'done' : ''}" onclick="toggleAgenda(${i})">
+                <i class="far ${item.done ? 'fa-check-square' : 'fa-square'} mt-0.5"></i>
+                <span>${item.text}</span>
+            </li>
+        `).join('');
+    }
+
+    function toggleAgenda(index) {
+        agendaItems[index].done = !agendaItems[index].done;
+        renderAgenda();
+        scheduleSave();
+    }
+
+    function addAgendaItem() {
+        const input = document.getElementById('agenda-input');
+        const text = input.value.trim();
+        if (!text) return;
+        agendaItems.push({ text, done: false });
+        input.value = '';
+        renderAgenda();
+        scheduleSave();
+    }
+
+    document.getElementById('agenda-input').addEventListener('keydown', e => {
+        if (e.key === 'Enter') addAgendaItem();
+    });
+
+    function scheduleSave() {
+        clearTimeout(saveTimeout);
+        saveTimeout = setTimeout(saveAgenda, 800);
+    }
+
+    function saveAgenda() {
+        if (!sessionId) return;
+        const agendaJson = JSON.stringify(agendaItems);
+        const field = document.getElementById('EditRecordAgenda');
+        if (field) {
+            field.value = agendaJson;
+            const form = document.querySelector('#caspio-session form');
+            if (form) form.submit();
+        }
+    }
+
+    // ── Timer ────────────────────────────────────────────────
+    let timerInterval = null;
+    let timerDurationSec = 30 * 60;
+    let timerStartMs = null;
+    let timerRunning = false;
+
+    function updateTimerDisplay(secondsLeft) {
+        const m = Math.floor(Math.max(secondsLeft, 0) / 60).toString().padStart(2, '0');
+        const s = (Math.max(secondsLeft, 0) % 60).toString().padStart(2, '0');
+        document.getElementById('timer-display').textContent = m + ':' + s;
+    }
+
+    function startTimer() {
+        if (timerRunning) return;
+        timerRunning = true;
+        timerStartMs = Date.now();
+        document.getElementById('timer-display').classList.replace('timer-idle', 'timer-active');
+        document.getElementById('timer-status-label').textContent = 'In progress';
+        document.getElementById('start-btn').disabled = true;
+        document.getElementById('start-btn').classList.add('opacity-50');
+
+        saveTimerStart();
+
+        timerInterval = setInterval(() => {
+            const elapsed = Math.floor((Date.now() - timerStartMs) / 1000);
+            const left = timerDurationSec - elapsed;
+            updateTimerDisplay(left);
+            if (left <= 0) {
+                clearInterval(timerInterval);
+                document.getElementById('timer-status-label').textContent = "Time's up!";
+            }
+        }, 1000);
+    }
+
+    function resetTimer() {
+        clearInterval(timerInterval);
+        timerRunning = false;
+        timerStartMs = null;
+        updateTimerDisplay(timerDurationSec);
+        document.getElementById('timer-display').classList.replace('timer-active', 'timer-idle');
+        document.getElementById('timer-status-label').textContent = 'Not started';
+        document.getElementById('start-btn').disabled = false;
+        document.getElementById('start-btn').classList.remove('opacity-50');
+    }
+
+    function saveTimerStart() {
+        const field = document.getElementById('EditRecordTimer_Start');
+        if (field) {
+            field.value = new Date().toISOString();
+            const form = document.querySelector('#caspio-session form');
+            if (form) form.submit();
+        }
+    }
+
+    function resumeTimerIfActive(timerStartVal, durationMin) {
+        if (!timerStartVal) return;
+        const startMs = new Date(timerStartVal).getTime();
+        if (isNaN(startMs)) return;
+        timerDurationSec = (durationMin || 30) * 60;
+        const elapsed = Math.floor((Date.now() - startMs) / 1000);
+        const left = timerDurationSec - elapsed;
+        if (left > 0) {
+            timerRunning = true;
+            timerStartMs = startMs;
+            document.getElementById('timer-display').classList.replace('timer-idle', 'timer-active');
+            document.getElementById('timer-status-label').textContent = 'In progress';
+            document.getElementById('start-btn').disabled = true;
+            document.getElementById('start-btn').classList.add('opacity-50');
+            updateTimerDisplay(left);
+            timerInterval = setInterval(() => {
+                const l = timerDurationSec - Math.floor((Date.now() - timerStartMs) / 1000);
+                updateTimerDisplay(l);
+                if (l <= 0) {
+                    clearInterval(timerInterval);
+                    document.getElementById('timer-status-label').textContent = "Time's up!";
+                }
+            }, 1000);
+        } else {
+            updateTimerDisplay(0);
+            document.getElementById('timer-status-label').textContent = "Time's up!";
+        }
+    }
+
+    // ── Load Session ─────────────────────────────────────────
+    function loadSession() {
+        const container = document.getElementById('caspio-session');
+        const s = document.createElement('script');
+        s.src = 'https://c0abr823.caspio.com/dp/1c9f5000c3f1daa2f4f94e0995f2/emb';
+        container.appendChild(s);
+        waitForSession(0);
+    }
+
+    function waitForSession(tries) {
+        const table = document.querySelector('#caspio-session table');
+        if (table) {
+            parseSession(table);
+        } else if (tries < 40) {
+            setTimeout(() => waitForSession(tries + 1), 300);
+        } else {
+            initNewSession();
+        }
+    }
+
+    function parseSession(table) {
+        const rows = table.querySelectorAll('tr');
+        let session = null;
+        rows.forEach(row => {
+            const cells = row.querySelectorAll('td');
+            if (cells.length >= 6) {
+                session = {
+                    sessionId:     getCellText(cells[0]),
+                    matchId:       getCellText(cells[1]),
+                    agenda:        getCellText(cells[2]),
+                    timerStart:    getCellText(cells[3]),
+                    timerDuration: getCellText(cells[4]),
+                    status:        getCellText(cells[5])
+                };
+            }
+        });
+
+        if (session && session.matchId === matchId) {
+            sessionId = session.sessionId;
+            document.getElementById('sync-status').textContent = 'Live';
+
+            try { agendaItems = JSON.parse(session.agenda) || []; }
+            catch(e) { agendaItems = []; }
+            renderAgenda();
+
+            const dur = parseInt(session.timerDuration) || 30;
+            timerDurationSec = dur * 60;
+            updateTimerDisplay(timerDurationSec);
+            document.getElementById('timer-duration-label').textContent = dur + ' min';
+            resumeTimerIfActive(session.timerStart, dur);
+        } else {
+            initNewSession();
+        }
+    }
+
+    function initNewSession() {
+        document.getElementById('sync-status').textContent = 'Ready';
+        agendaItems = [];
+        renderAgenda();
+        updateTimerDisplay(timerDurationSec);
+
+        const container = document.getElementById('caspio-insert');
+        const s = document.createElement('script');
+        s.src = 'https://c0abr823.caspio.com/dp/1c9f500099edf2611dd64a8fa537/emb';
+        container.appendChild(s);
+        waitForInsertForm(0);
+    }
+
+    function waitForInsertForm(tries) {
+        const matchField = document.getElementById('InsertRecordMatch_ID');
+        if (matchField) {
+            matchField.value = matchId;
+            const form = document.querySelector('#caspio-insert form');
+            if (form) {
+                form.submit();
+                // After submit, reload session
+                setTimeout(loadSession, 2000);
+            }
+        } else if (tries < 30) {
+            setTimeout(() => waitForInsertForm(tries + 1), 300);
+        }
+    }
+
+    // ── Load Coachee Profile ──────────────────────────────────
+    function loadCoacheeProfile() {
+        const container = document.getElementById('caspio-coachee-profile');
+        const s = document.createElement('script');
+        s.src = 'https://c0abr823.caspio.com/dp/1c9f5000b9f0c3645a07465f8e6b/emb';
+        container.appendChild(s);
+        waitForProfile(0);
+    }
+
+    function waitForProfile(tries) {
+        const table = document.querySelector('#caspio-coachee-profile table');
+        if (table) {
+            const rows = table.querySelectorAll('tr');
+            let profile = {};
+            rows.forEach(row => {
+                const cells = row.querySelectorAll('td');
+                if (cells.length >= 6) {
+                    profile = {
+                        projectTitle: getCellText(cells[3]),
+                        problem:      getCellText(cells[4]),
+                        about:        getCellText(cells[5])
+                    };
+                }
+            });
+            renderProjectContext(profile);
+        } else if (tries < 40) {
+            setTimeout(() => waitForProfile(tries + 1), 300);
+        } else {
+            renderProjectContext({});
+        }
+    }
+
+    function renderProjectContext(p) {
+        const title   = p.projectTitle || projectTitle || 'No title provided';
+        const problem = p.problem || 'No problem statement provided.';
+        const about   = p.about   || 'No background provided.';
+        document.getElementById('project-context').innerHTML = `
+            <div>
+                <h4 class="text-[9px] font-black text-slate-900 uppercase italic mb-2 tracking-tighter opacity-60">Project Title</h4>
+                <p class="text-xs text-slate-600 font-medium leading-relaxed italic border-l-2 border-blue-500 pl-3">${title}</p>
+            </div>
+            <div>
+                <h4 class="text-[9px] font-black text-slate-900 uppercase italic mb-2 tracking-tighter opacity-60">Problem Statement</h4>
+                <p class="text-xs text-slate-600 font-medium leading-relaxed italic border-l-2 border-slate-300 pl-3">${problem}</p>
+            </div>
+            <div>
+                <h4 class="text-[9px] font-black text-slate-900 uppercase italic mb-2 tracking-tighter opacity-60">About</h4>
+                <p class="text-xs text-slate-600 font-medium leading-relaxed italic border-l-2 border-slate-300 pl-3">${about}</p>
+            </div>
+        `;
+    }
+
+    // ── Init ─────────────────────────────────────────────────
+    loadSession();
+    loadCoacheeProfile();
+</script>
+
+</body>
+</html>
