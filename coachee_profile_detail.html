@@ -26,9 +26,7 @@
 </head>
 <body class="bg-slate-50 min-h-screen">
 
-    <div id="caspio-container">
-        <script type="text/javascript" src="https://c0abr823.caspio.com/dp/1c9f5000cb22b560cddb480fb149/emb"></script>
-    </div>
+    <div id="caspio-container" style="position:absolute;left:-9999px;top:-9999px;visibility:hidden;"></div>
 
     <div class="max-w-2xl mx-auto px-4 py-10 fade-in">
 
@@ -197,6 +195,14 @@
         `).join('');
     }
 
+    // Inject DataPage dynamically with coachee_uid
+    if (coacheeUid) {
+        const container = document.getElementById('caspio-container');
+        const s = document.createElement('script');
+        s.type = 'text/javascript';
+        s.src = 'https://c0abr823.caspio.com/dp/1c9f5000cb22b560cddb480fb149/emb?uid=' + encodeURIComponent(coacheeUid);
+        container.appendChild(s);
+    }
     waitForProfile(0);
 </script>
 
