@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PQI Connect | Find a Coach</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
+        .fade-in { animation: fadeIn 0.4s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+        #caspio-container { position: absolute; left: -9999px; top: -9999px; visibility: hidden; }
+        .coach-card { background: white; border: 1.5px solid #e2e8f0; border-radius: 24px; padding: 28px; cursor: pointer; transition: all 0.25s ease; animation: fadeIn 0.4s ease-out both; }
+        .coach-card:hover { border-color: #3b82f6; box-shadow: 0 12px 40px rgba(59,130,246,0.12); transform: translateY(-2px); }
+        .avatar-placeholder { width: 64px; height: 64px; border-radius: 20px; background: linear-gradient(135deg, #1e293b, #334155); display: flex; align-items: center; justify-content: center; font-weight: 900; font-style: italic; color: white; font-size: 18px; flex-shrink: 0; }
+        .avatar-img { width: 64px; height: 64px; border-radius: 20px; object-fit: cover; flex-shrink: 0; }
+        .tag { display: inline-block; padding: 3px 10px; border-radius: 99px; font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; background: #f1f5f9; color: #64748b; border: 1px solid #e2e8f0; }
+        .spinner { display: flex; align-items: center; justify-content: center; padding: 60px; color: #94a3b8; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; gap: 10px; }
+    </style>
+</head>
+<body class="bg-slate-50 min-h-screen">
+    <div id="caspio-container"></div>
+    <div class="max-w-2xl mx-auto px-4 py-10">
+        <div class="mb-8 flex items-center justify-between fade-in">
+            <button onclick="goBack()" class="flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-widest hover:text-blue-600 transition">
+                <i class="fas fa-arrow-left"></i> Back
+            </button>
+            <div class="flex items-center gap-3 italic font-black text-lg uppercase tracking-tighter text-slate-800">
+                <i class="fas fa-handshake-angle text-blue-500"></i>
+                PQI <span class="text-blue-500">CONNECT</span>
+            </div>
+        </div>
+        <div class="mb-8 fade-in">
+            <p class="text-[10px] font-black text-blue-600 uppercase tracking-widest mb-1">Step 2 of 2</p>
+            <h1 class="text-3xl font-black italic text-slate-900 uppercase tracking-tight leading-none">Find Your Coach</h1>
+            <p class="text-sm text-slate-400 font-medium mt-2">Select a coach whose expertise matches your project needs.</p>
+        </div>
+        <div class="space-y-4" id="coach-list">
+            <div class="spinner"><i class="fas fa-spinner fa-spin"></i> Loading coaches...</div>
+        </div>
+    </div>
+<script>
+    const params = new URLSearchParams(window.location.search);
+    const myUid  = params.get('uid') || sessionStorage.getItem('uid') || '';
+    const myName = params.get('name') || sessionStorage.getItem('name') || '';
+    const COACH_UIDS = ['D3NADD23', 'XWGQSF2D', 'UH7DQDXN'];
+
+    function goBack() {
+        window.location.href = 'coachee_setup.html?uid=' + encodeURIComponent(myUid) + '&name=' + encodeURIComponent(myName);
+    }
+
+    function getCellText(cell) {
+        const span = cell.querySelector('span');
+        if (span) span.remove();
+        return cell.textContent.trim();
+    }
+
+    function loadCoaches() {
+        const container = document.getElementById('caspio-container');
+        const s = document.createElement('script');
+        s.type = 'text/javascript';
+        s.src = 'https://c0abr823.caspio.com/dp/1c9f500041d0de92c58a4d14b98d/emb';
+        container.appendChild(s);
+        waitForCoaches(0);
+    }
+
+    function waitForCoaches(tries) {
+        const table = document.querySelector('#caspio-container table');
+        if (table) {
+            parseCoaches(table);
+        } else if (tries < 40) {
+            setTimeout(() => waitForCoaches(tries + 1), 300);
+        } else {
+            document.getElementById('coach-list').innerHTML = '<p class="text-center py-10 text-slate-400 text-xs italic">Could not load coaches.</p>';
+        }
+    }
+
+    function parseCoaches(table) {
+        const rows = table.querySelectorAll('tr');
+        const coaches = [];
+        rows.forEach(row => {
+            const cells = row.querySelectorAll('td');
+            if (cells.length >= 5) {
+                const profileImage = getCellText(cells[0]);
+                const firstName    = getCellText(cells[1]);
+                const lastName     = getCellText(cells[2]);
+                const practice     = getCellText(cells[3]);
+                const qiStrengths  = getCellText(cells[4]);
+                const userId       = getCellText(cells[5]);
+                if (!COACH_UIDS.length || COACH_UIDS.includes(userId)) {
+                    coaches.push({ profileImage, firstName, lastName, practice, qiStrengths, userId });
+                }
+            }
+        });
+        renderCoaches(coaches);
+    }
+
+    function renderCoaches(coaches) {
+        const list = document.getElementById('coach-list');
+        if (coaches.length === 0) {
+            list.innerHTML = '<p class="text-center py-10 text-slate-400 text-xs italic">No coaches available.</p>';
+            return;
+        }
+        list.innerHTML = coaches.map((c, i) => {
+            const initials = (((c.firstName||'')[0]||'') + ((c.lastName||'')[0]||'')).toUpperCase();
+            const tags = c.qiStrengths ? c.qiStrengths.split(',').slice(0,3).map(t => '<span class="tag">'+t.trim()+'</span>').join('') : '';
+            const avatarHtml = c.profileImage
+                ? '<img src="'+c.profileImage+'" class="avatar-img" onerror="this.outerHTML=\'<div class=&quot;avatar-placeholder&quot;>'+initials+'</div>\'">'
+                : '<div class="avatar-placeholder">'+initials+'</div>';
+            return '<div class="coach-card" style="animation-delay:'+( i*0.1)+'s" onclick="openCoach(\''+c.userId+'\')"><div class="flex items-start gap-5">'+avatarHtml+'<div class="flex-1 min-w-0"><div class="flex items-start justify-between gap-2"><h3 class="text-base font-black italic text-slate-900 uppercase leading-none">Dr. '+c.firstName+' '+c.lastName+'</h3><i class="fas fa-chevron-right text-slate-300 text-xs mt-1 flex-shrink-0"></i></div>'+(c.practice ? '<p class="text-xs font-bold text-slate-400 italic mt-1">'+c.practice+'</p>' : '')+(tags ? '<div class="flex flex-wrap gap-1.5 mt-3">'+tags+'</div>' : '')+'</div></div></div>';
+        }).join('');
+    }
+
+    function openCoach(coachUid) {
+        window.location.href = 'coach_detail.html?coach_uid=' + encodeURIComponent(coachUid)
+            + '&uid=' + encodeURIComponent(myUid)
+            + '&name=' + encodeURIComponent(myName);
+    }
+
+    loadCoaches();
+</script>
+</body>
+</html>
