@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PQI Connect | Coach Profile</title>
+    <title>Coach Connect | Coach Profile</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
@@ -31,7 +31,7 @@
             </button>
             <div class="flex items-center gap-3 italic font-black text-lg uppercase tracking-tighter text-slate-800">
                 <i class="fas fa-handshake-angle text-blue-500"></i>
-                PQI <span class="text-blue-500">CONNECT</span>
+                COACH <span class="text-blue-500">CONNECT</span>
             </div>
         </div>
 
@@ -79,35 +79,43 @@
         waitForCoach(0);
     }
 
-    function waitForCoach(tries) {
+    function parseAndRender() {
         const table = document.querySelector('#caspio-container table');
-        if (table) {
-            const rows = table.querySelectorAll('tr');
-            let profile = null;
-            rows.forEach(row => {
-                const cells = row.querySelectorAll('td');
-                if (cells.length >= 9) {
-                    const imgEl = cells[0].querySelector('img');
-                    profile = {
-                        profileImage:  imgEl ? imgEl.src : '',
-                        firstName:     getCellText(cells[1]),
-                        lastName:      getCellText(cells[2]),
-                        practice:      getCellText(cells[3]),
-                        qiStrengths:   getCellText(cells[4]),
-                        about:         getCellText(cells[5]),
-                        coachingStyle: getCellText(cells[6]),
-                        additional:    getCellText(cells[7]),
-                        bookingLink:   getCellText(cells[8]),
-                        email:         getCellText(cells[9])
-                    };
-                }
-            });
-            if (profile) renderProfile(profile);
-            else document.getElementById('profile-hero').innerHTML = '<p class="text-slate-400 text-xs italic">Profile not found.</p>';
-        } else if (tries < 40) {
-            setTimeout(() => waitForCoach(tries + 1), 300);
+        if (!table) return false;
+        const rows = table.querySelectorAll('tr');
+        let profile = null;
+        rows.forEach(row => {
+            const cells = row.querySelectorAll('td');
+            if (cells.length >= 9) {
+                const imgEl = cells[0].querySelector('img');
+                profile = {
+                    profileImage:  imgEl ? imgEl.src : '',
+                    firstName:     getCellText(cells[1]),
+                    lastName:      getCellText(cells[2]),
+                    practice:      getCellText(cells[3]),
+                    qiStrengths:   getCellText(cells[4]),
+                    about:         getCellText(cells[5]),
+                    coachingStyle: getCellText(cells[6]),
+                    additional:    getCellText(cells[7]),
+                    bookingLink:   getCellText(cells[8]),
+                    email:         getCellText(cells[9])
+                };
+            }
+        });
+        if (profile) { renderProfile(profile); return true; }
+        return false;
+    }
+
+    function waitForCoach(tries) {
+        if (parseAndRender()) return;
+        if (tries < 60) {
+            setTimeout(() => waitForCoach(tries + 1), 500);
         } else {
-            document.getElementById('profile-hero').innerHTML = '<p class="text-slate-400 text-xs italic">Could not load profile.</p>';
+            // Last resort: MutationObserver
+            const observer = new MutationObserver(() => {
+                if (parseAndRender()) observer.disconnect();
+            });
+            observer.observe(document.getElementById('caspio-container'), { childList: true, subtree: true });
         }
     }
 
