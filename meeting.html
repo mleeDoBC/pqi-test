@@ -461,17 +461,34 @@
             const rows = table.querySelectorAll('tr');
             rows.forEach(row => {
                 const cells = row.querySelectorAll('td');
-                if (cells.length >= 3) {
+                if (cells.length >= 4) {
+                    // Sync agenda
                     const agendaRaw = getCellText(cells[2]);
                     try {
                         const loaded = JSON.parse(agendaRaw);
                         const unchecked = loaded.filter(item => !item.done);
-                        // Only update if different
                         if (JSON.stringify(unchecked) !== JSON.stringify(agendaItems)) {
                             agendaItems = unchecked;
                             renderAgenda();
                         }
                     } catch(e) {}
+
+                    // Sync timer
+                    const timerStartVal = getCellText(cells[3]);
+                    if (timerStartVal && !timerRunning) {
+                        const startMs = new Date(timerStartVal).getTime();
+                        if (!isNaN(startMs)) {
+                            timerRunning = true;
+                            timerStartMs = startMs;
+                            document.getElementById('timer-display').classList.replace('timer-idle', 'timer-active');
+                            document.getElementById('timer-status-label').textContent = 'In progress';
+                            document.getElementById('start-btn').style.display = 'none';
+                            document.getElementById('stop-btn').style.display = 'flex';
+                            timerInterval = setInterval(() => {
+                                updateTimerDisplay(Math.floor((Date.now() - timerStartMs) / 1000));
+                            }, 1000);
+                        }
+                    }
                 }
             });
         } else if (tries < 15) {
