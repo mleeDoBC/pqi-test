@@ -234,10 +234,12 @@
     function stopTimer() {
         clearInterval(timerInterval);
         timerRunning = false;
+        timerStartMs = null;
         document.getElementById('timer-display').classList.replace('timer-active', 'timer-idle');
         document.getElementById('timer-status-label').textContent = 'Stopped';
         document.getElementById('start-btn').style.display = 'flex';
         document.getElementById('stop-btn').style.display = 'none';
+        saveSession({ timerStart: '' });
     }
 
     function resetTimer() {
@@ -249,6 +251,7 @@
         document.getElementById('timer-status-label').textContent = 'Not started';
         document.getElementById('start-btn').style.display = 'flex';
         document.getElementById('stop-btn').style.display = 'none';
+        saveSession({ timerStart: '' });
     }
 
     // ── Load Coachee Profile ──────────────────────────────────
@@ -476,6 +479,7 @@
                     // Sync timer
                     const timerStartVal = getCellText(cells[3]);
                     if (timerStartVal && !timerRunning) {
+                        // Start timer if not running
                         const startMs = new Date(timerStartVal).getTime();
                         if (!isNaN(startMs)) {
                             timerRunning = true;
@@ -484,10 +488,21 @@
                             document.getElementById('timer-status-label').textContent = 'In progress';
                             document.getElementById('start-btn').style.display = 'none';
                             document.getElementById('stop-btn').style.display = 'flex';
+                            clearInterval(timerInterval);
                             timerInterval = setInterval(() => {
                                 updateTimerDisplay(Math.floor((Date.now() - timerStartMs) / 1000));
                             }, 1000);
                         }
+                    } else if (!timerStartVal && timerRunning) {
+                        // Stop timer if other side stopped
+                        clearInterval(timerInterval);
+                        timerRunning = false;
+                        timerStartMs = null;
+                        updateTimerDisplay(0);
+                        document.getElementById('timer-display').classList.replace('timer-active', 'timer-idle');
+                        document.getElementById('timer-status-label').textContent = 'Stopped';
+                        document.getElementById('start-btn').style.display = 'flex';
+                        document.getElementById('stop-btn').style.display = 'none';
                     }
                 }
             });
