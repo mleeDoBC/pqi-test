@@ -15,7 +15,6 @@
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         @media (min-width: 1024px) { body { overflow: hidden; } }
 
-        #caspio-coachee-profile { position: absolute; left: -9999px; top: -9999px; visibility: hidden; }
 
         .agenda-item { display: flex; align-items: flex-start; gap: 16px; padding: 16px 20px; border-radius: 20px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #e2e8f0; font-size: 14px; font-style: italic; cursor: pointer; transition: all 0.2s; }
         .agenda-item:hover { background: rgba(255,255,255,0.08); }
@@ -37,7 +36,6 @@
     <div id="caspio-insert" style="position:absolute;left:-9999px;top:-9999px;visibility:hidden;"></div>
     <div id="caspio-update" style="position:absolute;left:-9999px;top:-9999px;visibility:hidden;"></div>
     <iframe id="caspio-update-frame" name="caspio-update-frame" style="position:absolute;left:-9999px;top:-9999px;" width="0" height="0" frameborder="0"></iframe>
-    <div id="caspio-coachee-profile"></div>
 
     <div class="flex flex-col min-h-screen lg:h-screen lg:overflow-hidden">
 
@@ -260,37 +258,6 @@
         return cell.textContent.trim();
     }
 
-    function loadCoacheeProfile() {
-        const container = document.getElementById('caspio-coachee-profile');
-        const s = document.createElement('script');
-        s.src = 'https://c0abr823.caspio.com/dp/1c9f5000b9f0c3645a07465f8e6b/emb';
-        container.appendChild(s);
-        waitForProfile(0);
-    }
-
-    function waitForProfile(tries) {
-        const table = document.querySelector('#caspio-coachee-profile table');
-        if (table) {
-            const rows = table.querySelectorAll('tr');
-            let profile = {};
-            rows.forEach(row => {
-                const cells = row.querySelectorAll('td');
-                if (cells.length >= 6) {
-                    profile = {
-                        projectTitle: getCellText(cells[3]),
-                        problem:      getCellText(cells[4]),
-                        about:        getCellText(cells[5])
-                    };
-                }
-            });
-            renderProjectContext(profile);
-        } else if (tries < 40) {
-            setTimeout(() => waitForProfile(tries + 1), 300);
-        } else {
-            renderProjectContext({});
-        }
-    }
-
     function renderProjectContext(p) {
         const title   = p.projectTitle || projectTitle || 'No title provided';
         const problem = p.problem || problemParam || 'No problem statement provided.';
@@ -474,7 +441,6 @@
     document.getElementById('sync-status').textContent = 'Ready';
     renderAgenda();
     updateTimerDisplay(0);
-    loadCoacheeProfile();
     initSession();
 </script>
 
