@@ -83,7 +83,9 @@
         rows.forEach(row => {
             const cells = row.querySelectorAll('td');
             if (cells.length >= 5) {
-                const profileImage = getCellText(cells[0]);
+                // Profile_Image is rendered as <img> tag by Caspio
+                const imgEl = cells[0].querySelector('img');
+                const profileImage = imgEl ? imgEl.src : '';
                 const firstName    = getCellText(cells[1]);
                 const lastName     = getCellText(cells[2]);
                 const practice     = getCellText(cells[3]);
