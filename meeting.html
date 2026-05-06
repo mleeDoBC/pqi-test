@@ -13,7 +13,6 @@
         .accent-text { font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; font-size: 0.6rem; }
         .fade-in { animation: fadeIn 0.4s ease-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        @media (min-width: 1024px) { body { overflow: hidden; } }
 
 
         .agenda-item { display: flex; align-items: flex-start; gap: 16px; padding: 16px 20px; border-radius: 20px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #e2e8f0; font-size: 14px; font-style: italic; cursor: pointer; transition: all 0.2s; }
@@ -37,7 +36,7 @@
     <div id="caspio-update" style="position:absolute;left:-9999px;top:-9999px;visibility:hidden;"></div>
     <iframe id="caspio-update-frame" name="caspio-update-frame" style="position:absolute;left:-9999px;top:-9999px;" width="0" height="0" frameborder="0"></iframe>
 
-    <div class="flex flex-col min-h-screen lg:h-screen lg:overflow-hidden">
+    <div class="flex flex-col min-h-screen">
 
         <!-- Top Nav -->
         <header class="bg-white border-b border-slate-100 px-6 lg:px-10 py-4 flex items-center justify-between flex-shrink-0">
@@ -54,12 +53,12 @@
         </header>
 
         <!-- Main Content -->
-        <main class="flex-1 overflow-hidden p-4 lg:p-8">
+        <main class="flex-1 p-4 lg:p-8">
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 h-full fade-in">
 
                 <!-- Left: Agenda -->
-                <div class="col-span-1 lg:col-span-8 flex flex-col min-h-[500px] lg:h-full">
-                    <section class="glass-card bg-slate-900 flex flex-col flex-1 overflow-hidden shadow-2xl border-none">
+                <div class="col-span-1 lg:col-span-8 flex flex-col">
+                    <section class="glass-card bg-slate-900 flex flex-col shadow-2xl border-none">
                         <div class="px-6 lg:px-8 py-5 border-b border-white/5 flex justify-between items-center bg-white/5">
                             <div>
                                 <span class="accent-text text-blue-400 tracking-[0.2em] block">Meeting Agenda</span>
@@ -71,7 +70,7 @@
                             </div>
                         </div>
 
-                        <div class="p-6 lg:p-8 flex-1 overflow-y-auto">
+                        <div class="p-6 lg:p-8 min-h-[300px]">
                             <ul class="space-y-3" id="agenda-list">
                                 <li class="text-slate-500 text-xs italic text-center py-8">Loading agenda...</li>
                             </ul>
@@ -90,7 +89,7 @@
                 </div>
 
                 <!-- Right: Timer + Project -->
-                <div class="col-span-1 lg:col-span-4 flex flex-col gap-6 lg:h-full">
+                <div class="col-span-1 lg:col-span-4 flex flex-col gap-6">
 
                     <!-- Timer Card -->
                     <section class="glass-card p-5 lg:p-6 border-2 border-blue-600 shadow-2xl">
@@ -116,7 +115,7 @@
                     </section>
 
                     <!-- Project Context -->
-                    <section class="glass-card p-5 lg:p-6 flex-1 flex flex-col bg-slate-50 border-slate-200 overflow-hidden">
+                    <section class="glass-card p-5 lg:p-6 flex flex-col bg-slate-50 border-slate-200">
                         <span class="accent-text text-slate-400 mb-5 tracking-widest block">Project Context</span>
                         <div class="space-y-5 flex-1 lg:overflow-y-auto pr-1" id="project-context">
                             <div class="text-center py-8 text-slate-400 text-xs italic">Loading project info...</div>
