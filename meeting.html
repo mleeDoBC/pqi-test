@@ -443,6 +443,41 @@
     updateTimerDisplay(0);
     renderProjectContext({});
     initSession();
+
+    // ── Polling: refresh agenda every 5 seconds ───────────────
+    setInterval(() => {
+        if (!currentSessionId) return;
+        const container = document.getElementById('caspio-insert');
+        container.innerHTML = '';
+        const s = document.createElement('script');
+        s.src = 'https://c0abr823.caspio.com/dp/1c9f50008d6578f1dda0494d85a7/emb?' + Date.now();
+        container.appendChild(s);
+        waitForPollData(0);
+    }, 5000);
+
+    function waitForPollData(tries) {
+        const table = document.querySelector('#caspio-insert table');
+        if (table) {
+            const rows = table.querySelectorAll('tr');
+            rows.forEach(row => {
+                const cells = row.querySelectorAll('td');
+                if (cells.length >= 3) {
+                    const agendaRaw = getCellText(cells[2]);
+                    try {
+                        const loaded = JSON.parse(agendaRaw);
+                        const unchecked = loaded.filter(item => !item.done);
+                        // Only update if different
+                        if (JSON.stringify(unchecked) !== JSON.stringify(agendaItems)) {
+                            agendaItems = unchecked;
+                            renderAgenda();
+                        }
+                    } catch(e) {}
+                }
+            });
+        } else if (tries < 15) {
+            setTimeout(() => waitForPollData(tries + 1), 300);
+        }
+    }
 </script>
 
 </body>
