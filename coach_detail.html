@@ -87,8 +87,9 @@
             rows.forEach(row => {
                 const cells = row.querySelectorAll('td');
                 if (cells.length >= 9) {
+                    const imgEl = cells[0].querySelector('img');
                     profile = {
-                        profileImage:  getCellText(cells[0]),
+                        profileImage:  imgEl ? imgEl.src : '',
                         firstName:     getCellText(cells[1]),
                         lastName:      getCellText(cells[2]),
                         practice:      getCellText(cells[3]),
