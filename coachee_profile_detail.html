@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PQI Connect | Coachee Profile</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
+        .glass-card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 24px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05); }
+        .accent-text { font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; font-size: 0.6rem; }
+        .fade-in { animation: fadeIn 0.4s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        #caspio-container { position: absolute; left: -9999px; top: -9999px; visibility: hidden; }
+
+        .field-label { font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.15em; color: #94a3b8; margin-bottom: 4px; }
+        .field-value { font-size: 13px; font-weight: 600; color: #1e293b; line-height: 1.6; }
+        .field-value.empty { color: #cbd5e1; font-style: italic; font-weight: 400; }
+        .field-block { padding: 16px; background: #f8fafc; border-radius: 16px; border: 1px solid #f1f5f9; }
+
+        .spinner { display: flex; align-items: center; justify-content: center; padding: 60px; color: #94a3b8; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; gap: 10px; }
+    </style>
+</head>
+<body class="bg-slate-50 min-h-screen">
+
+    <div id="caspio-container">
+        <script type="text/javascript" src="https://c0abr823.caspio.com/dp/1c9f5000cb22b560cddb480fb149/emb"></script>
+    </div>
+
+    <div class="max-w-2xl mx-auto px-4 py-10 fade-in">
+
+        <!-- Header -->
+        <div class="mb-8 flex items-center justify-between">
+            <button onclick="goBack()" class="flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-widest hover:text-blue-600 transition">
+                <i class="fas fa-arrow-left"></i> Back
+            </button>
+            <div class="flex items-center gap-3 italic font-black text-lg uppercase tracking-tighter text-slate-800">
+                <i class="fas fa-handshake-angle text-blue-500"></i>
+                PQI <span class="text-blue-500">CONNECT</span>
+            </div>
+        </div>
+
+        <!-- Profile Card -->
+        <section class="glass-card p-8 lg:p-10">
+
+            <!-- Name + Title -->
+            <div class="mb-8 pb-8 border-b border-slate-100">
+                <span class="accent-text text-blue-600 block mb-2">Coachee Application</span>
+                <h2 class="text-2xl font-black italic text-slate-900 uppercase leading-none mb-1" id="profile-name">Loading...</h2>
+                <p class="text-xs font-bold text-slate-400 italic" id="profile-project">—</p>
+            </div>
+
+            <!-- Content -->
+            <div id="profile-content">
+                <div class="spinner">
+                    <i class="fas fa-spinner fa-spin"></i> Loading profile...
+                </div>
+            </div>
+
+        </section>
+    </div>
+
+<script>
+    const params = new URLSearchParams(window.location.search);
+    const coacheeUid  = params.get('coachee_uid') || '';
+    const matchId     = params.get('match_id') || '';
+    const coacheeName = params.get('coachee_name') || sessionStorage.getItem('coachee_name') || '';
+    const myUid       = params.get('coach_uid') || sessionStorage.getItem('uid') || '';
+    const myName      = params.get('name') || sessionStorage.getItem('name') || '';
+
+    if (coacheeName) {
+        document.getElementById('profile-name').textContent = 'Dr. ' + coacheeName;
+    }
+
+    function goBack() {
+        const meetingUrl = 'meeting.html?match_id=' + encodeURIComponent(matchId)
+            + '&coachee_uid=' + encodeURIComponent(coacheeUid)
+            + '&coach_uid=' + encodeURIComponent(myUid)
+            + '&name=' + encodeURIComponent(myName)
+            + '&coachee_name=' + encodeURIComponent(coacheeName)
+            + '&project_title=' + encodeURIComponent(sessionStorage.getItem('project_title') || '')
+            + '&problem=' + encodeURIComponent(sessionStorage.getItem('problem') || '')
+            + '&about=' + encodeURIComponent(sessionStorage.getItem('about') || '');
+        window.location.href = meetingUrl;
+    }
+
+    function getCellText(cell) {
+        const span = cell.querySelector('span');
+        if (span) span.remove();
+        return cell.textContent.trim();
+    }
+
+    function val(v) {
+        return v || '<span class="empty">Not provided</span>';
+    }
+
+    function waitForProfile(tries) {
+        const table = document.querySelector('#caspio-container table');
+        if (table) {
+            const rows = table.querySelectorAll('tr');
+            let profile = null;
+            rows.forEach(row => {
+                const cells = row.querySelectorAll('td');
+                if (cells.length >= 12) {
+                    profile = {
+                        projectTitle:  getCellText(cells[0]),
+                        startDate:     getCellText(cells[1]),
+                        endDate:       getCellText(cells[2]),
+                        physicianLead: getCellText(cells[3]),
+                        site:          getCellText(cells[4]),
+                        about:         getCellText(cells[5]),
+                        problem:       getCellText(cells[6]),
+                        situation:     getCellText(cells[7]),
+                        funding:       getCellText(cells[8]),
+                        projectRegion: getCellText(cells[9]),
+                        supportNeeded: getCellText(cells[10]),
+                        qiLevel:       getCellText(cells[11]),
+                        additionalInfo: cells[12] ? getCellText(cells[12]) : '',
+                        email:         cells[13] ? getCellText(cells[13]) : '',
+                        phone:         cells[14] ? getCellText(cells[14]) : ''
+                    };
+                }
+            });
+
+            if (profile) {
+                renderProfile(profile);
+            } else {
+                document.getElementById('profile-content').innerHTML = '<p class="text-center py-10 text-slate-400 text-xs italic">No profile data found.</p>';
+            }
+        } else if (tries < 40) {
+            setTimeout(() => waitForProfile(tries + 1), 300);
+        } else {
+            document.getElementById('profile-content').innerHTML = '<p class="text-center py-10 text-slate-400 text-xs italic">Could not load profile.</p>';
+        }
+    }
+
+    function renderProfile(p) {
+        document.getElementById('profile-project').textContent = p.projectTitle || '—';
+
+        const sections = [
+            {
+                title: 'Project',
+                fields: [
+                    { label: 'Project Title', value: p.projectTitle },
+                    { label: 'Start Date', value: p.startDate },
+                    { label: 'End Date', value: p.endDate },
+                    { label: 'Project Region', value: p.projectRegion },
+                    { label: 'Funding', value: p.funding },
+                    { label: 'Physician Lead', value: p.physicianLead },
+                    { label: 'Site', value: p.site },
+                ]
+            },
+            {
+                title: 'Background',
+                fields: [
+                    { label: 'About the Coachee', value: p.about, long: true },
+                    { label: 'Problem Statement', value: p.problem, long: true },
+                    { label: 'Current Situation', value: p.situation, long: true },
+                ]
+            },
+            {
+                title: 'Coaching Needs',
+                fields: [
+                    { label: 'Support Needed', value: p.supportNeeded, long: true },
+                    { label: 'QI Experience Level', value: p.qiLevel },
+                    { label: 'Additional Info', value: p.additionalInfo, long: true },
+                ]
+            },
+            {
+                title: 'Contact',
+                fields: [
+                    { label: 'Email', value: p.email },
+                    { label: 'Phone', value: p.phone },
+                ]
+            }
+        ];
+
+        document.getElementById('profile-content').innerHTML = sections.map(section => `
+            <div class="mb-8">
+                <h3 class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+                    <span class="w-4 h-px bg-slate-200 inline-block"></span>
+                    ${section.title}
+                    <span class="flex-1 h-px bg-slate-100 inline-block"></span>
+                </h3>
+                <div class="${section.fields.some(f => f.long) ? 'space-y-3' : 'grid grid-cols-2 gap-3'}">
+                    ${section.fields.map(f => `
+                        <div class="field-block ${f.long ? '' : ''}">
+                            <div class="field-label">${f.label}</div>
+                            <div class="field-value">${f.value ? f.value : '<span style="color:#cbd5e1;font-style:italic;font-weight:400">Not provided</span>'}</div>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        `).join('');
+    }
+
+    waitForProfile(0);
+</script>
+
+</body>
+</html>
