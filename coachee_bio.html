@@ -104,16 +104,22 @@
     </main>
 </div>
 
-<!-- Hidden Caspio Update DataPage (Coachee_Profile 기반 Single Record Update) -->
-<div id="caspio-update-profile" style="position:absolute;left:-9999px;top:-9999px;">
-    <!-- TODO: Coachee_Profile 기반 Update DataPage 배포 코드 삽입 (AJAX 활성화 필수) -->
-    <!-- <script type="text/javascript" src="https://c0abr823.caspio.com/dp/..."></script> -->
-</div>
+<!-- Hidden Caspio Update DataPage -->
+<div id="caspio-update-profile" style="position:absolute;left:-9999px;top:-9999px;"></div>
 
 <script>
     const urlParams = new URLSearchParams(window.location.search);
     const coacheeName = urlParams.get('name');
     const uid = urlParams.get('uid');
+
+    // Caspio DataPage를 불러오면서 uid를 coachee_uid로 전달
+    if (uid) {
+        const dpContainer = document.getElementById('caspio-update-profile');
+        const scriptEl = document.createElement('script');
+        scriptEl.type = 'text/javascript';
+        scriptEl.src = 'https://c0abr823.caspio.com/dp/1c9f5000b9f0c3645a07465f8e6b/emb?coachee_uid=' + encodeURIComponent(uid);
+        dpContainer.appendChild(scriptEl);
+    }
 
     // UI 기본 설정
     if (coacheeName) {
@@ -149,10 +155,10 @@
             
             updateChar('about', 'count-about');
 
-            // 숨겨진 폼의 업데이트 버튼 숨기기 방어 코드
+            // 숨겨진 폼의 업데이트 버튼 숨기기
             const btn = document.querySelector('#caspio-update-profile .cbUpdateButton');
             if(btn) btn.style.display = 'none';
-        } else if (tries < 30) {
+        } else if (tries < 40) { // 재시도 횟수 넉넉히 연장
             setTimeout(() => loadExistingData(tries + 1), 300);
         }
     }
@@ -185,7 +191,7 @@
                 const aboutField = document.querySelector('#caspio-update-profile [id^="EditRecordAbout"]');
 
                 if(phoneField) phoneField.value = document.getElementById('phone').value.trim();
-                if(siteField) siteField.value = siteField;
+                if(siteField) siteField.value = site;
                 if(roleField) roleField.value = role;
                 if(aboutField) aboutField.value = about;
 
@@ -197,7 +203,7 @@
                     window.location.href = dashboardUrl;
                 }, 1200);
 
-            } else if (tries < 30) {
+            } else if (tries < 40) {
                 setTimeout(() => tryUpdate(tries + 1), 300);
             }
         }
