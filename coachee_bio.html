@@ -104,9 +104,10 @@
     </main>
 </div>
 
-<!-- Hidden Caspio Update DataPage (주소창의 uid를 자동으로 읽어들임) -->
+<!-- Hidden Caspio Update DataPage (RLS 적용 완료된 폼) -->
 <div id="caspio-update-profile" style="position:absolute;left:-9999px;top:-9999px;">
-    <script type="text/javascript" src="https://c0abr823.caspio.com/dp/1c9f5000b9f0c3645a07465f8e6b/emb"></script>
+    <!-- 새로 만들어주신 Single Record Update 스크립트를 하드코딩으로 바로 넣습니다 -->
+    <script type="text/javascript" src="https://c0abr823.caspio.com/dp/1c9f5000666821a73a7f4249af67/emb"></script>
 </div>
 
 <script>
@@ -151,7 +152,7 @@
             // 숨겨진 폼의 업데이트 버튼 숨기기
             const btn = document.querySelector('#caspio-update-profile .cbUpdateButton');
             if(btn) btn.style.display = 'none';
-        } else if (tries < 40) { // 재시도 횟수 넉넉히 연장
+        } else if (tries < 40) { // 재시도 횟수 넉넉히 연장 (AJAX 로딩 대기)
             setTimeout(() => loadExistingData(tries + 1), 300);
         }
     }
