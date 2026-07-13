@@ -113,17 +113,12 @@
     const urlParams = new URLSearchParams(window.location.search);
     const coacheeName = urlParams.get('name');
     const uid = urlParams.get('uid');
-
-    // Caspio DataPage를 불러오면서 uid를 coachee_uid로 전달
-    if (uid) {
-        const dpContainer = document.getElementById('caspio-update-profile');
-        const scriptEl = document.createElement('script');
-        scriptEl.type = 'text/javascript';
-        scriptEl.src = 'https://c0abr823.caspio.com/dp/1c9f5000b9f0c3645a07465f8e6b/emb?coachee_uid=' + encodeURIComponent(uid);
-        dpContainer.appendChild(scriptEl);
+    
+    if (uid && !urlParams.has('coachee_uid')) {
+        urlParams.set('coachee_uid', uid);
+        window.history.replaceState({}, '', `${window.location.pathname}?${urlParams.toString()}`);
     }
 
-    // UI 기본 설정
     if (coacheeName) {
         document.getElementById('sidebar-name').textContent = coacheeName;
         const parts = coacheeName.trim().split(' ');
@@ -131,7 +126,6 @@
         document.getElementById('sidebar-initials').textContent = initials;
     }
 
-    // 대시보드 복귀 링크 설정
     const dashboardUrl = `coachee.html?uid=${encodeURIComponent(uid || '')}&name=${encodeURIComponent(coacheeName || '')}`;
     document.getElementById('back-to-dashboard').href = dashboardUrl;
     document.getElementById('cancel-btn').onclick = () => window.location.href = dashboardUrl;
@@ -140,12 +134,10 @@
         document.getElementById(countId).textContent = document.getElementById(fieldId).value.length;
     }
 
-    // Caspio에서 기존 데이터 불러오기
     function loadExistingData(tries) {
         const caspioAbout = document.querySelector('#caspio-update-profile [id^="EditRecordAbout"]');
         
         if (caspioAbout) {
-            // 데이터 매핑
             const phoneField = document.querySelector('#caspio-update-profile [id^="EditRecordPhone"]');
             const siteField = document.querySelector('#caspio-update-profile [id^="EditRecordSite"]');
             const roleField = document.querySelector('#caspio-update-profile [id^="EditRecordRole_Specialty"]');
