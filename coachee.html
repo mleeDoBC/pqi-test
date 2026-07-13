@@ -38,10 +38,10 @@
             <div class="px-6 mb-10">
                 <div class="bg-white/5 border border-white/10 rounded-3xl p-5 relative overflow-hidden group">
                     <div class="flex items-center gap-4">
-                        <div class="h-12 w-12 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-black italic">ST</div>
+                        <div class="h-12 w-12 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-black italic" id="coachee-initials">ST</div>
                         <div>
                             <h4 class="text-sm font-black italic text-white leading-none uppercase" id="coachee-name">Loading...</h4>
-                            <p class="text-[8px] font-black text-blue-400 mt-1.5 uppercase tracking-widest opacity-80">Physician Coachee</p>
+                            <a href="#" onclick="viewProfile()" class="text-[8px] font-black text-blue-400 mt-1.5 uppercase tracking-widest opacity-80 hover:opacity-100 transition-opacity">View Profile →</a>
                         </div>
                     </div>
                 </div>
@@ -126,14 +126,25 @@
     const coacheeName = urlParams.get('name');
     const uid = urlParams.get('uid');
 
-    // Store in sessionStorage
+    // Store in sessionStorage (이 부분은 그대로 유지!)
     if (uid) sessionStorage.setItem('uid', uid);
     if (coacheeName) sessionStorage.setItem('name', coacheeName);
 
     if (coacheeName) {
         document.getElementById('coachee-name').textContent = coacheeName;
+        // 아바타 이니셜 추출 (추가됨)
+        const parts = coacheeName.trim().split(' ');
+        const initials = parts.map(p => p[0]).join('').toUpperCase().slice(0, 2);
+        const initialsEl = document.getElementById('coachee-initials');
+        if (initialsEl) initialsEl.textContent = initials;
     }
 
+    // 프로필 이동 함수 (추가됨)
+    function viewProfile() {
+        const currentUid = uid || sessionStorage.getItem('uid') || '';
+        const currentName = coacheeName || sessionStorage.getItem('name') || '';
+        window.location.href = 'coachee_bio.html?uid=' + encodeURIComponent(currentUid) + '&name=' + encodeURIComponent(currentName);
+    }
     // ── Load Matches ─────────────────────────────────────────
     function getCellText(cell) {
         const span = cell.querySelector('span');
