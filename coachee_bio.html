@@ -121,60 +121,66 @@
         document.getElementById(countId).textContent = document.getElementById(fieldId).value.length;
     }
 
-    function cbField(name) {
-        return document.querySelector(
-            `input[id*="${name}"], textarea[id*="${name}"], select[id*="${name}"]`
-        );
-    }
-
+    // 1. 읽어오기 (완벽한 고정 ID 매핑)
     function loadExistingData(tries) {
-        const caspioAbout = cbField('EditRecordAbout');
+        // Caspio 폼이 완전히 렌더링되었는지 확인하는 가장 확실한 기준은 저장 버튼의 존재 여부입니다.
+        const caspioUpdateBtn = document.querySelector('.cbUpdateButton');
+        const caspioAbout = document.getElementById('EditRecordAbout');
     
-        if (caspioAbout) {
-            const phoneField = cbField('EditRecordPhone');
-            const siteField  = cbField('EditRecordSite');
-            const roleField  = cbField('EditRecordRole');
+        if (caspioUpdateBtn && caspioAbout) {
+            const phoneField = document.getElementById('EditRecordPhone');
+            const siteField  = document.getElementById('EditRecordSite');
+            const roleField  = document.getElementById('EditRecordRole_Specialty');
     
-            if (phoneField) document.getElementById('phone').value = phoneField.value ?? '';
-            if (siteField)  document.getElementById('site').value = siteField.value ?? '';
-            if (roleField)  document.getElementById('role-specialty').value = roleField.value ?? '';
-            document.getElementById('about').value = caspioAbout.value ?? '';
+            // 값 세팅 (Caspio에 해당 필드가 없더라도 에러가 나지 않도록 방어 코드 적용)
+            document.getElementById('phone').value = phoneField ? phoneField.value : '';
+            document.getElementById('site').value = siteField ? siteField.value : '';
+            document.getElementById('role-specialty').value = roleField ? roleField.value : '';
+            document.getElementById('about').value = caspioAbout.value;
     
             updateChar('about', 'count-about');
-    
-            const btn = document.querySelector('#caspio-update-profile input[type="submit"]');
-            if (btn) btn.style.display = 'none';
-        } else if (tries < 40) {
+            
+            // 기존 Caspio 버튼 숨기기
+            caspioUpdateBtn.style.display = 'none';
+        } else if (tries < 50) { // 재시도 횟수와 간격을 늘려 안정성 확보
             setTimeout(() => loadExistingData(tries + 1), 300);
         }
     }
     loadExistingData(0);
 
+    // 2. 안전한 값 덮어쓰기 헬퍼 함수 (Caspio 내부 로직 충돌 방지)
+    function setCaspioValue(id, value) {
+        const el = document.getElementById(id);
+        if (el) {
+            el.value = value;
+            el.dispatchEvent(new Event('change', { bubbles: true })); // Caspio가 변경을 감지하도록 강제
+        }
+    }
+
+    // 3. 저장하기 (고정 ID 역매핑)
     function saveProfile() {
         const saveBtn = document.getElementById('save-btn');
         saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Saving...';
         saveBtn.disabled = true;
     
-        function tryUpdate(tries) {
-            const caspioUpdateBtn = document.querySelector('#caspio-update-profile input[type="submit"]');
-            if (caspioUpdateBtn) {
-                const phoneField = cbField('EditRecordPhone');
-                const siteField  = cbField('EditRecordSite');
-                const roleField  = cbField('EditRecordRole');
-                const aboutField = cbField('EditRecordAbout');
-    
-                if (phoneField) phoneField.value = document.getElementById('phone').value.trim();
-                if (siteField)  siteField.value = document.getElementById('site').value.trim();
-                if (roleField)  roleField.value = document.getElementById('role-specialty').value.trim();
-                if (aboutField) aboutField.value = document.getElementById('about').value.trim();
-    
-                caspioUpdateBtn.click();
-                setTimeout(() => { window.location.href = dashboardUrl; }, 1200);
-            } else if (tries < 40) {
-                setTimeout(() => tryUpdate(tries + 1), 300);
-            }
+        const caspioUpdateBtn = document.querySelector('.cbUpdateButton');
+        if (caspioUpdateBtn) {
+            // 커스텀 폼의 값을 읽어와서 Caspio 숨김 폼으로 전송
+            setCaspioValue('EditRecordPhone', document.getElementById('phone').value.trim());
+            setCaspioValue('EditRecordSite', document.getElementById('site').value.trim());
+            setCaspioValue('EditRecordRole_Specialty', document.getElementById('role-specialty').value.trim());
+            setCaspioValue('EditRecordAbout', document.getElementById('about').value.trim());
+
+            // 전송 버튼 클릭
+            caspioUpdateBtn.click();
+            
+            // 성공 후 돌아가기
+            setTimeout(() => { window.location.href = dashboardUrl; }, 1200);
+        } else {
+            alert('오류: Caspio 폼을 찾을 수 없습니다.');
+            saveBtn.innerHTML = 'Save Changes <i class="fas fa-save ml-2"></i>';
+            saveBtn.disabled = false;
         }
-        tryUpdate(0);
     }
 </script>
 </body>
