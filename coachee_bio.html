@@ -104,8 +104,7 @@
     </main>
 </div>
 
-<!-- Hidden Caspio Update DataPage -->
-<div id="caspio-update-profile" style="position:absolute;left:-9999px;top:-9999px;">
+<div id="caspio-update-profile" class="mt-10 p-5 bg-gray-100 rounded-xl">
     <script type="text/javascript" src="https://c0abr823.caspio.com/dp/1c9f5000b9f0c3645a07465f8e6b/emb"></script>
 </div>
 
@@ -134,13 +133,18 @@
         document.getElementById(countId).textContent = document.getElementById(fieldId).value.length;
     }
 
+    // Caspio에서 기존 데이터 불러오기 (유연한 매핑 및 디버깅 로그 추가)
     function loadExistingData(tries) {
-        const caspioAbout = document.querySelector('#caspio-update-profile [id^="EditRecordAbout"]');
+        // id에 'About'이 포함된 필드를 찾습니다.
+        const caspioAbout = document.querySelector('#caspio-update-profile [id*="About"]');
         
         if (caspioAbout) {
-            const phoneField = document.querySelector('#caspio-update-profile [id^="EditRecordPhone"]');
-            const siteField = document.querySelector('#caspio-update-profile [id^="EditRecordSite"]');
-            const roleField = document.querySelector('#caspio-update-profile [id^="EditRecordRole_Specialty"]');
+            console.log("✅ Caspio 폼 로드 성공!");
+            
+            // 데이터 매핑 (일부 단어만 포함되어도 찾도록 *= 사용)
+            const phoneField = document.querySelector('#caspio-update-profile [id*="Phone"]');
+            const siteField = document.querySelector('#caspio-update-profile [id*="Site"]');
+            const roleField = document.querySelector('#caspio-update-profile [id*="Role"]');
 
             if(phoneField) document.getElementById('phone').value = phoneField.value;
             if(siteField) document.getElementById('site').value = siteField.value;
@@ -149,11 +153,14 @@
             
             updateChar('about', 'count-about');
 
-            // 숨겨진 폼의 업데이트 버튼 숨기기
-            const btn = document.querySelector('#caspio-update-profile .cbUpdateButton');
-            if(btn) btn.style.display = 'none';
-        } else if (tries < 40) { // 재시도 횟수 넉넉히 연장
+            // 테스트를 위해 원래 있던 Caspio 폼의 버튼은 숨기지 않고 둡니다. (디버깅용)
+            // const btn = document.querySelector('#caspio-update-profile .cbUpdateButton');
+            // if(btn) btn.style.display = 'none';
+            
+        } else if (tries < 40) { 
             setTimeout(() => loadExistingData(tries + 1), 300);
+        } else {
+            console.error("❌ 12초가 지나도 Caspio 폼(About 필드)을 찾지 못했습니다.");
         }
     }
     loadExistingData(0);
