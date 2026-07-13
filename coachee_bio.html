@@ -122,9 +122,10 @@
     }
 
     function cbField(name) {
-    return document.querySelector(
-        `input[id*="${name}"], textarea[id*="${name}"], select[id*="${name}"]`
-    );
+        return document.querySelector(
+            `input[id*="${name}"], textarea[id*="${name}"], select[id*="${name}"]`
+        );
+    }
 
     function loadExistingData(tries) {
         const caspioAbout = cbField('EditRecordAbout');
