@@ -122,11 +122,13 @@
     }
 
     function loadExistingData(tries) {
-        const caspioAbout = document.querySelector('textarea[id*="EditRecordAbout"]');
+        // [id*="..."] 선택자만 사용하여 태그 종류와 상관없이 ID로 찾습니다.
+        const caspioAbout = document.querySelector('[id*="EditRecordAbout"]');
+        
         if (caspioAbout) {
-            const phoneField = document.querySelector('input[id*="EditRecordPhone"]');
-            const siteField = document.querySelector('input[id*="EditRecordSite"]');
-            const roleField = document.querySelector('input[id*="EditRecordRole"]');
+            const phoneField = document.querySelector('[id*="EditRecordPhone"]');
+            const siteField = document.querySelector('[id*="EditRecordSite"]');
+            const roleField = document.querySelector('[id*="EditRecordRole"]');
 
             if(phoneField) document.getElementById('phone').value = phoneField.value;
             if(siteField) document.getElementById('site').value = siteField.value;
@@ -134,8 +136,8 @@
             document.getElementById('about').value = caspioAbout.value;
             
             updateChar('about', 'count-about');
-            
-            const btn = document.querySelector('#caspio-update-profile .cbUpdateButton');
+
+            const btn = document.querySelector('.cbUpdateButton');
             if(btn) btn.style.display = 'none';
         } else if (tries < 40) {
             setTimeout(() => loadExistingData(tries + 1), 300);
@@ -151,10 +153,10 @@
         function tryUpdate(tries) {
             const caspioUpdateBtn = document.querySelector('#caspio-update-profile input[type="submit"]');
             if (caspioUpdateBtn) {
-                const phoneField = document.querySelector('input[id*="EditRecordPhone"]');
-                const siteField = document.querySelector('input[id*="EditRecordSite"]');
-                const roleField = document.querySelector('input[id*="EditRecordRole"]');
-                const aboutField = document.querySelector('textarea[id*="EditRecordAbout"]');
+                const phoneField = document.querySelector('[id*="EditRecordPhone"]');
+                const siteField = document.querySelector('[id*="EditRecordSite"]');
+                const roleField = document.querySelector('[id*="EditRecordRole"]');
+                const aboutField = document.querySelector('[id*="EditRecordAbout"]');
 
                 if(phoneField) phoneField.value = document.getElementById('phone').value.trim();
                 if(siteField) siteField.value = document.getElementById('site').value.trim();
