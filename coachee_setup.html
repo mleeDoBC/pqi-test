@@ -53,7 +53,6 @@
 
 <div class="flex flex-col lg:flex-row min-h-screen">
 
-    <!-- Sidebar -->
     <aside class="w-full lg:w-80 sidebar-gradient text-slate-400 flex flex-col shadow-2xl z-50 lg:h-screen lg:sticky lg:top-0">
         <div class="p-8 pb-6">
             <div class="flex items-center gap-3 italic font-black text-2xl uppercase tracking-tighter text-white">
@@ -79,28 +78,28 @@
         <div class="px-6 flex-1">
             <span class="accent-text text-slate-600 block mb-5">Setup Progress</span>
             <div class="space-y-1" id="sidebar-steps">
-                <div class="flex items-center gap-4 px-2 py-3 rounded-2xl">
+                <div class="flex items-center gap-4 px-2 py-3 rounded-2xl" id="step-nav-1">
                     <div class="step-dot active" id="dot-1">1</div>
                     <div>
                         <p class="text-xs font-black text-white uppercase tracking-wider">About You</p>
                         <p class="text-[10px] text-slate-500 mt-0.5">Contact & background</p>
                     </div>
                 </div>
-                <div class="flex items-center gap-4 px-2 py-3 rounded-2xl">
+                <div class="flex items-center gap-4 px-2 py-3 rounded-2xl" id="step-nav-2">
                     <div class="step-dot pending" id="dot-2">2</div>
                     <div>
                         <p class="text-xs font-black text-slate-500 uppercase tracking-wider" id="label-2">Your Project</p>
                         <p class="text-[10px] text-slate-600 mt-0.5">Problem & funding</p>
                     </div>
                 </div>
-                <div class="flex items-center gap-4 px-2 py-3 rounded-2xl">
+                <div class="flex items-center gap-4 px-2 py-3 rounded-2xl" id="step-nav-3">
                     <div class="step-dot pending" id="dot-3">3</div>
                     <div>
                         <p class="text-xs font-black text-slate-500 uppercase tracking-wider" id="label-3">Support & Training</p>
                         <p class="text-[10px] text-slate-600 mt-0.5">Needs & QI background</p>
                     </div>
                 </div>
-                <div class="flex items-center gap-4 px-2 py-3 rounded-2xl">
+                <div class="flex items-center gap-4 px-2 py-3 rounded-2xl" id="step-nav-4">
                     <div class="step-dot pending" id="dot-4">4</div>
                     <div>
                         <p class="text-xs font-black text-slate-500 uppercase tracking-wider" id="label-4">Availability</p>
@@ -121,7 +120,6 @@
         </div>
     </aside>
 
-    <!-- Main -->
     <main class="flex-1 lg:h-screen lg:overflow-y-auto">
         <div class="max-w-2xl mx-auto px-6 py-12">
 
@@ -158,7 +156,6 @@
                 </div>
             </div>
 
-            <!-- Step 2: Your Project -->
             <div class="step-panel" id="panel-2">
                 <div class="space-y-7">
                     <div>
@@ -241,12 +238,11 @@
                 </div>
 
                 <div class="flex justify-between mt-10 pb-4">
-                    <button class="btn-secondary" onclick="goToStep(1)"><i class="fas fa-arrow-left mr-2"></i> Back</button>
+                    <button class="btn-secondary" id="btn-back-1" onclick="goToStep(1)"><i class="fas fa-arrow-left mr-2"></i> Back</button>
                     <button class="btn-primary" onclick="goToStep(3)">Continue <i class="fas fa-arrow-right ml-2"></i></button>
                 </div>
             </div>
 
-            <!-- Step 3: Support & Training -->
             <div class="step-panel" id="panel-3">
                 <div class="space-y-7">
                     <div>
@@ -330,7 +326,6 @@
                 </div>
             </div>
 
-            <!-- Step 4: Availability & Preferences -->
             <div class="step-panel" id="panel-4">
                 <div class="space-y-7">
                     <div>
@@ -466,17 +461,20 @@
     </main>
 </div>
 
-<!-- Hidden Caspio form -->
-<div id="caspio-container" style="position:absolute;left:-9999px;top:-9999px;">
+<div id="caspio-profile" style="position:absolute;left:-9999px;top:-9999px;">
     <script type="text/javascript" src="https://c0abr823.caspio.com/dp/1c9f5000c0aaafeea05b430bbe10/emb"></script>
+</div>
+
+<div id="caspio-app" style="position:absolute;left:-9999px;top:-9999px;">
+    <script type="text/javascript" src="https://c0abr823.caspio.com/dp/1c9f50007b488fccdcd34e6492c8/emb"></script>
 </div>
 
 <script>
     const urlParams = new URLSearchParams(window.location.search);
     const coacheeName = urlParams.get('name');
     const uid = urlParams.get('uid');
+    const isNewProject = urlParams.get('mode') === 'new';
 
-    // Store in sessionStorage
     if (uid) sessionStorage.setItem('uid', uid);
     if (coacheeName) sessionStorage.setItem('name', coacheeName);
 
@@ -500,7 +498,7 @@
     };
 
     let currentStep = 1;
-    const totalSteps = 4;
+    let totalSteps = 4;
 
     const stepMeta = {
         1: { title: "Tell us about yourself", sub: "Your information will remain confidential." },
@@ -509,22 +507,34 @@
         4: { title: "Availability & preferences", sub: "Help us find the right coach for your schedule." }
     };
 
-    const stepLabels = { 2: 'label-2', 3: 'label-3', 4: 'label-4' };
+    if (isNewProject) {
+        document.getElementById('step-nav-1').style.display = 'none';
+        document.getElementById('btn-back-1').style.display = 'none';
+        
+        document.getElementById(`panel-1`).classList.remove('active');
+        document.getElementById(`panel-2`).classList.add('active');
+        
+        document.getElementById('dot-2').className = 'step-dot active';
+        document.getElementById('label-2').className = 'text-xs font-black text-white uppercase tracking-wider';
+        
+        document.getElementById('step-num').textContent = '2';
+        document.getElementById('step-title').textContent = stepMeta[2].title;
+        document.getElementById('step-subtitle').textContent = stepMeta[2].sub;
+        
+        currentStep = 2;
+    }
 
     function selectSingle(group, value) {
         selections[group] = value;
-        // Clear all radio dots in group
         document.querySelectorAll(`[id^="rdot-${group}-"]`).forEach(dot => {
             dot.style.background = '';
             dot.style.borderColor = '';
             dot.closest('.radio-card').classList.remove('selected');
         });
-        // Select chosen
         const dot = document.getElementById(`rdot-${group}-${value}`);
         if (dot) {
             dot.closest('.radio-card').classList.add('selected');
         }
-        // Show QI level if yes
         if (group === 'qi-training') {
             document.getElementById('qi-level-section').style.display = value === 'yes' ? 'block' : 'none';
         }
@@ -542,8 +552,7 @@
     }
 
     function goToStep(step) {
-        // Validate step 1
-        if (step > 1 && currentStep === 1) {
+        if (step > 1 && currentStep === 1 && !isNewProject) {
             const site = document.getElementById('site').value.trim();
             const rs = document.getElementById('role-specialty').value.trim();
             const about = document.getElementById('about').value.trim();
@@ -552,7 +561,6 @@
                 return;
             }
         }
-        // Validate step 2
         if (step > 2 && currentStep === 2) {
             if (!document.getElementById('problem').value.trim() || !selections['situation'] ||
                 !document.getElementById('project-title').value.trim() || !document.getElementById('project-region').value.trim()) {
@@ -560,7 +568,6 @@
                 return;
             }
         }
-        // Validate step 3
         if (step > 3 && currentStep === 3) {
             if (!document.getElementById('coach-looking-for').value.trim() || tagSelections['support'].size === 0 || !selections['qi-training']) {
                 alert('Please fill in all required fields.');
@@ -572,7 +579,8 @@
         document.getElementById(`panel-${step}`).classList.add('active');
 
         // Update dots
-        for (let i = 1; i <= totalSteps; i++) {
+        const startStep = isNewProject ? 2 : 1;
+        for (let i = startStep; i <= totalSteps; i++) {
             const dot = document.getElementById(`dot-${i}`);
             if (i < step) {
                 dot.className = 'step-dot done';
@@ -584,7 +592,7 @@
                 dot.className = 'step-dot pending';
                 dot.textContent = i;
             }
-            if (i > 1 && document.getElementById(`label-${i}`)) {
+            if (i > startStep && document.getElementById(`label-${i}`)) {
                 document.getElementById(`label-${i}`).className = i <= step
                     ? 'text-xs font-black text-white uppercase tracking-wider'
                     : 'text-xs font-black text-slate-500 uppercase tracking-wider';
@@ -595,7 +603,10 @@
         document.getElementById('step-title').textContent = stepMeta[step].title;
         document.getElementById('step-subtitle').textContent = stepMeta[step].sub;
 
-        const pct = Math.round(((step - 1) / totalSteps) * 100);
+        const effectiveTotal = isNewProject ? 3 : 4;
+        const currentProgress = isNewProject ? (step - 1) : step;
+        const pct = Math.round(((currentProgress - 1) / effectiveTotal) * 100);
+        
         document.getElementById('progress-bar').style.width = pct + '%';
         document.getElementById('progress-label').textContent = pct + '%';
 
@@ -637,48 +648,64 @@
     };
 
     function submitSetup() {
-        // Validate step 4
         if (tagSelections['availability'].size === 0 || !selections['frequency'] || !selections['method'] || !selections['referral']) {
             alert('Please fill in all required fields.');
             return;
         }
 
+        const currentUid = uid || sessionStorage.getItem('uid');
+
         function trySubmit(tries) {
-            const field = document.getElementById('InsertRecordPhone');
-            if (field) {
-                document.getElementById('InsertRecordPhone').value = document.getElementById('phone').value.trim();
-                document.getElementById('InsertRecordSite').value = document.getElementById('site').value.trim();
-                document.getElementById('InsertRecordRole_Specialty').value = document.getElementById('role-specialty').value.trim();
-                document.getElementById('InsertRecordAbout').value = document.getElementById('about').value.trim();
-                document.getElementById('InsertRecordProblem').value = document.getElementById('problem').value.trim();
-                document.getElementById('InsertRecordSituation').value = situationMap[selections['situation']] || '';
-                document.getElementById('InsertRecordFunding').value = Array.from(tagSelections['funding']).join(', ');
-                document.getElementById('InsertRecordPhysician_Lead').value = document.getElementById('physician-lead').value.trim();
-                document.getElementById('InsertRecordProject_Title').value = document.getElementById('project-title').value.trim();
-                document.getElementById('InsertRecordProject_Region').value = document.getElementById('project-region').value.trim();
-                document.getElementById('InsertRecordStart_Date').value = document.getElementById('start-date').value;
-                document.getElementById('InsertRecordEnd_Date').value = document.getElementById('end-date').value;
-                document.getElementById('InsertRecordCoach_Looking_For').value = document.getElementById('coach-looking-for').value.trim();
-                document.getElementById('InsertRecordSupport_Needed').value = Array.from(tagSelections['support']).join(', ');
-                document.getElementById('InsertRecordQI_Training').value = selections['qi-training'] === 'yes' ? 'Yes' : 'No';
-                document.getElementById('InsertRecordQI_Level').value = selections['qi-level'] ? qiLevelMap[selections['qi-level']] : '';
-                document.getElementById('InsertRecordAvailability').value = Array.from(tagSelections['availability']).join(', ');
-                document.getElementById('InsertRecordMeeting_Frequency').value = frequencyMap[selections['frequency']] || '';
-                document.getElementById('InsertRecordMeeting_Method').value = methodMap[selections['method']] || '';
-                document.getElementById('InsertRecordAdditional_Info').value = document.getElementById('additional-info').value.trim();
-                document.getElementById('InsertRecordReferral').value = referralMap[selections['referral']] || '';
+            const profileForm = document.querySelector('#caspio-profile form');
+            const appForm = document.querySelector('#caspio-app form');
 
-                const currentUid = uid || sessionStorage.getItem('uid');
-                if (currentUid && document.getElementById('InsertRecordUser_ID')) {
-                    document.getElementById('InsertRecordUser_ID').value = currentUid;
+            if (appForm && (isNewProject || profileForm)) {
+                
+                if (!isNewProject) {
+                    if (currentUid && document.querySelector('#caspio-profile [id^="InsertRecordUser_ID"]')) {
+                        document.querySelector('#caspio-profile [id^="InsertRecordUser_ID"]').value = currentUid;
+                    }
+                    if(document.querySelector('#caspio-profile [id^="InsertRecordPhone"]')) document.querySelector('#caspio-profile [id^="InsertRecordPhone"]').value = document.getElementById('phone').value.trim();
+                    if(document.querySelector('#caspio-profile [id^="InsertRecordSite_Community"]')) document.querySelector('#caspio-profile [id^="InsertRecordSite_Community"]').value = document.getElementById('site').value.trim();
+                    if(document.querySelector('#caspio-profile [id^="InsertRecordRole_Specialty"]')) document.querySelector('#caspio-profile [id^="InsertRecordRole_Specialty"]').value = document.getElementById('role-specialty').value.trim();
+                    if(document.querySelector('#caspio-profile [id^="InsertRecordAbout"]')) document.querySelector('#caspio-profile [id^="InsertRecordAbout"]').value = document.getElementById('about').value.trim();
                 }
 
-                const form = document.querySelector('#caspio-container form');
-                if (form) {
-                    document.getElementById('progress-bar').style.width = '100%';
-                    document.getElementById('progress-label').textContent = '100%';
-                    form.submit();
+                if (currentUid && document.querySelector('#caspio-app [id^="InsertRecordUser_ID"]')) {
+                    document.querySelector('#caspio-app [id^="InsertRecordUser_ID"]').value = currentUid;
                 }
+                if(document.querySelector('#caspio-app [id^="InsertRecordProblem"]')) document.querySelector('#caspio-app [id^="InsertRecordProblem"]').value = document.getElementById('problem').value.trim();
+                if(document.querySelector('#caspio-app [id^="InsertRecordSituation"]')) document.querySelector('#caspio-app [id^="InsertRecordSituation"]').value = situationMap[selections['situation']] || '';
+                if(document.querySelector('#caspio-app [id^="InsertRecordFunding"]')) document.querySelector('#caspio-app [id^="InsertRecordFunding"]').value = Array.from(tagSelections['funding']).join(', ');
+                if(document.querySelector('#caspio-app [id^="InsertRecordPhysician_Lead"]')) document.querySelector('#caspio-app [id^="InsertRecordPhysician_Lead"]').value = document.getElementById('physician-lead').value.trim();
+                if(document.querySelector('#caspio-app [id^="InsertRecordProject_Title"]')) document.querySelector('#caspio-app [id^="InsertRecordProject_Title"]').value = document.getElementById('project-title').value.trim();
+                if(document.querySelector('#caspio-app [id^="InsertRecordProject_Region"]')) document.querySelector('#caspio-app [id^="InsertRecordProject_Region"]').value = document.getElementById('project-region').value.trim();
+                if(document.querySelector('#caspio-app [id^="InsertRecordStart_Date"]')) document.querySelector('#caspio-app [id^="InsertRecordStart_Date"]').value = document.getElementById('start-date').value;
+                if(document.querySelector('#caspio-app [id^="InsertRecordEnd_Date"]')) document.querySelector('#caspio-app [id^="InsertRecordEnd_Date"]').value = document.getElementById('end-date').value;
+                if(document.querySelector('#caspio-app [id^="InsertRecordCoach_Looking_For"]')) document.querySelector('#caspio-app [id^="InsertRecordCoach_Looking_For"]').value = document.getElementById('coach-looking-for').value.trim();
+                if(document.querySelector('#caspio-app [id^="InsertRecordSupport_Needed"]')) document.querySelector('#caspio-app [id^="InsertRecordSupport_Needed"]').value = Array.from(tagSelections['support']).join(', ');
+                if(document.querySelector('#caspio-app [id^="InsertRecordQI_Training"]')) document.querySelector('#caspio-app [id^="InsertRecordQI_Training"]').value = selections['qi-training'] === 'yes' ? 'Yes' : 'No';
+                if(document.querySelector('#caspio-app [id^="InsertRecordQI_Level"]')) document.querySelector('#caspio-app [id^="InsertRecordQI_Level"]').value = selections['qi-level'] ? qiLevelMap[selections['qi-level']] : '';
+                if(document.querySelector('#caspio-app [id^="InsertRecordAvailability"]')) document.querySelector('#caspio-app [id^="InsertRecordAvailability"]').value = Array.from(tagSelections['availability']).join(', ');
+                if(document.querySelector('#caspio-app [id^="InsertRecordMeeting_Frequency"]')) document.querySelector('#caspio-app [id^="InsertRecordMeeting_Frequency"]').value = frequencyMap[selections['frequency']] || '';
+                if(document.querySelector('#caspio-app [id^="InsertRecordMeeting_Method"]')) document.querySelector('#caspio-app [id^="InsertRecordMeeting_Method"]').value = methodMap[selections['method']] || '';
+                if(document.querySelector('#caspio-app [id^="InsertRecordAdditional_Info"]')) document.querySelector('#caspio-app [id^="InsertRecordAdditional_Info"]').value = document.getElementById('additional-info').value.trim();
+                if(document.querySelector('#caspio-app [id^="InsertRecordReferral"]')) document.querySelector('#caspio-app [id^="InsertRecordReferral"]').value = referralMap[selections['referral']] || '';
+
+                document.getElementById('progress-bar').style.width = '100%';
+                document.getElementById('progress-label').textContent = '100%';
+
+                if (!isNewProject) {
+                    profileForm.submit();
+                }
+
+                setTimeout(() => {
+                    appForm.submit();
+                    setTimeout(() => {
+                        window.location.href = 'coachee.html?uid=' + encodeURIComponent(currentUid) + '&name=' + encodeURIComponent(coacheeName);
+                    }, 1000);
+                }, isNewProject ? 0 : 600); 
+
             } else if (tries < 30) {
                 setTimeout(() => trySubmit(tries + 1), 300);
             }
