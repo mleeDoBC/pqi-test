@@ -31,8 +31,6 @@
 <body class="antialiased text-slate-800">
 
 <div class="flex flex-col lg:flex-row min-h-screen">
-
-    <!-- Sidebar -->
     <aside class="w-full lg:w-80 sidebar-gradient text-slate-400 flex flex-col shadow-2xl z-50 lg:h-screen lg:sticky lg:top-0">
         <div class="p-8 pb-6">
             <div class="flex items-center gap-3 italic font-black text-2xl uppercase tracking-tighter text-white">
@@ -61,50 +59,45 @@
         </div>
     </aside>
 
-    <!-- Main -->
     <main class="flex-1 bg-[#f8fafc] lg:h-screen lg:overflow-y-auto">
         <div class="max-w-2xl mx-auto px-6 py-12 fade-in">
-
             <div class="mb-10">
                 <p class="text-[10px] font-black text-indigo-500 uppercase tracking-widest mb-2">Profile Management</p>
                 <h1 class="text-3xl font-black text-slate-900 leading-tight">Edit Your Profile</h1>
                 <p class="text-slate-500 text-sm mt-2">Update your contact and background information.</p>
             </div>
 
-            <!-- Edit Form -->
             <div class="bg-white p-8 rounded-3xl shadow-sm border border-slate-100">
                 <div class="space-y-6">
                     <div>
-                        <label class="block text-xs font-black text-slate-700 uppercase tracking-wider mb-2">Phone <span class="text-slate-400 font-normal normal-case tracking-normal">(optional)</span></label>
+                        <label class="block text-xs font-black text-slate-700 uppercase tracking-wider mb-2">Phone</label>
                         <input type="tel" class="form-input" id="phone" placeholder="604-555-0000">
                     </div>
                     <div>
-                        <label class="block text-xs font-black text-slate-700 uppercase tracking-wider mb-2">Site / Community <span class="text-indigo-500">*</span></label>
+                        <label class="block text-xs font-black text-slate-700 uppercase tracking-wider mb-2">Site / Community</label>
                         <input type="text" class="form-input" id="site" placeholder="e.g. St. Paul's Hospital, Vancouver">
                     </div>
                     <div>
-                        <label class="block text-xs font-black text-slate-700 uppercase tracking-wider mb-2">Role & Specialty <span class="text-indigo-500">*</span></label>
+                        <label class="block text-xs font-black text-slate-700 uppercase tracking-wider mb-2">Role & Specialty</label>
                         <input type="text" class="form-input" id="role-specialty" placeholder="e.g. Family Physician, General Practice">
                     </div>
                     <div>
-                        <label class="block text-xs font-black text-slate-700 uppercase tracking-wider mb-2">About You <span class="text-indigo-500">*</span></label>
-                        <p class="text-xs text-slate-400 mb-3">Where are you located? What is your role in the health system? What kind of work are you doing?</p>
-                        <textarea class="form-input" id="about" rows="6" maxlength="1000" placeholder="I'm a family physician based in Vancouver..." oninput="updateChar('about', 'count-about')"></textarea>
+                        <label class="block text-xs font-black text-slate-700 uppercase tracking-wider mb-2">About You</label>
+                        <textarea class="form-input" id="about" rows="6" maxlength="1000" oninput="updateChar('about', 'count-about')"></textarea>
                         <p class="char-count"><span id="count-about">0</span>/1000</p>
                     </div>
                 </div>
-                
                 <div class="flex justify-end gap-3 mt-10 pt-6 border-t border-slate-100">
                     <button class="btn-secondary" id="cancel-btn">Cancel</button>
                     <button class="btn-primary" onclick="saveProfile()" id="save-btn">Save Changes <i class="fas fa-save ml-2"></i></button>
                 </div>
             </div>
-
         </div>
     </main>
 </div>
 
-<div id="caspio-update-profile" class="mt-10 p-5 bg-gray-100 rounded-xl">
+<!-- Hidden Caspio Update DataPage -->
+<div id="caspio-update-profile" style="position:absolute;left:-9999px;top:-9999px;">
     <script type="text/javascript" src="https://c0abr823.caspio.com/dp/1c9f5000666821a73a7f4249af67/emb"></script>
 </div>
 
@@ -113,7 +106,6 @@
     const coacheeName = urlParams.get('name');
     const uid = urlParams.get('uid');
 
-    // UI 기본 설정
     if (coacheeName) {
         document.getElementById('sidebar-name').textContent = coacheeName;
         const parts = coacheeName.trim().split(' ');
@@ -121,7 +113,6 @@
         document.getElementById('sidebar-initials').textContent = initials;
     }
 
-    // 대시보드 복귀 링크 설정
     const dashboardUrl = `coachee.html?uid=${encodeURIComponent(uid || '')}&name=${encodeURIComponent(coacheeName || '')}`;
     document.getElementById('back-to-dashboard').href = dashboardUrl;
     document.getElementById('cancel-btn').onclick = () => window.location.href = dashboardUrl;
@@ -130,15 +121,12 @@
         document.getElementById(countId).textContent = document.getElementById(fieldId).value.length;
     }
 
-    // Caspio에서 기존 데이터 불러오기 (강력한 포함 매칭 *= 적용)
     function loadExistingData(tries) {
-        const caspioAbout = document.querySelector('#caspio-update-profile [id*="About"]');
-        
+        const caspioAbout = document.querySelector('textarea[id*="EditRecordAbout"]');
         if (caspioAbout) {
-            // 데이터 매핑
-            const phoneField = document.querySelector('#caspio-update-profile [id*="Phone"]');
-            const siteField = document.querySelector('#caspio-update-profile [id*="Site"]');
-            const roleField = document.querySelector('#caspio-update-profile [id*="Role"]');
+            const phoneField = document.querySelector('input[id*="EditRecordPhone"]');
+            const siteField = document.querySelector('input[id*="EditRecordSite"]');
+            const roleField = document.querySelector('input[id*="EditRecordRole"]');
 
             if(phoneField) document.getElementById('phone').value = phoneField.value;
             if(siteField) document.getElementById('site').value = siteField.value;
@@ -146,55 +134,35 @@
             document.getElementById('about').value = caspioAbout.value;
             
             updateChar('about', 'count-about');
-
-            // 숨겨진 폼의 업데이트 버튼 숨기기
+            
             const btn = document.querySelector('#caspio-update-profile .cbUpdateButton');
             if(btn) btn.style.display = 'none';
-        } else if (tries < 40) { // 재시도 횟수 넉넉히 연장 (AJAX 로딩 대기)
+        } else if (tries < 40) {
             setTimeout(() => loadExistingData(tries + 1), 300);
         }
     }
     loadExistingData(0);
 
-    // 프로필 저장 로직
     function saveProfile() {
-        // 필수 값 검증
-        const site = document.getElementById('site').value.trim();
-        const role = document.getElementById('role-specialty').value.trim();
-        const about = document.getElementById('about').value.trim();
-
-        if (!site || !role || !about) {
-            alert('Please fill in all required fields (Site, Role, About).');
-            return;
-        }
-
         const saveBtn = document.getElementById('save-btn');
         saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Saving...';
         saveBtn.disabled = true;
 
         function tryUpdate(tries) {
             const caspioUpdateBtn = document.querySelector('#caspio-update-profile input[type="submit"]');
-            
             if (caspioUpdateBtn) {
-                // 커스텀 UI 값을 Caspio 숨겨진 필드에 덮어쓰기
-                const phoneField = document.querySelector('#caspio-update-profile [id*="Phone"]');
-                const siteField = document.querySelector('#caspio-update-profile [id*="Site"]');
-                const roleField = document.querySelector('#caspio-update-profile [id*="Role"]');
-                const aboutField = document.querySelector('#caspio-update-profile [id*="About"]');
+                const phoneField = document.querySelector('input[id*="EditRecordPhone"]');
+                const siteField = document.querySelector('input[id*="EditRecordSite"]');
+                const roleField = document.querySelector('input[id*="EditRecordRole"]');
+                const aboutField = document.querySelector('textarea[id*="EditRecordAbout"]');
 
                 if(phoneField) phoneField.value = document.getElementById('phone').value.trim();
-                if(siteField) siteField.value = site;
-                if(roleField) roleField.value = role;
-                if(aboutField) aboutField.value = about;
+                if(siteField) siteField.value = document.getElementById('site').value.trim();
+                if(roleField) roleField.value = document.getElementById('role-specialty').value.trim();
+                if(aboutField) aboutField.value = document.getElementById('about').value.trim();
 
-                // Caspio 업데이트 버튼 클릭
                 caspioUpdateBtn.click();
-
-                // 저장 완료 후 복귀
-                setTimeout(() => {
-                    window.location.href = dashboardUrl;
-                }, 1200);
-
+                setTimeout(() => { window.location.href = dashboardUrl; }, 1200);
             } else if (tries < 40) {
                 setTimeout(() => tryUpdate(tries + 1), 300);
             }
@@ -202,6 +170,5 @@
         tryUpdate(0);
     }
 </script>
-
 </body>
 </html>
