@@ -648,29 +648,38 @@
     };
 
     function submitSetup() {
+        // Validate step 4
         if (tagSelections['availability'].size === 0 || !selections['frequency'] || !selections['method'] || !selections['referral']) {
             alert('Please fill in all required fields.');
             return;
         }
 
-        const currentUid = uid || sessionStorage.getItem('uid');
+        const currentUid = uid || sessionStorage.getItem('uid') || '';
+        const currentName = coacheeName || sessionStorage.getItem('name') || '';
 
         function trySubmit(tries) {
-            const profileForm = document.querySelector('#caspio-profile form');
-            const appForm = document.querySelector('#caspio-app form');
+            // form 태그가 아닌 'Submit 버튼'이 렌더링될 때까지 기다림 (내부 Input까지 로드 완료됨을 보장)
+            const profileBtn = document.querySelector('#caspio-profile input[type="submit"]');
+            const appBtn = document.querySelector('#caspio-app input[type="submit"]');
 
-            if (appForm && (isNewProject || profileForm)) {
+            if (appBtn && (isNewProject || profileBtn)) {
                 
+                // 1. 프로필 정보 삽입 (새 프로젝트 모드가 아닐 때만)
                 if (!isNewProject) {
                     if (currentUid && document.querySelector('#caspio-profile [id^="InsertRecordUser_ID"]')) {
                         document.querySelector('#caspio-profile [id^="InsertRecordUser_ID"]').value = currentUid;
                     }
                     if(document.querySelector('#caspio-profile [id^="InsertRecordPhone"]')) document.querySelector('#caspio-profile [id^="InsertRecordPhone"]').value = document.getElementById('phone').value.trim();
-                    if(document.querySelector('#caspio-profile [id^="InsertRecordSite_Community"]')) document.querySelector('#caspio-profile [id^="InsertRecordSite_Community"]').value = document.getElementById('site').value.trim();
+                    
+                    // Site 필드 확실하게 타겟팅
+                    const siteInput = document.querySelector('#caspio-profile [id^="InsertRecordSite"]');
+                    if(siteInput) siteInput.value = document.getElementById('site').value.trim();
+
                     if(document.querySelector('#caspio-profile [id^="InsertRecordRole_Specialty"]')) document.querySelector('#caspio-profile [id^="InsertRecordRole_Specialty"]').value = document.getElementById('role-specialty').value.trim();
                     if(document.querySelector('#caspio-profile [id^="InsertRecordAbout"]')) document.querySelector('#caspio-profile [id^="InsertRecordAbout"]').value = document.getElementById('about').value.trim();
                 }
 
+                // 2. 애플리케이션 정보 삽입
                 if (currentUid && document.querySelector('#caspio-app [id^="InsertRecordUser_ID"]')) {
                     document.querySelector('#caspio-app [id^="InsertRecordUser_ID"]').value = currentUid;
                 }
@@ -695,18 +704,23 @@
                 document.getElementById('progress-bar').style.width = '100%';
                 document.getElementById('progress-label').textContent = '100%';
 
-                if (!isNewProject) {
-                    profileForm.submit();
+                // 3. 폼 전송 (form.submit()이 아닌 버튼 click() 사용)
+                if (!isNewProject && profileBtn) {
+                    profileBtn.click();
                 }
 
+                // 동시 충돌 방지를 위해 Application 폼은 살짝 딜레이 후 클릭
                 setTimeout(() => {
-                    appForm.submit();
+                    if(appBtn) appBtn.click();
+                    
+                    // Caspio 데이터 전송 및 처리 시간(1.5초) 대기 후 대시보드로 강제 이동
                     setTimeout(() => {
-                        window.location.href = 'coachee.html?uid=' + encodeURIComponent(currentUid) + '&name=' + encodeURIComponent(coacheeName);
-                    }, 1000);
-                }, isNewProject ? 0 : 600); 
+                        window.location.href = `coachee.html?uid=${encodeURIComponent(currentUid)}&name=${encodeURIComponent(currentName)}`;
+                    }, 1500); 
+                    
+                }, isNewProject ? 0 : 800);
 
-            } else if (tries < 30) {
+            } else if (tries < 40) { // 재시도 횟수 40번(12초)으로 넉넉히 연장
                 setTimeout(() => trySubmit(tries + 1), 300);
             }
         }
