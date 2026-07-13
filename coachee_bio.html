@@ -104,7 +104,8 @@
     </main>
 </div>
 
-<div id="caspio-update-profile" class="mt-10 p-5 bg-gray-100 rounded-xl">
+<!-- Hidden Caspio Update DataPage (주소창의 uid를 자동으로 읽어들임) -->
+<div id="caspio-update-profile" style="position:absolute;left:-9999px;top:-9999px;">
     <script type="text/javascript" src="https://c0abr823.caspio.com/dp/1c9f5000b9f0c3645a07465f8e6b/emb"></script>
 </div>
 
@@ -112,12 +113,8 @@
     const urlParams = new URLSearchParams(window.location.search);
     const coacheeName = urlParams.get('name');
     const uid = urlParams.get('uid');
-    
-    if (uid && !urlParams.has('coachee_uid')) {
-        urlParams.set('coachee_uid', uid);
-        window.history.replaceState({}, '', `${window.location.pathname}?${urlParams.toString()}`);
-    }
 
+    // UI 기본 설정
     if (coacheeName) {
         document.getElementById('sidebar-name').textContent = coacheeName;
         const parts = coacheeName.trim().split(' ');
@@ -125,6 +122,7 @@
         document.getElementById('sidebar-initials').textContent = initials;
     }
 
+    // 대시보드 복귀 링크 설정
     const dashboardUrl = `coachee.html?uid=${encodeURIComponent(uid || '')}&name=${encodeURIComponent(coacheeName || '')}`;
     document.getElementById('back-to-dashboard').href = dashboardUrl;
     document.getElementById('cancel-btn').onclick = () => window.location.href = dashboardUrl;
@@ -133,15 +131,12 @@
         document.getElementById(countId).textContent = document.getElementById(fieldId).value.length;
     }
 
-    // Caspio에서 기존 데이터 불러오기 (유연한 매핑 및 디버깅 로그 추가)
+    // Caspio에서 기존 데이터 불러오기 (강력한 포함 매칭 *= 적용)
     function loadExistingData(tries) {
-        // id에 'About'이 포함된 필드를 찾습니다.
         const caspioAbout = document.querySelector('#caspio-update-profile [id*="About"]');
         
         if (caspioAbout) {
-            console.log("✅ Caspio 폼 로드 성공!");
-            
-            // 데이터 매핑 (일부 단어만 포함되어도 찾도록 *= 사용)
+            // 데이터 매핑
             const phoneField = document.querySelector('#caspio-update-profile [id*="Phone"]');
             const siteField = document.querySelector('#caspio-update-profile [id*="Site"]');
             const roleField = document.querySelector('#caspio-update-profile [id*="Role"]');
@@ -153,14 +148,11 @@
             
             updateChar('about', 'count-about');
 
-            // 테스트를 위해 원래 있던 Caspio 폼의 버튼은 숨기지 않고 둡니다. (디버깅용)
-            // const btn = document.querySelector('#caspio-update-profile .cbUpdateButton');
-            // if(btn) btn.style.display = 'none';
-            
-        } else if (tries < 40) { 
+            // 숨겨진 폼의 업데이트 버튼 숨기기
+            const btn = document.querySelector('#caspio-update-profile .cbUpdateButton');
+            if(btn) btn.style.display = 'none';
+        } else if (tries < 40) { // 재시도 횟수 넉넉히 연장
             setTimeout(() => loadExistingData(tries + 1), 300);
-        } else {
-            console.error("❌ 12초가 지나도 Caspio 폼(About 필드)을 찾지 못했습니다.");
         }
     }
     loadExistingData(0);
@@ -186,10 +178,10 @@
             
             if (caspioUpdateBtn) {
                 // 커스텀 UI 값을 Caspio 숨겨진 필드에 덮어쓰기
-                const phoneField = document.querySelector('#caspio-update-profile [id^="EditRecordPhone"]');
-                const siteField = document.querySelector('#caspio-update-profile [id^="EditRecordSite"]');
-                const roleField = document.querySelector('#caspio-update-profile [id^="EditRecordRole_Specialty"]');
-                const aboutField = document.querySelector('#caspio-update-profile [id^="EditRecordAbout"]');
+                const phoneField = document.querySelector('#caspio-update-profile [id*="Phone"]');
+                const siteField = document.querySelector('#caspio-update-profile [id*="Site"]');
+                const roleField = document.querySelector('#caspio-update-profile [id*="Role"]');
+                const aboutField = document.querySelector('#caspio-update-profile [id*="About"]');
 
                 if(phoneField) phoneField.value = document.getElementById('phone').value.trim();
                 if(siteField) siteField.value = site;
