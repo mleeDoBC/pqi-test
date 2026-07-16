@@ -507,7 +507,7 @@
         4: { title: "Availability & preferences", sub: "Help us find the right coach for your schedule." }
     };
 
-    if (isNewProject) {
+     if (isNewProject) {
         document.getElementById('step-nav-1').style.display = 'none';
         document.getElementById('btn-back-1').style.display = 'none';
         
@@ -515,13 +515,15 @@
         document.getElementById(`panel-2`).classList.add('active');
         
         document.getElementById('dot-2').className = 'step-dot active';
+        document.getElementById('dot-2').textContent = '1'; 
         document.getElementById('label-2').className = 'text-xs font-black text-white uppercase tracking-wider';
+        document.getElementById('label-2').textContent = 'New Project';
         
-        document.getElementById('step-num').textContent = '2';
-        document.getElementById('step-title').textContent = stepMeta[2].title;
-        document.getElementById('step-subtitle').textContent = stepMeta[2].sub;
+        document.getElementById('step-num').textContent = '1';
+        document.getElementById('step-title').textContent = "Tell us about your new project";
+        document.getElementById('step-subtitle').textContent = "Help us match you with the right coach.";
         
-        currentStep = 2;
+        currentStep = 2; 
     }
 
     function selectSingle(group, value) {
