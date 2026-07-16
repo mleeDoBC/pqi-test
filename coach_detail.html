@@ -144,8 +144,15 @@
     }
 
     function sendRequest() {
-        alert('Request sent! The coach will review your application and get back to you within 5 business days.');
-        window.location.href = 'coachee.html?uid=' + encodeURIComponent(myUid) + '&name=' + encodeURIComponent(myName);
+        const tempAppId = params.get('app_id') || 'TEST_APPLICATION_ID_001';
+        
+        const processUrl = 'process_match.html' 
+            + '?Coach_ID=' + encodeURIComponent(coachUid) 
+            + '&App_ID=' + encodeURIComponent(tempAppId)
+            + '&uid=' + encodeURIComponent(myUid)
+            + '&name=' + encodeURIComponent(myName);
+
+        window.location.href = processUrl;
     }
 
     loadCoach();
