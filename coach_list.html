@@ -45,6 +45,7 @@
     const params = new URLSearchParams(window.location.search);
     const myUid  = params.get('uid') || sessionStorage.getItem('uid') || '';
     const myName = params.get('name') || sessionStorage.getItem('name') || '';
+    const appId  = params.get('App_ID') || params.get('app_id') || ''; 
     const COACH_UIDS = ['D3NADD23', 'XWGQSF2D', 'UH7DQDXN'];
 
     function goBack() {
@@ -118,7 +119,8 @@
     function openCoach(coachUid) {
         window.location.href = 'coach_detail.html?coach_uid=' + encodeURIComponent(coachUid)
             + '&uid=' + encodeURIComponent(myUid)
-            + '&name=' + encodeURIComponent(myName);
+            + '&name=' + encodeURIComponent(myName)
+            + '&App_ID=' + encodeURIComponent(appId);
     }
 
     loadCoaches();
