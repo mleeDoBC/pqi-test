@@ -144,7 +144,7 @@
     }
 
     function sendRequest() {
-        const tempAppId = params.get('app_id') || 'TEST_APPLICATION_ID_001';
+        const tempAppId = params.get('App_ID') || params.get('app_id') || '';
         
         const processUrl = 'process_match.html' 
             + '?Coach_ID=' + encodeURIComponent(coachUid) 
