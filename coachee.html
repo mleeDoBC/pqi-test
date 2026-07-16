@@ -23,11 +23,9 @@
     </style>
 </head>
 <body class="antialiased text-slate-800">
-    <!-- Caspio Hidden Container -->
     <div id="caspio-matches" style="position:absolute;left:-9999px;top:-9999px;visibility:hidden;"></div>
 
     <div class="flex flex-col lg:flex-row min-h-screen">
-        <!-- Sidebar -->
         <aside class="w-full lg:w-80 sidebar-gradient text-slate-400 flex flex-col shadow-2xl z-50 lg:h-screen">
             <div class="p-8 pb-12">
                 <div class="flex items-center gap-3 italic font-black text-2xl uppercase tracking-tighter text-white">
@@ -54,13 +52,15 @@
                     <i class="fas fa-grid-2 text-sm transition-transform group-hover:scale-110"></i>
                     <span class="text-[11px] font-black uppercase tracking-[0.2em] italic">Dashboard</span>
                 </a>
+                <a href="#" class="nav-item flex items-center gap-4 px-6 py-4 rounded-2xl group">
+                    <i class="fas fa-briefcase text-sm"></i>
+                    <span class="text-[11px] font-black uppercase tracking-[0.2em] italic">Portfolio</span>
+                </a>
             </nav>
         </aside>
 
-        <!-- Main Content Area -->
-        <main class="flex-1 bg-[#f8fafc] p-6 lg:p-10 fade-in lg:overflow-y-auto main-content-height">
+        <main class="flex-1 bg-[#f8fafc] p-6 lg:p-10 lg:overflow-y-auto main-content-height">
             
-            <!-- 1. DASHBOARD VIEW -->
             <div id="dashboard-view" class="fade-in">
                 <header class="flex justify-between items-center mb-12">
                     <div>
@@ -69,29 +69,36 @@
                     </div>
                 </header>
 
-                <!-- Static Widget Row -->
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
                     <div class="glass-card p-8 group hover:border-blue-500 transition-all cursor-pointer">
-                        <span class="accent-text text-blue-600 block mb-4">Support & FAQ</span>
+                        <span class="accent-text text-blue-600 block mb-4">Upcoming Session</span>
+                        <div class="flex items-center gap-4">
+                            <div class="text-center bg-slate-50 px-3 py-2 rounded-xl border border-slate-100">
+                                <p class="text-[8px] font-bold uppercase leading-none mb-1 text-slate-400">Feb</p>
+                                <p class="text-xl font-black italic leading-none text-slate-900">12</p>
+                            </div>
+                            <div>
+                                <p class="text-xs font-black italic text-slate-900 uppercase">Coach Michael Cho</p>
+                                <p class="text-[9px] font-bold text-slate-300 mt-1 uppercase tracking-tight italic">04:30 PM · Zoom Meeting</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="glass-card p-8 group hover:border-blue-500 transition-all cursor-pointer">
+                        <span class="accent-text text-blue-600 block mb-4">Suggested Toolkit</span>
                         <div class="flex items-center justify-between">
-                            <p class="text-sm font-black italic text-slate-900 uppercase leading-tight">Data Collection<br>Baseline Guide</p>
+                            <p class="text-sm font-black italic text-slate-900 uppercase leading-tight">Data Collection<br>Baseline Template</p>
                             <i class="fas fa-chevron-right text-slate-200 group-hover:text-blue-600 transition-all"></i>
                         </div>
                     </div>
 
-                    <div class="glass-card p-8 bg-slate-900 border-none md:col-span-2">
+                    <div class="glass-card p-8 bg-slate-900 border-none">
                         <span class="accent-text text-blue-400 block mb-2 tracking-[0.2em]">Program Support</span>
-                        <div class="flex justify-between items-center">
-                            <div>
-                                <p class="text-white text-sm font-black italic uppercase leading-tight">Need assistance with your setup?</p>
-                                <p class="text-slate-400 text-[10px] uppercase font-bold mt-1">Contact your provincial PQI representative anytime.</p>
-                            </div>
-                            <button class="bg-blue-600 text-white px-6 py-3 rounded-xl font-black text-[9px] uppercase tracking-widest shadow-lg hover:bg-blue-500 transition">Message Admin</button>
-                        </div>
+                        <p class="text-white text-sm font-black italic mb-4 uppercase leading-tight">Administrative Help</p>
+                        <button class="w-full bg-blue-600 text-white py-3 rounded-xl font-black text-[9px] uppercase tracking-widest shadow-lg hover:bg-blue-500 transition">Message Admin</button>
                     </div>
                 </div>
 
-                <!-- Match List Container -->
                 <section class="glass-card p-8">
                     <div class="flex items-center justify-between mb-8">
                         <h3 class="text-sm font-black italic uppercase tracking-widest text-slate-900">My Projects</h3>
@@ -107,9 +114,7 @@
                 </section>
             </div>
 
-            <!-- 2. DETAIL VIEW (Hidden by default, triggered via JS) -->
             <div id="detail-view" class="hidden fade-in">
-                <!-- Content injected dynamically via JS -->
             </div>
 
         </main>
@@ -123,9 +128,10 @@
     if (uid) sessionStorage.setItem('uid', uid);
     if (coacheeName) sessionStorage.setItem('name', coacheeName);
 
-    if (coacheeName) {
-        document.getElementById('coachee-name').textContent = coacheeName;
-        const parts = coacheeName.trim().split(' ');
+    if (coacheeName || sessionStorage.getItem('name')) {
+        const displayName = coacheeName || sessionStorage.getItem('name');
+        document.getElementById('coachee-name').textContent = displayName;
+        const parts = displayName.trim().split(' ');
         const initials = parts.map(p => p[0]).join('').toUpperCase().slice(0, 2);
         const initialsEl = document.getElementById('coachee-initials');
         if (initialsEl) initialsEl.textContent = initials;
@@ -204,13 +210,11 @@
                         matchObj[key] = '';
                     }
                 });
-                if (matchObj.matchId) {
-                    matches.push(matchObj);
-                }
+                if (matchObj.matchId) matches.push(matchObj);
             }
         });
 
-        window.cachedMatches = matches; 
+        window.cachedMatches = matches;
         renderMatchesList(matches);
     }
 
@@ -221,12 +225,11 @@
         list.innerHTML = matches.map(m => {
             const isPending = m.status === 'Pending';
             const coachFullName = (m.coachFirst || m.coachLast) ? `Dr. ${m.coachFirst} ${m.coachLast}` : 'Assigning Coach...';
-            
             const submissionDate = m.requestDate ? m.requestDate.split(' ')[0] : 'N/A';
             
             const statusBadge = isPending 
                 ? '<span class="text-[8px] font-black text-amber-500 border border-amber-200 bg-amber-50 px-2.5 py-1 rounded-full uppercase">Pending Review</span>'
-                : '<span class="text-[8px] font-black text-emerald-500 border border-emerald-200 bg-emerald-50 px-2.5 py-1 rounded-full uppercase">Active Setup</span>';
+                : '<span class="text-[8px] font-black text-emerald-500 border border-emerald-200 bg-emerald-50 px-2.5 py-1 rounded-full uppercase">Active Session</span>';
 
             return `
                 <div onclick="showProjectDetail('${m.matchId}')"
@@ -236,9 +239,9 @@
                             ${(m.appTitle || 'P').slice(0,2).toUpperCase()}
                         </div>
                         <div>
-                            <h4 class="text-md font-black italic text-slate-900 uppercase tracking-tight">${m.appTitle || 'Untitled Project'}</h4>
+                            <h4 class="text-md font-black italic text-slate-900 uppercase tracking-tight">${m.appTitle || 'Active Project'}</h4>
                             <div class="flex items-center gap-3 mt-1.5 flex-wrap">
-                                <span class="text-[9px] font-bold text-slate-400 uppercase tracking-tight italic">Submission Date: ${submissionDate}</span>
+                                <span class="text-[9px] font-bold text-slate-400 uppercase tracking-tight italic">Date: ${submissionDate}</span>
                                 <span class="text-slate-300 text-xs">•</span>
                                 <span class="text-[9px] font-bold text-slate-500 uppercase tracking-tight italic">Coach: ${coachFullName}</span>
                             </div>
@@ -253,7 +256,7 @@
     }
 
     function showNoMatches() {
-        document.getElementById('matches-list').innerHTML = '<p class="text-center py-8 text-slate-400 text-xs font-bold uppercase tracking-widest">No active matches yet.</p>';
+        document.getElementById('matches-list').innerHTML = '<p class="text-center py-8 text-slate-400 text-xs font-bold uppercase tracking-widest">No active projects yet.</p>';
     }
 
     function showProjectDetail(matchId) {
@@ -266,6 +269,7 @@
 
         const isPending = project.status === 'Pending';
         const coachInitials = (((project.coachFirst||'')[0]||'') + ((project.coachLast||'')[0]||'')).toUpperCase();
+        
         const coachImageHtml = project.coachImage
             ? `<img src="${project.coachImage}" class="avatar-img w-16 h-16 rounded-2xl object-cover" onerror="this.outerHTML='<div class=\\'avatar-placeholder w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-black italic text-md\\'>${coachInitials}</div>'">`
             : `<div class="avatar-placeholder w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-black italic text-md">${coachInitials}</div>`;
@@ -284,7 +288,7 @@
                 <!-- Back Header -->
                 <div class="flex flex-col lg:flex-row justify-between lg:items-center mb-10 gap-4">
                     <button onclick="showDashboardView()" class="w-fit flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-widest hover:text-blue-600 transition">
-                        <i class="fas fa-arrow-left"></i> Dashboard
+                        <i class="fas fa-arrow-left"></i> Back to Dashboard
                     </button>
                     <div>
                         <span class="accent-text text-blue-600 tracking-widest block lg:text-right">Project Workspace</span>
@@ -292,15 +296,12 @@
                     </div>
                 </div>
 
-                <!-- 2 Column Master Grid -->
                 <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
                     
-                    <!-- LEFT COLUMN: Application Details (8 Cols) -->
+                    <!-- LEFT COLUMN: Application Details -->
                     <div class="lg:col-span-8 space-y-6">
-                        <!-- Card: Baseline Goals -->
                         <div class="glass-card p-8">
                             <span class="accent-text text-blue-600 tracking-widest block mb-4">Project Context & Problems</span>
-                            
                             <div class="space-y-6">
                                 <div>
                                     <h4 class="text-[10px] font-black text-slate-400 uppercase italic mb-2 tracking-tighter">Primary Problem Statement</h4>
@@ -323,7 +324,6 @@
                             </div>
                         </div>
 
-                        <!-- Card: Complete Application Metadata Grid -->
                         <div class="glass-card p-8">
                             <span class="accent-text text-slate-400 tracking-widest block mb-6">Application Specifications</span>
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -343,19 +343,11 @@
                                     <p class="text-[9px] font-black text-slate-400 uppercase leading-none mb-1.5">Project Timeline</p>
                                     <p class="text-xs font-black text-slate-900 uppercase italic">${project.appStartDate || 'Start Date'} ~ ${project.appEndDate || 'End Date'}</p>
                                 </div>
-                                <div class="p-4 bg-slate-50 border border-slate-100 rounded-2xl">
-                                    <p class="text-[9px] font-black text-slate-400 uppercase leading-none mb-1.5">Meeting Methods & Frequency</p>
-                                    <p class="text-xs font-black text-slate-900 uppercase italic">${project.appFrequency || 'Flexible'} via ${project.appMethod || 'Virtual'}</p>
-                                </div>
-                                <div class="p-4 bg-slate-50 border border-slate-100 rounded-2xl">
-                                    <p class="text-[9px] font-black text-slate-400 uppercase leading-none mb-1.5">Funding Details</p>
-                                    <p class="text-xs font-black text-slate-900 uppercase italic">${project.appFunding || 'No funding details'}</p>
-                                </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- RIGHT COLUMN: Coach Card (4 Cols) -->
+                    <!-- RIGHT COLUMN: Coach Card -->
                     <div class="lg:col-span-4 space-y-6">
                         <div class="glass-card p-6 border-2 ${isPending ? 'border-amber-300' : 'border-blue-600'}">
                             <div class="flex justify-between items-center mb-6">
@@ -366,7 +358,6 @@
                                 }
                             </div>
 
-                            <!-- Coach Brief Header -->
                             <div class="flex items-center gap-4 mb-6">
                                 ${coachImageHtml}
                                 <div>
@@ -375,17 +366,15 @@
                                 </div>
                             </div>
 
-                            <!-- Meeting Button (Logic depending on status) -->
                             ${isPending 
                                 ? `<div class="bg-amber-50 border border-amber-100 rounded-2xl p-4 text-center mb-4">
                                        <p class="text-[10px] font-black text-amber-600 uppercase tracking-wide leading-relaxed">Waiting for Coach acceptance.<br>Review timeline up to 5 business days.</p>
                                    </div>`
                                 : `<button onclick="window.location.href='${meetingUrl}'" class="w-full bg-blue-600 text-white py-4 rounded-xl font-black text-[10px] uppercase tracking-widest shadow-lg hover:bg-blue-500 transition mb-4">
-                                       <i class="fas fa-video mr-1.5"></i> Join Meeting Workspace
+                                       <i class="fas fa-video mr-1.5"></i> Join Live Session Mode
                                    </button>`
                             }
 
-                            <!-- Accordion: Full Coach Profile -->
                             ${(project.coachFirst || project.coachLast) ? `
                                 <div class="border-t border-slate-100 pt-4 mt-4">
                                     <button onclick="toggleCoachProfileAccordion()" class="w-full flex justify-between items-center text-slate-600 hover:text-slate-900 transition">
@@ -416,7 +405,6 @@
                             ` : ''}
                         </div>
                     </div>
-
                 </div>
             </div>
         `;
@@ -437,7 +425,6 @@
     function showDashboardView() {
         document.getElementById('detail-view').classList.add('hidden');
         document.getElementById('dashboard-view').classList.remove('hidden');
-        renderMatchesList(window.cachedMatches);
     }
 
     loadMatches();
