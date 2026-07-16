@@ -23,9 +23,11 @@
     </style>
 </head>
 <body class="antialiased text-slate-800">
+    <!-- Caspio Hidden Container -->
     <div id="caspio-matches" style="position:absolute;left:-9999px;top:-9999px;visibility:hidden;"></div>
 
     <div class="flex flex-col lg:flex-row min-h-screen">
+        <!-- Sidebar -->
         <aside class="w-full lg:w-80 sidebar-gradient text-slate-400 flex flex-col shadow-2xl z-50 lg:h-screen">
             <div class="p-8 pb-12">
                 <div class="flex items-center gap-3 italic font-black text-2xl uppercase tracking-tighter text-white">
@@ -48,78 +50,72 @@
 
             <nav class="hidden lg:flex flex-1 px-4 space-y-2 flex-col">
                 <span class="px-4 accent-text text-slate-600 block mb-4">Management</span>
-                <a href="#" class="nav-item active flex items-center gap-4 px-6 py-4 rounded-2xl group">
+                <a href="#" onclick="showDashboardView()" class="nav-item active flex items-center gap-4 px-6 py-4 rounded-2xl group">
                     <i class="fas fa-grid-2 text-sm transition-transform group-hover:scale-110"></i>
                     <span class="text-[11px] font-black uppercase tracking-[0.2em] italic">Dashboard</span>
-                </a>
-                <a href="#" class="nav-item flex items-center gap-4 px-6 py-4 rounded-2xl group">
-                    <i class="fas fa-briefcase text-sm"></i>
-                    <span class="text-[11px] font-black uppercase tracking-[0.2em] italic">Portfolio</span>
                 </a>
             </nav>
         </aside>
 
+        <!-- Main Content Area -->
         <main class="flex-1 bg-[#f8fafc] p-6 lg:p-10 fade-in lg:overflow-y-auto main-content-height">
-            <header class="flex justify-between items-center mb-12">
-                <div>
-                    <h1 class="text-3xl font-black italic text-slate-900 tracking-tighter uppercase">Coachee Dashboard</h1>
-                    <div class="h-1 w-12 bg-blue-600 mt-2"></div>
-                </div>
-            </header>
+            
+            <!-- 1. DASHBOARD VIEW -->
+            <div id="dashboard-view" class="fade-in">
+                <header class="flex justify-between items-center mb-12">
+                    <div>
+                        <h1 class="text-3xl font-black italic text-slate-900 tracking-tighter uppercase">Coachee Dashboard</h1>
+                        <div class="h-1 w-12 bg-blue-600 mt-2"></div>
+                    </div>
+                </header>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
-                <div class="glass-card p-8 group hover:border-blue-500 transition-all cursor-pointer">
-                    <span class="accent-text text-blue-600 block mb-4">Upcoming Session</span>
-                    <div class="flex items-center gap-4">
-                        <div class="text-center bg-slate-50 px-3 py-2 rounded-xl border border-slate-100">
-                            <p class="text-[8px] font-bold uppercase leading-none mb-1 text-slate-400">Feb</p>
-                            <p class="text-xl font-black italic leading-none text-slate-900">12</p>
+                <!-- Static Widget Row -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
+                    <div class="glass-card p-8 group hover:border-blue-500 transition-all cursor-pointer">
+                        <span class="accent-text text-blue-600 block mb-4">Support & FAQ</span>
+                        <div class="flex items-center justify-between">
+                            <p class="text-sm font-black italic text-slate-900 uppercase leading-tight">Data Collection<br>Baseline Guide</p>
+                            <i class="fas fa-chevron-right text-slate-200 group-hover:text-blue-600 transition-all"></i>
                         </div>
-                        <div>
-                            <p class="text-xs font-black italic text-slate-900 uppercase">Coach Michael Cho</p>
-                            <p class="text-[9px] font-bold text-slate-300 mt-1 uppercase tracking-tight italic">04:30 PM · Zoom Meeting</p>
+                    </div>
+
+                    <div class="glass-card p-8 bg-slate-900 border-none md:col-span-2">
+                        <span class="accent-text text-blue-400 block mb-2 tracking-[0.2em]">Program Support</span>
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <p class="text-white text-sm font-black italic uppercase leading-tight">Need assistance with your setup?</p>
+                                <p class="text-slate-400 text-[10px] uppercase font-bold mt-1">Contact your provincial PQI representative anytime.</p>
+                            </div>
+                            <button class="bg-blue-600 text-white px-6 py-3 rounded-xl font-black text-[9px] uppercase tracking-widest shadow-lg hover:bg-blue-500 transition">Message Admin</button>
                         </div>
                     </div>
                 </div>
 
-                <div class="glass-card p-8 group hover:border-blue-500 transition-all cursor-pointer">
-                    <span class="accent-text text-blue-600 block mb-4">Suggested Toolkit</span>
-                    <div class="flex items-center justify-between">
-                        <p class="text-sm font-black italic text-slate-900 uppercase leading-tight">Data Collection<br>Baseline Template</p>
-                        <i class="fas fa-chevron-right text-slate-200 group-hover:text-blue-600 transition-all"></i>
+                <!-- Match List Container -->
+                <section class="glass-card p-8">
+                    <div class="flex items-center justify-between mb-8">
+                        <h3 class="text-sm font-black italic uppercase tracking-widest text-slate-900">My Projects</h3>
+                        <button onclick="newProject()" class="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-xl font-black text-[9px] uppercase tracking-widest hover:bg-blue-500 transition shadow-sm">
+                            <i class="fas fa-plus text-xs"></i> New Project
+                        </button>
                     </div>
-                </div>
-
-                <div class="glass-card p-8 bg-slate-900 border-none">
-                    <span class="accent-text text-blue-400 block mb-2 tracking-[0.2em]">Program Support</span>
-                    <p class="text-white text-sm font-black italic mb-4 uppercase leading-tight">Administrative Help</p>
-                    <button class="w-full bg-blue-600 text-white py-3 rounded-xl font-black text-[9px] uppercase tracking-widest shadow-lg hover:bg-blue-500 transition">Message Admin</button>
-                </div>
+                    <div class="space-y-4" id="matches-list">
+                        <div class="text-center py-8 text-slate-400 text-xs font-bold uppercase tracking-widest">
+                            <i class="fas fa-spinner fa-spin mr-2"></i>Loading your projects...
+                        </div>
+                    </div>
+                </section>
             </div>
 
-            <section class="glass-card p-8">
-                <div class="flex items-center justify-between mb-8">
-                    <h3 class="text-sm font-black italic uppercase tracking-widest text-slate-900">My Projects</h3>
-                    <button onclick="newProject()" class="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-xl font-black text-[9px] uppercase tracking-widest hover:bg-blue-500 transition shadow-sm">
-                        <i class="fas fa-plus text-xs"></i> New Project
-                    </button>
-                </div>
-                <div class="space-y-4" id="matches-list">
-                    <div class="text-center py-8 text-slate-400 text-xs font-bold uppercase tracking-widest">
-                        <i class="fas fa-spinner fa-spin mr-2"></i>Loading...
-                    </div>
-                </div>
-            </section>
+            <!-- 2. DETAIL VIEW (Hidden by default, triggered via JS) -->
+            <div id="detail-view" class="hidden fade-in">
+                <!-- Content injected dynamically via JS -->
+            </div>
+
         </main>
     </div>
 
     <script>
-    function newProject() {
-        const currentUid = uid || sessionStorage.getItem('uid') || '';
-        const currentName = coacheeName || sessionStorage.getItem('name') || '';
-        window.location.href = 'coachee_setup.html?uid=' + encodeURIComponent(currentUid) + '&name=' + encodeURIComponent(currentName) + '&mode=new';
-    }
-
     const urlParams = new URLSearchParams(window.location.search);
     const coacheeName = urlParams.get('name');
     const uid = urlParams.get('uid');
@@ -135,6 +131,12 @@
         if (initialsEl) initialsEl.textContent = initials;
     }
 
+    function newProject() {
+        const currentUid = uid || sessionStorage.getItem('uid') || '';
+        const currentName = coacheeName || sessionStorage.getItem('name') || '';
+        window.location.href = 'coachee_setup.html?uid=' + encodeURIComponent(currentUid) + '&name=' + encodeURIComponent(currentName) + '&mode=new';
+    }
+
     function viewProfile() {
         const currentUid = uid || sessionStorage.getItem('uid') || '';
         const currentName = coacheeName || sessionStorage.getItem('name') || '';
@@ -146,6 +148,19 @@
         if (span) span.remove();
         return cell.textContent.trim();
     }
+
+    const fieldKeys = [
+        'matchId', 'coacheeId', 'coachId', 'status', 'requestDate', 'applicationId',
+        'coacheePhone', 'coacheeSite', 'coacheeRole', 'coacheeAbout', 'coacheeEmail',
+        'coachEmail', 'coachAbout', 'coachPractice', 'coachQI', 'coachStyle',
+        'coachAdditional', 'coachImage', 'coachLink', 'coachFirst', 'coachLast',
+        'appProblem', 'appSituation', 'appFunding', 'appPhysician', 'appTitle',
+        'appRegion', 'appStartDate', 'appEndDate', 'appCoachLooking', 'appSupport',
+        'appQITraining', 'appQILevel', 'appAvailability', 'appFrequency', 'appMethod',
+        'appAdditional', 'appReferral', 'coacheeFirst', 'coacheeLast'
+    ];
+
+    window.cachedMatches = []; 
 
     function loadMatches() {
         const currentUid = uid || sessionStorage.getItem('uid');
@@ -172,65 +187,61 @@
     function parseMatches(table) {
         const rows = table.querySelectorAll('tr');
         const matches = [];
+
         rows.forEach(row => {
             const cells = row.querySelectorAll('td');
-            if (cells.length >= 7) {
-                matches.push({
-                    matchId:      getCellText(cells[0]),
-                    coachId:      getCellText(cells[1]),
-                    coacheeId:    getCellText(cells[2]),
-                    status:       getCellText(cells[3]),
-                    coacheeFirst: getCellText(cells[4]),
-                    coacheeLast:  getCellText(cells[5]),
-                    projectTitle: getCellText(cells[6]),
-                    problem:      cells[7] ? getCellText(cells[7]) : '',
-                    about:        cells[8] ? getCellText(cells[8]) : '',
-                    coachFirst:   cells[9] ? getCellText(cells[9]) : '',
-                    coachLast:    cells[10] ? getCellText(cells[10]) : ''
+            if (cells.length >= 5) { 
+                const matchObj = {};
+                fieldKeys.forEach((key, index) => {
+                    if (cells[index]) {
+                        if (key === 'coachImage') {
+                            const imgEl = cells[index].querySelector('img');
+                            matchObj[key] = imgEl ? imgEl.src : '';
+                        } else {
+                            matchObj[key] = getCellText(cells[index]);
+                        }
+                    } else {
+                        matchObj[key] = '';
+                    }
                 });
+                if (matchObj.matchId) {
+                    matches.push(matchObj);
+                }
             }
         });
 
+        window.cachedMatches = matches; 
+        renderMatchesList(matches);
+    }
+
+    function renderMatchesList(matches) {
+        const list = document.getElementById('matches-list');
         if (matches.length === 0) { showNoMatches(); return; }
 
-        const currentUid = uid || sessionStorage.getItem('uid');
-        const currentName = coacheeName || sessionStorage.getItem('name') || '';
-        const list = document.getElementById('matches-list');
-
         list.innerHTML = matches.map(m => {
-            const meetingUrl = 'meeting.html?match_id=' + encodeURIComponent(m.matchId)
-                + '&coachee_uid=' + encodeURIComponent(m.coacheeId)
-                + '&coach_uid=' + encodeURIComponent(m.coachId)
-                + '&name=' + encodeURIComponent(currentName)
-                + '&coachee_name=' + encodeURIComponent(m.coacheeFirst + ' ' + m.coacheeLast)
-                + '&project_title=' + encodeURIComponent(m.projectTitle || '')
-                + '&problem=' + encodeURIComponent(m.problem || '')
-                + '&about=' + encodeURIComponent(m.about || '');
-
             const isPending = m.status === 'Pending';
+            const coachFullName = (m.coachFirst || m.coachLast) ? `Dr. ${m.coachFirst} ${m.coachLast}` : 'Assigning Coach...';
+            
+            const submissionDate = m.requestDate ? m.requestDate.split(' ')[0] : 'N/A';
             
             const statusBadge = isPending 
-                ? '<span class="text-[8px] font-black text-amber-500 border border-amber-200 bg-amber-50 px-2 py-1 rounded uppercase">Pending Review</span>'
-                : '<span class="text-[8px] font-black text-slate-400 border border-slate-200 px-2 py-1 rounded uppercase group-hover:text-blue-600 group-hover:border-blue-600 transition-all">Live Session Mode</span>';
-                
-            const statusDesc = isPending
-                ? `Waiting for Coach Dr. ${m.coachFirst} ${m.coachLast}`
-                : `Currently Active · Coach: Dr. ${m.coachFirst} ${m.coachLast}`;
-
-            const clickAction = isPending 
-                ? `onclick="alert('Waiting for Coach's response');"` 
-                : `onclick="window.location.href='${meetingUrl}'"`;
+                ? '<span class="text-[8px] font-black text-amber-500 border border-amber-200 bg-amber-50 px-2.5 py-1 rounded-full uppercase">Pending Review</span>'
+                : '<span class="text-[8px] font-black text-emerald-500 border border-emerald-200 bg-emerald-50 px-2.5 py-1 rounded-full uppercase">Active Setup</span>';
 
             return `
-                <div ${clickAction}
+                <div onclick="showProjectDetail('${m.matchId}')"
                     class="flex items-center justify-between p-6 rounded-[32px] bg-slate-50/50 border border-transparent hover:border-slate-200 hover:bg-white transition-all duration-300 cursor-pointer group">
                     <div class="flex items-center gap-6">
-                        <div class="w-14 h-14 rounded-2xl bg-white shadow-sm flex items-center justify-center font-black italic text-slate-400 group-hover:text-blue-600">
-                            ${(m.projectTitle || 'P').slice(0,2).toUpperCase()}
+                        <div class="w-14 h-14 rounded-2xl bg-white shadow-sm flex items-center justify-center font-black italic text-slate-400 group-hover:text-blue-600 transition-colors">
+                            ${(m.appTitle || 'P').slice(0,2).toUpperCase()}
                         </div>
                         <div>
-                            <h4 class="text-md font-black italic text-slate-900 uppercase">${m.projectTitle || 'Active Project'}</h4>
-                            <p class="text-[10px] font-bold text-slate-400 italic mt-1 uppercase tracking-tight">${statusDesc}</p>
+                            <h4 class="text-md font-black italic text-slate-900 uppercase tracking-tight">${m.appTitle || 'Untitled Project'}</h4>
+                            <div class="flex items-center gap-3 mt-1.5 flex-wrap">
+                                <span class="text-[9px] font-bold text-slate-400 uppercase tracking-tight italic">Submission Date: ${submissionDate}</span>
+                                <span class="text-slate-300 text-xs">•</span>
+                                <span class="text-[9px] font-bold text-slate-500 uppercase tracking-tight italic">Coach: ${coachFullName}</span>
+                            </div>
                         </div>
                     </div>
                     <div class="flex items-center gap-4">
@@ -245,158 +256,191 @@
         document.getElementById('matches-list').innerHTML = '<p class="text-center py-8 text-slate-400 text-xs font-bold uppercase tracking-widest">No active matches yet.</p>';
     }
 
-    loadMatches();
+    function showProjectDetail(matchId) {
+        const project = window.cachedMatches.find(m => m.matchId === matchId);
+        if (!project) return;
 
-    let sessionInterval;
-    let sessionSeconds = 0;
+        document.getElementById('dashboard-view').classList.add('hidden');
+        const detailContainer = document.getElementById('detail-view');
+        detailContainer.classList.remove('hidden');
 
-    function showCoacheeDetail(name, initials) {
-        const mainContent = document.querySelector('main');
-        
-        mainContent.innerHTML = `
+        const isPending = project.status === 'Pending';
+        const coachInitials = (((project.coachFirst||'')[0]||'') + ((project.coachLast||'')[0]||'')).toUpperCase();
+        const coachImageHtml = project.coachImage
+            ? `<img src="${project.coachImage}" class="avatar-img w-16 h-16 rounded-2xl object-cover" onerror="this.outerHTML='<div class=\\'avatar-placeholder w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-black italic text-md\\'>${coachInitials}</div>'">`
+            : `<div class="avatar-placeholder w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-black italic text-md">${coachInitials}</div>`;
+
+        const meetingUrl = 'meeting.html?match_id=' + encodeURIComponent(project.matchId)
+            + '&coachee_uid=' + encodeURIComponent(project.coacheeId)
+            + '&coach_uid=' + encodeURIComponent(project.coachId)
+            + '&name=' + encodeURIComponent(coacheeName || sessionStorage.getItem('name') || '')
+            + '&coachee_name=' + encodeURIComponent(project.coacheeFirst + ' ' + project.coacheeLast)
+            + '&project_title=' + encodeURIComponent(project.appTitle || '')
+            + '&problem=' + encodeURIComponent(project.appProblem || '')
+            + '&about=' + encodeURIComponent(project.coacheeAbout || '');
+
+        detailContainer.innerHTML = `
             <div class="fade-in">
-                <div class="flex flex-col lg:flex-row justify-between lg:items-center mb-6 lg:mb-8 gap-4">
-                    <button onclick="location.reload()" class="w-fit flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-widest hover:text-blue-600 transition">
+                <!-- Back Header -->
+                <div class="flex flex-col lg:flex-row justify-between lg:items-center mb-10 gap-4">
+                    <button onclick="showDashboardView()" class="w-fit flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-widest hover:text-blue-600 transition">
                         <i class="fas fa-arrow-left"></i> Dashboard
                     </button>
-                    <div class="flex items-center gap-4 text-left lg:text-right">
-                        <div class="flex-1">
-                            <h1 class="text-xl lg:text-2xl font-black italic text-slate-900 uppercase leading-none">${name}</h1>
-                            <p class="text-[9px] font-bold text-blue-600 uppercase tracking-widest mt-1 italic leading-tight">Coach Connect</p>
-                        </div>
-                        <div class="w-10 h-10 lg:w-12 lg:h-12 rounded-2xl bg-blue-600 flex items-center justify-center text-white text-md lg:text-lg font-black italic shadow-lg">${initials}</div>
+                    <div>
+                        <span class="accent-text text-blue-600 tracking-widest block lg:text-right">Project Workspace</span>
+                        <h1 class="text-2xl font-black italic text-slate-900 uppercase leading-none mt-1 lg:text-right">${project.appTitle || 'Workspace'}</h1>
                     </div>
                 </div>
 
-                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 lg:h-[calc(100vh-220px)]">
-                    <div class="col-span-1 lg:col-span-8 flex flex-col min-h-[500px] lg:h-full">
-                        <section class="glass-card bg-slate-900 flex flex-col flex-1 overflow-hidden shadow-2xl border-none">
-                            <div class="px-6 lg:px-8 py-5 lg:py-6 border-b border-white/5 flex justify-between items-center bg-white/5">
+                <!-- 2 Column Master Grid -->
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+                    
+                    <!-- LEFT COLUMN: Application Details (8 Cols) -->
+                    <div class="lg:col-span-8 space-y-6">
+                        <!-- Card: Baseline Goals -->
+                        <div class="glass-card p-8">
+                            <span class="accent-text text-blue-600 tracking-widest block mb-4">Project Context & Problems</span>
+                            
+                            <div class="space-y-6">
                                 <div>
-                                    <span class="accent-text text-blue-400 tracking-[0.2em] block">Meeting Agenda</span>
-                                    <span class="text-[8px] text-slate-500 font-bold uppercase italic opacity-60">Collaborative Workspace</span>
-                                </div>
-                                <div id="auto-tracker-status" class="flex items-center gap-2 px-3 py-1 bg-blue-500/10 rounded-full border border-blue-500/20">
-                                    <div class="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse"></div>
-                                    <span class="text-[9px] font-black text-blue-400 uppercase italic">Ready</span>
-                                </div>
-                            </div>
-                            <div class="p-6 lg:p-8 flex-1 overflow-y-auto space-y-4">
-                                <ul id="detail-agenda-list" class="space-y-4">
-                                    <li class="flex items-start gap-4 lg:gap-5 p-4 lg:p-5 rounded-[20px] lg:rounded-[24px] bg-white/5 border border-white/10 text-slate-200 text-sm lg:text-md italic">
-                                        <i class="far fa-square mt-1.5 text-blue-500"></i>
-                                        <span class="leading-relaxed font-medium tracking-tight">Reviewing baseline data for ER surgery wait times.</span>
-                                    </li>
-                                </ul>
-                            </div>
-                            <div class="p-6 lg:p-8 bg-black/20 border-t border-white/5">
-                                <input type="text" id="detail-agenda-input" placeholder="Type new agenda..." 
-                                       class="w-full bg-white/5 border border-white/10 rounded-[20px] py-4 lg:py-5 pl-10 lg:pl-12 pr-6 text-sm text-slate-100 outline-none focus:ring-2 focus:ring-blue-500/50 transition-all font-medium">
-                            </div>
-                        </section>
-                    </div>
-
-                    <div class="col-span-1 lg:col-span-4 flex flex-col gap-6 lg:h-full">
-                        <section id="scheduler-card" class="glass-card p-5 lg:p-6 border-2 border-blue-600 shadow-2xl transition-all duration-500">
-                            <div class="flex justify-between items-center mb-4 lg:mb-6">
-                                <span class="accent-text text-blue-600 tracking-widest text-[9px] lg:text-[10px]">Sessions Scheduler</span>
-                                <div class="flex items-center gap-2">
-                                    <button class="text-[9px] font-black text-blue-600 bg-blue-50 px-2 py-1 rounded-md uppercase tracking-tighter">Book</button>
-                                    <div id="timer-badge" class="hidden flex items-center gap-2 bg-red-50 px-2 py-1 rounded-md italic">
-                                        <span id="live-timer" class="text-[10px] font-black text-red-600">00:00</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="p-4 rounded-2xl bg-blue-600 text-white shadow-lg flex items-center gap-4 relative overflow-hidden group">
-                                <div class="text-center bg-white/20 px-3 py-2 rounded-xl italic font-black">
-                                    <p class="text-[8px] uppercase leading-none mb-1">Feb</p><p class="text-xl">10</p>
-                                </div>
-                                <div class="flex-1">
-                                    <p class="text-[8px] font-black text-blue-100 uppercase italic mb-1 opacity-70">Today · 11:00 AM</p>
-                                    <p class="text-xs font-bold uppercase tracking-tight">Data Strategy Review</p>
-                                </div>
-                                <button id="start-btn" class="bg-white text-blue-600 px-3 py-2 rounded-xl text-[9px] font-black uppercase shadow-md hover:bg-slate-50 transition">Start</button>
-                            </div>
-                        </section>
-
-                        <section class="glass-card p-5 lg:p-6 flex-1 flex flex-col bg-slate-50 border-slate-200 overflow-hidden">
-                            <span class="accent-text text-slate-400 mb-6 tracking-widest block">Project Context & Progress</span>
-                            <div class="space-y-6 flex-1 lg:overflow-y-auto pr-1">
-                                <div>
-                                    <h4 class="text-[9px] font-black text-slate-900 uppercase italic mb-2 tracking-tighter opacity-60">Primary Objective</h4>
-                                    <p class="text-[11px] text-slate-600 font-medium leading-relaxed italic border-l-2 border-blue-500 pl-3 italic">
-                                        "Reduce ER surgical wait times for elective cases by 15% within the first 6 months by optimizing the pre-op triage flow."
+                                    <h4 class="text-[10px] font-black text-slate-400 uppercase italic mb-2 tracking-tighter">Primary Problem Statement</h4>
+                                    <p class="text-sm text-slate-700 font-medium leading-relaxed border-l-4 border-blue-600 pl-4 bg-slate-50 py-3 pr-4 rounded-r-xl italic">
+                                        "${project.appProblem || 'No problem statement provided.'}"
                                     </p>
                                 </div>
-                                <div class="pt-6 border-t border-slate-200 mt-auto">
-                                    <div class="flex justify-between items-end">
-                                        <div>
-                                            <span class="accent-text text-slate-400 block mb-1">Contracted Hours</span>
-                                            <p class="text-lg lg:text-xl font-black italic text-slate-900">2.5 <span class="text-slate-300 not-italic text-sm">/ 10.0h</span></p>
-                                        </div>
-                                    </div>
-                                    <div class="w-full bg-slate-200 h-1 rounded-full mt-3 overflow-hidden">
-                                        <div class="bg-blue-600 h-full w-[25%] transition-all duration-1000"></div>
-                                    </div>
+                                <div>
+                                    <h4 class="text-[10px] font-black text-slate-400 uppercase italic mb-2 tracking-tighter">Current Situation</h4>
+                                    <p class="text-sm text-slate-700 leading-relaxed font-medium bg-slate-50/50 p-4 rounded-2xl border border-slate-100">
+                                        ${project.appSituation || 'No situation description provided.'}
+                                    </p>
+                                </div>
+                                <div>
+                                    <h4 class="text-[10px] font-black text-slate-400 uppercase italic mb-2 tracking-tighter">Specific Coaching Support Needed</h4>
+                                    <p class="text-sm text-slate-700 leading-relaxed font-medium bg-slate-50/50 p-4 rounded-2xl border border-slate-100">
+                                        ${project.appSupport || 'No details provided.'}
+                                    </p>
                                 </div>
                             </div>
-                        </section>
-                        <button class="w-full bg-slate-900 text-white py-4 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] shadow-xl hover:bg-blue-600 transition-all flex items-center justify-center gap-3">
-                            <i class="fas fa-paper-plane text-xs"></i> Message
-                        </button>
+                        </div>
+
+                        <!-- Card: Complete Application Metadata Grid -->
+                        <div class="glass-card p-8">
+                            <span class="accent-text text-slate-400 tracking-widest block mb-6">Application Specifications</span>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div class="p-4 bg-slate-50 border border-slate-100 rounded-2xl">
+                                    <p class="text-[9px] font-black text-slate-400 uppercase leading-none mb-1.5">Region / Location</p>
+                                    <p class="text-xs font-black text-slate-900 uppercase italic">${project.appRegion || 'N/A'}</p>
+                                </div>
+                                <div class="p-4 bg-slate-50 border border-slate-100 rounded-2xl">
+                                    <p class="text-[9px] font-black text-slate-400 uppercase leading-none mb-1.5">Physician Lead</p>
+                                    <p class="text-xs font-black text-slate-900 uppercase italic">${project.appPhysician || 'None Specified'}</p>
+                                </div>
+                                <div class="p-4 bg-slate-50 border border-slate-100 rounded-2xl">
+                                    <p class="text-[9px] font-black text-slate-400 uppercase leading-none mb-1.5">QI Level & Training</p>
+                                    <p class="text-xs font-black text-slate-900 uppercase italic">${project.appQILevel || 'No Prior Level'} (${project.appQITraining || 'No formal training'})</p>
+                                </div>
+                                <div class="p-4 bg-slate-50 border border-slate-100 rounded-2xl">
+                                    <p class="text-[9px] font-black text-slate-400 uppercase leading-none mb-1.5">Project Timeline</p>
+                                    <p class="text-xs font-black text-slate-900 uppercase italic">${project.appStartDate || 'Start Date'} ~ ${project.appEndDate || 'End Date'}</p>
+                                </div>
+                                <div class="p-4 bg-slate-50 border border-slate-100 rounded-2xl">
+                                    <p class="text-[9px] font-black text-slate-400 uppercase leading-none mb-1.5">Meeting Methods & Frequency</p>
+                                    <p class="text-xs font-black text-slate-900 uppercase italic">${project.appFrequency || 'Flexible'} via ${project.appMethod || 'Virtual'}</p>
+                                </div>
+                                <div class="p-4 bg-slate-50 border border-slate-100 rounded-2xl">
+                                    <p class="text-[9px] font-black text-slate-400 uppercase leading-none mb-1.5">Funding Details</p>
+                                    <p class="text-xs font-black text-slate-900 uppercase italic">${project.appFunding || 'No funding details'}</p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
+
+                    <!-- RIGHT COLUMN: Coach Card (4 Cols) -->
+                    <div class="lg:col-span-4 space-y-6">
+                        <div class="glass-card p-6 border-2 ${isPending ? 'border-amber-300' : 'border-blue-600'}">
+                            <div class="flex justify-between items-center mb-6">
+                                <span class="accent-text text-slate-400 tracking-widest block">Assigned Coach</span>
+                                ${isPending 
+                                    ? '<span class="text-[8px] font-black text-amber-500 bg-amber-50 px-2 py-0.5 rounded uppercase border border-amber-200">Pending Approval</span>'
+                                    : '<span class="text-[8px] font-black text-emerald-500 bg-emerald-50 px-2 py-0.5 rounded uppercase border border-emerald-200">Active</span>'
+                                }
+                            </div>
+
+                            <!-- Coach Brief Header -->
+                            <div class="flex items-center gap-4 mb-6">
+                                ${coachImageHtml}
+                                <div>
+                                    <h3 class="text-sm font-black italic text-slate-900 uppercase">${project.coachFirst ? `Dr. ${project.coachFirst} ${project.coachLast}` : 'Assigning Coach...'}</h3>
+                                    <p class="text-[9px] font-bold text-slate-400 uppercase mt-1 tracking-tight">${project.coachPractice || 'Clinical Practice'}</p>
+                                </div>
+                            </div>
+
+                            <!-- Meeting Button (Logic depending on status) -->
+                            ${isPending 
+                                ? `<div class="bg-amber-50 border border-amber-100 rounded-2xl p-4 text-center mb-4">
+                                       <p class="text-[10px] font-black text-amber-600 uppercase tracking-wide leading-relaxed">Waiting for Coach acceptance.<br>Review timeline up to 5 business days.</p>
+                                   </div>`
+                                : `<button onclick="window.location.href='${meetingUrl}'" class="w-full bg-blue-600 text-white py-4 rounded-xl font-black text-[10px] uppercase tracking-widest shadow-lg hover:bg-blue-500 transition mb-4">
+                                       <i class="fas fa-video mr-1.5"></i> Join Meeting Workspace
+                                   </button>`
+                            }
+
+                            <!-- Accordion: Full Coach Profile -->
+                            ${(project.coachFirst || project.coachLast) ? `
+                                <div class="border-t border-slate-100 pt-4 mt-4">
+                                    <button onclick="toggleCoachProfileAccordion()" class="w-full flex justify-between items-center text-slate-600 hover:text-slate-900 transition">
+                                        <span class="text-[9px] font-black uppercase tracking-widest">About Dr. ${project.coachLast}</span>
+                                        <i id="accordion-icon" class="fas fa-chevron-down text-xs transition-transform"></i>
+                                    </button>
+                                    
+                                    <div id="coach-profile-details" class="hidden mt-4 space-y-4">
+                                        <div>
+                                            <span class="text-[8px] font-black text-slate-400 uppercase tracking-tighter block mb-1">Coaching Bio</span>
+                                            <p class="text-[11px] text-slate-600 font-medium leading-relaxed italic">"${project.coachAbout || 'No custom bio provided.'}"</p>
+                                        </div>
+                                        <div>
+                                            <span class="text-[8px] font-black text-slate-400 uppercase tracking-tighter block mb-1">QI Strengths</span>
+                                            <p class="text-[11px] text-slate-600 font-medium leading-relaxed">${project.coachQI || 'N/A'}</p>
+                                        </div>
+                                        <div>
+                                            <span class="text-[8px] font-black text-slate-400 uppercase tracking-tighter block mb-1">Coaching Style</span>
+                                            <p class="text-[11px] text-slate-600 font-medium leading-relaxed">${project.coachStyle || 'N/A'}</p>
+                                        </div>
+                                        ${project.coachLink ? `
+                                        <div>
+                                            <span class="text-[8px] font-black text-slate-400 uppercase tracking-tighter block mb-1">Booking Link</span>
+                                            <a href="${project.coachLink}" target="_blank" class="text-[11px] text-blue-600 font-black hover:underline uppercase block">${project.coachLink}</a>
+                                        </div>` : ''}
+                                    </div>
+                                </div>
+                            ` : ''}
+                        </div>
+                    </div>
+
                 </div>
             </div>
         `;
-
-        setupDetailLogic();
     }
 
-    function setupDetailLogic() {
-        const startBtn = document.getElementById('start-btn');
-        const schedulerCard = document.getElementById('scheduler-card');
-        const timerBadge = document.getElementById('timer-badge');
-        const liveTimerDisplay = document.getElementById('live-timer');
-        const statusIndicator = document.getElementById('auto-tracker-status');
-
-        if(startBtn) {
-            startBtn.addEventListener('click', function() {
-                if (this.innerText === 'START') {
-                    this.innerText = 'FINISH';
-                    this.classList.replace('bg-white', 'bg-red-500');
-                    this.classList.replace('text-blue-600', 'text-white');
-                    schedulerCard.classList.replace('border-blue-600', 'border-red-500');
-                    timerBadge.classList.remove('hidden');
-                    statusIndicator.innerHTML = '<div class="w-1.5 h-1.5 rounded-full bg-red-500 animate-ping"></div><span class="text-[9px] font-black text-red-500 uppercase italic">Live</span>';
-                    sessionInterval = setInterval(() => {
-                        sessionSeconds++;
-                        let m = Math.floor(sessionSeconds / 60).toString().padStart(2, '0');
-                        let s = (sessionSeconds % 60).toString().padStart(2, '0');
-                        liveTimerDisplay.innerText = `${m}:${s}`;
-                    }, 1000);
-                } else {
-                    clearInterval(sessionInterval);
-                    alert(`Session Logged: ${(sessionSeconds / 60).toFixed(1)} minutes.`);
-                    location.reload();
-                }
-            });
-        }
-
-        const agendaInput = document.getElementById('detail-agenda-input');
-        const agendaList = document.getElementById('detail-agenda-list');
-        if(agendaInput) {
-            agendaInput.addEventListener('keypress', function (e) {
-                if (e.key === 'Enter' && this.value.trim() !== "") {
-                    const li = document.createElement('li');
-                    li.className = "flex items-start gap-4 lg:gap-5 p-4 lg:p-5 rounded-[20px] lg:rounded-[24px] bg-white/5 border border-white/10 text-slate-200 text-sm lg:text-md italic hover:bg-white/10 transition-all group fade-in";
-                    li.innerHTML = `<i class="far fa-square mt-1.5 text-blue-500 group-hover:scale-110 transition"></i> <span class="font-medium tracking-tight leading-relaxed">${this.value.trim()}</span>`;
-                    agendaList.appendChild(li);
-                    this.value = "";
-                }
-            });
+    function toggleCoachProfileAccordion() {
+        const detailBlock = document.getElementById('coach-profile-details');
+        const icon = document.getElementById('accordion-icon');
+        if (detailBlock.classList.contains('hidden')) {
+            detailBlock.classList.remove('hidden');
+            icon.classList.add('rotate-180');
+        } else {
+            detailBlock.classList.add('hidden');
+            icon.classList.remove('rotate-180');
         }
     }
-</script>
 
+    function showDashboardView() {
+        document.getElementById('detail-view').classList.add('hidden');
+        document.getElementById('dashboard-view').classList.remove('hidden');
+        renderMatchesList(window.cachedMatches);
+    }
+
+    loadMatches();
+    </script>
 </body>
 </html>
