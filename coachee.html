@@ -121,31 +121,26 @@
         window.location.href = 'coachee_setup.html?uid=' + encodeURIComponent(currentUid) + '&name=' + encodeURIComponent(currentName) + '&mode=new';
     }
 
-    // Read params from URL
     const urlParams = new URLSearchParams(window.location.search);
     const coacheeName = urlParams.get('name');
     const uid = urlParams.get('uid');
 
-    // Store in sessionStorage (이 부분은 그대로 유지!)
     if (uid) sessionStorage.setItem('uid', uid);
     if (coacheeName) sessionStorage.setItem('name', coacheeName);
 
     if (coacheeName) {
         document.getElementById('coachee-name').textContent = coacheeName;
-        // 아바타 이니셜 추출 (추가됨)
         const parts = coacheeName.trim().split(' ');
         const initials = parts.map(p => p[0]).join('').toUpperCase().slice(0, 2);
         const initialsEl = document.getElementById('coachee-initials');
         if (initialsEl) initialsEl.textContent = initials;
     }
 
-    // 프로필 이동 함수 (추가됨)
     function viewProfile() {
         const currentUid = uid || sessionStorage.getItem('uid') || '';
         const currentName = coacheeName || sessionStorage.getItem('name') || '';
         window.location.href = 'coachee_bio.html?uid=' + encodeURIComponent(currentUid) + '&name=' + encodeURIComponent(currentName);
     }
-    // ── Load Matches ─────────────────────────────────────────
     function getCellText(cell) {
         const span = cell.querySelector('span');
         if (span) span.remove();
@@ -195,6 +190,56 @@
                 });
             }
         });
+
+        if (matches.length === 0) { showNoMatches(); return; }
+
+        const currentUid = uid || sessionStorage.getItem('uid');
+        const currentName = coacheeName || sessionStorage.getItem('name') || '';
+        const list = document.getElementById('matches-list');
+
+        list.innerHTML = matches.map(m => {
+            const meetingUrl = 'meeting.html?match_id=' + encodeURIComponent(m.matchId)
+                + '&coachee_uid=' + encodeURIComponent(m.coacheeId)
+                + '&coach_uid=' + encodeURIComponent(m.coachId)
+                + '&name=' + encodeURIComponent(currentName)
+                + '&coachee_name=' + encodeURIComponent(m.coacheeFirst + ' ' + m.coacheeLast)
+                + '&project_title=' + encodeURIComponent(m.projectTitle || '')
+                + '&problem=' + encodeURIComponent(m.problem || '')
+                + '&about=' + encodeURIComponent(m.about || '');
+
+            const isPending = m.status === 'Pending';
+            
+            const statusBadge = isPending 
+                ? '<span class="text-[8px] font-black text-amber-500 border border-amber-200 bg-amber-50 px-2 py-1 rounded uppercase">Pending Review</span>'
+                : '<span class="text-[8px] font-black text-slate-400 border border-slate-200 px-2 py-1 rounded uppercase group-hover:text-blue-600 group-hover:border-blue-600 transition-all">Live Session Mode</span>';
+                
+            const statusDesc = isPending
+                ? `Waiting for Coach Dr. ${m.coachFirst} ${m.coachLast}`
+                : `Currently Active · Coach: Dr. ${m.coachFirst} ${m.coachLast}`;
+
+            const clickAction = isPending 
+                ? `onclick="alert('코치의 리뷰 및 수락을 기다리는 중입니다.');"` 
+                : `onclick="window.location.href='${meetingUrl}'"`;
+
+            return `
+                <div ${clickAction}
+                    class="flex items-center justify-between p-6 rounded-[32px] bg-slate-50/50 border border-transparent hover:border-slate-200 hover:bg-white transition-all duration-300 cursor-pointer group">
+                    <div class="flex items-center gap-6">
+                        <div class="w-14 h-14 rounded-2xl bg-white shadow-sm flex items-center justify-center font-black italic text-slate-400 group-hover:text-blue-600">
+                            ${(m.projectTitle || 'P').slice(0,2).toUpperCase()}
+                        </div>
+                        <div>
+                            <h4 class="text-md font-black italic text-slate-900 uppercase">${m.projectTitle || 'Active Project'}</h4>
+                            <p class="text-[10px] font-bold text-slate-400 italic mt-1 uppercase tracking-tight">${statusDesc}</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        ${statusBadge}
+                        <i class="fas fa-chevron-right text-slate-200 group-hover:text-blue-600 transition-all"></i>
+                    </div>
+                </div>`;
+        }).join('');
+    }
 
         const active = matches.filter(m => m.status === 'Active');
         if (active.length === 0) { showNoMatches(); return; }
