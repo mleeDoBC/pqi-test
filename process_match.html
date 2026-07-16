@@ -31,14 +31,17 @@
                 console.log("Application sent!");
                 submitBtn.click();
                 
+                const params = new URLSearchParams(window.location.search);
+                const uid = params.get('uid') || '';
+                const name = params.get('name') || '';
+
                 setTimeout(() => {
-                    window.location.href = 'application.html';
+                    window.location.href = 'coachee.html?uid=' + encodeURIComponent(uid) + '&name=' + encodeURIComponent(name);
                 }, 1500);
             } else if (tries < 50) {
                 setTimeout(() => autoSubmitForm(tries + 1), 200);
             }
         }
-        
         autoSubmitForm(0);
     </script>
 </body>
