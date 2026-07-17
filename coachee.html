@@ -360,14 +360,18 @@
             return; 
         }
 
-        const activeMatches = matches.filter(m => m.status && m.status.trim() === 'Active');
-        dashboardList.innerHTML = activeMatches.length > 0 
-            ? activeMatches.map(createMatchCardHTML).join('')
-            : '<p class="text-center py-8 text-slate-400 text-xs font-bold uppercase tracking-widest">No active projects yet.</p>';
+        const dashboardMatches = matches.filter(m => {
+            const status = m.status ? m.status.trim() : '';
+            return status === 'Active' || status === 'Pending';
+        });
+        
+        dashboardList.innerHTML = dashboardMatches.length > 0 
+            ? dashboardMatches.map(createMatchCardHTML).join('')
+            : '<p class="text-center py-8 text-slate-400 text-xs font-bold uppercase tracking-widest">No active or pending projects.</p>';
 
         portfolioList.innerHTML = matches.map(createMatchCardHTML).join('');
     }
-
+        
     function showNoMatches() {
         document.getElementById('matches-list').innerHTML = '<p class="text-center py-8 text-slate-400 text-xs font-bold uppercase tracking-widest">No active projects yet.</p>';
         document.getElementById('portfolio-list').innerHTML = '<p class="text-center py-8 text-slate-400 text-xs font-bold uppercase tracking-widest">No project history found.</p>';
