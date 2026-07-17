@@ -150,52 +150,53 @@
     }
     
     function getCellText(cell) {
-        const span = cell.querySelector('span');
-        if (span) span.remove();
-        return cell.textContent.trim();
+        const clone = cell.cloneNode(true);
+        const labels = clone.querySelectorAll('.cbResultSetLabel');
+        labels.forEach(l => l.remove()); 
+        return clone.textContent.trim();
     }
 
-    const fieldMapping = {
-        'Match_ID': 'matchId',
-        'Coachee_ID': 'coacheeId',
-        'Coach_ID': 'coachId',
-        'Status': 'status',
-        'Request_Date': 'requestDate',
-        'Application_ID': 'applicationId',
-        'Coachee_Phone': 'coacheePhone',
-        'Coachee_Site': 'coacheeSite',
-        'Coachee_Role_Specialty': 'coacheeRole',
-        'Coachee_About': 'coacheeAbout',
-        'Coachee_Email': 'coacheeEmail',
-        'Coach_Email': 'coachEmail',
-        'Coach_Desc_About': 'coachAbout',
-        'Coach_Desc_Practice': 'coachPractice',
-        'Coach_Desc_QI_Strengths': 'coachQI',
-        'Coach_Desc_Coaching_Style': 'coachStyle',
-        'Coach_Desc_Additional': 'coachAdditional',
-        'Coach_Desc_Image': 'coachImage',
-        'Coach_Desc_Contact_Link': 'coachLink',
-        'Coach_First_Name': 'coachFirst',
-        'Coach_Last_Name': 'coachLast',
-        'Coachee_Application_Problem': 'appProblem',
-        'Coachee_Application_Situation': 'appSituation',
-        'Coachee_Application_Funding': 'appFunding',
-        'Coachee_Application_Physician_Lead': 'appPhysician',
-        'Coachee_Application_Project_Title': 'appTitle',
-        'Coachee_Application_Project_Region': 'appRegion',
-        'Coachee_Application_Start_Date': 'appStartDate',
-        'Coachee_Application_End_Date': 'appEndDate',
-        'Coachee_Application_Coach_Looking_For': 'appCoachLooking',
-        'Coachee_Application_Support_Needed': 'appSupport',
-        'Coachee_Application_QI_Training': 'appQITraining',
-        'Coachee_Application_QI_Level': 'appQILevel',
-        'Coachee_Application_Availability': 'appAvailability',
-        'Coachee_Application_Meeting_Frequency': 'appFrequency',
-        'Coachee_Application_Meeting_Method': 'appMethod',
-        'Coachee_Application_Additional_Info': 'appAdditional',
-        'Coachee_Application_Referral': 'appReferral',
-        'Coachee_First_Name': 'coacheeFirst',
-        'Coachee_Last_Name': 'coacheeLast'
+    const normalizedFieldMapping = {
+        'matchid': 'matchId',
+        'coacheeid': 'coacheeId',
+        'coachid': 'coachId',
+        'status': 'status',
+        'requestdate': 'requestDate',
+        'applicationid': 'applicationId',
+        'coacheephone': 'coacheePhone',
+        'coacheesite': 'coacheeSite',
+        'coacheerolespecialty': 'coacheeRole',
+        'coacheeabout': 'coacheeAbout',
+        'coacheeemail': 'coacheeEmail',
+        'coachemail': 'coachEmail',
+        'coachdescabout': 'coachAbout',
+        'coachdescpractice': 'coachPractice',
+        'coachdescqistrengths': 'coachQI',
+        'coachdesccoachingstyle': 'coachStyle',
+        'coachdescadditional': 'coachAdditional',
+        'coachdescimage': 'coachImage',     
+        'coachdesccontactlink': 'coachLink',
+        'coachfirstname': 'coachFirst',
+        'coachlastname': 'coachLast',
+        'coacheeapplicationproblem': 'appProblem',
+        'coacheeapplicationsituation': 'appSituation',
+        'coacheeapplicationfunding': 'appFunding',
+        'coacheeapplicationphysicianlead': 'appPhysician',
+        'coacheeapplicationprojecttitle': 'appTitle',
+        'coacheeapplicationprojectregion': 'appRegion',
+        'coacheeapplicationstartdate': 'appStartDate',
+        'coacheeapplicationenddate': 'appEndDate',
+        'coacheeapplicationcoachlookingfor': 'appCoachLooking',
+        'coacheeapplicationsupportneeded': 'appSupport',
+        'coacheeapplicationqitraining': 'appQITraining',
+        'coacheeapplicationqilevel': 'appQILevel',
+        'coacheeapplicationavailability': 'appAvailability',
+        'coacheeapplicationmeetingfrequency': 'appFrequency',
+        'coacheeapplicationmeetingmethod': 'appMethod',
+        'coacheeapplicationadditionalinfo': 'appAdditional',
+        'coacheeapplicationreferral': 'appReferral',
+        'coacheefirstname': 'coacheeFirst',
+        'coacheelastname': 'coacheeLast'
     };
 
     window.cachedMatches = []; 
@@ -225,13 +226,10 @@
     function parseMatches(table) {
         const headerCells = table.querySelectorAll('th');
         const colIndexMap = {}; 
-        
         headerCells.forEach((th, index) => {
             const rawText = th.textContent || th.innerText;
-            const columnName = rawText.trim().replace(/\s+/g, '_'); 
-            colIndexMap[columnName] = index;
-            
-            colIndexMap[rawText.trim()] = index; 
+            const cleanKey = rawText.toLowerCase().replace(/[^a-z0-9]/g, '');
+            if(cleanKey) colIndexMap[cleanKey] = index;
         });
 
         const rows = table.querySelectorAll('tr');
@@ -241,21 +239,32 @@
             const cells = row.querySelectorAll('td');
             if (cells.length > 0) { 
                 const matchObj = {};
-   
-                Object.keys(fieldMapping).forEach(caspioName => {
-                    const internalKey = fieldMapping[caspioName];
-                    const colIndex = colIndexMap[caspioName];
+                
+                cells.forEach((cell, index) => {
+                    let cleanKey = "";
+                    
+                    const labelSpan = cell.querySelector('.cbResultSetLabel');
+                    if (labelSpan) {
+                        cleanKey = labelSpan.textContent.toLowerCase().replace(/[^a-z0-9]/g, '');
+                    } 
+                    else {
+                        cleanKey = Object.keys(colIndexMap).find(k => colIndexMap[k] === index) || "";
+                    }
 
-                    if (colIndex !== undefined && cells[colIndex]) {
+                    if (cleanKey && normalizedFieldMapping[cleanKey]) {
+                        const internalKey = normalizedFieldMapping[cleanKey];
+                        
                         if (internalKey === 'coachImage') {
-                            const imgEl = cells[colIndex].querySelector('img');
+                            const imgEl = cell.querySelector('img');
                             matchObj[internalKey] = imgEl ? imgEl.src : '';
                         } else {
-                            matchObj[internalKey] = getCellText(cells[colIndex]);
+                            matchObj[internalKey] = getCellText(cell);
                         }
-                    } else {
-                        matchObj[internalKey] = '';
                     }
+                });
+
+                Object.values(normalizedFieldMapping).forEach(val => {
+                    if (matchObj[val] === undefined) matchObj[val] = '';
                 });
 
                 if (matchObj.matchId) matches.push(matchObj);
