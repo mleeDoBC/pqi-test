@@ -235,7 +235,7 @@
         const rows = table.querySelectorAll('tr');
         const matches = [];
 
-        rows.forEach(row => {
+        rows.forEach((row, rowIndex) => {
             const cells = row.querySelectorAll('td');
             if (cells.length > 0) { 
                 const matchObj = {};
@@ -246,20 +246,20 @@
                     const labelSpan = cell.querySelector('.cbResultSetLabel');
                     if (labelSpan) {
                         cleanKey = labelSpan.textContent.toLowerCase().replace(/[^a-z0-9]/g, '');
-                    } 
-                    else {
+                    } else {
                         cleanKey = Object.keys(colIndexMap).find(k => colIndexMap[k] === index) || "";
                     }
 
                     if (cleanKey && normalizedFieldMapping[cleanKey]) {
                         const internalKey = normalizedFieldMapping[cleanKey];
-                        
-                        if (internalKey === 'coachImage') {
-                            const imgEl = cell.querySelector('img');
-                            matchObj[internalKey] = imgEl ? imgEl.src : '';
-                        } else {
+                        if (internalKey !== 'coachImage') { 
                             matchObj[internalKey] = getCellText(cell);
                         }
+                    }
+
+                    const imgEl = cell.querySelector('img');
+                    if (imgEl && imgEl.src) {
+                        matchObj['coachImage'] = imgEl.src;
                     }
                 });
 
