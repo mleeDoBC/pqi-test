@@ -48,12 +48,12 @@
 
             <nav class="hidden lg:flex flex-1 px-4 space-y-2 flex-col">
                 <span class="px-4 accent-text text-slate-600 block mb-4">Management</span>
-                <a href="#" onclick="showDashboardView()" class="nav-item active flex items-center gap-4 px-6 py-4 rounded-2xl group">
+                <a href="#" onclick="showDashboardView()" id="nav-dashboard" class="nav-item active flex items-center gap-4 px-6 py-4 rounded-2xl group">
                     <i class="fas fa-grid-2 text-sm transition-transform group-hover:scale-110"></i>
                     <span class="text-[11px] font-black uppercase tracking-[0.2em] italic">Dashboard</span>
                 </a>
-                <a href="#" class="nav-item flex items-center gap-4 px-6 py-4 rounded-2xl group">
-                    <i class="fas fa-briefcase text-sm"></i>
+                <a href="#" onclick="showPortfolioView()" id="nav-portfolio" class="nav-item flex items-center gap-4 px-6 py-4 rounded-2xl group">
+                    <i class="fas fa-briefcase text-sm transition-transform group-hover:scale-110"></i>
                     <span class="text-[11px] font-black uppercase tracking-[0.2em] italic">Portfolio</span>
                 </a>
             </nav>
@@ -101,7 +101,7 @@
 
                 <section class="glass-card p-8">
                     <div class="flex items-center justify-between mb-8">
-                        <h3 class="text-sm font-black italic uppercase tracking-widest text-slate-900">My Projects</h3>
+                        <h3 class="text-sm font-black italic uppercase tracking-widest text-slate-900">Active Projects</h3>
                         <button onclick="newProject()" class="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-xl font-black text-[9px] uppercase tracking-widest hover:bg-blue-500 transition shadow-sm">
                             <i class="fas fa-plus text-xs"></i> New Project
                         </button>
@@ -109,6 +109,26 @@
                     <div class="space-y-4" id="matches-list">
                         <div class="text-center py-8 text-slate-400 text-xs font-bold uppercase tracking-widest">
                             <i class="fas fa-spinner fa-spin mr-2"></i>Loading your projects...
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <div id="portfolio-view" class="hidden fade-in">
+                <header class="flex justify-between items-center mb-12">
+                    <div>
+                        <h1 class="text-3xl font-black italic text-slate-900 tracking-tighter uppercase">Project Portfolio</h1>
+                        <div class="h-1 w-12 bg-blue-600 mt-2"></div>
+                    </div>
+                </header>
+
+                <section class="glass-card p-8">
+                    <div class="flex items-center justify-between mb-8">
+                        <h3 class="text-sm font-black italic uppercase tracking-widest text-slate-900">All Project History</h3>
+                    </div>
+                    <div class="space-y-4" id="portfolio-list">
+                        <div class="text-center py-8 text-slate-400 text-xs font-bold uppercase tracking-widest">
+                            <i class="fas fa-spinner fa-spin mr-2"></i>Loading history...
                         </div>
                     </div>
                 </section>
@@ -124,6 +144,8 @@
     const urlParams = new URLSearchParams(window.location.search);
     const coacheeName = urlParams.get('name');
     const uid = urlParams.get('uid');
+    
+    let lastActiveView = 'dashboard';
 
     if (uid) sessionStorage.setItem('uid', uid);
     if (coacheeName) sessionStorage.setItem('name', coacheeName);
@@ -290,45 +312,93 @@
         renderMatchesList(matches);
     }
 
+    function createMatchCardHTML(m) {
+        const status = m.status ? m.status.trim() : '';
+        const isPending = status === 'Pending';
+        const isActive = status === 'Active';
+        const coachFullName = (m.coachFirst || m.coachLast) ? `Dr. ${m.coachFirst} ${m.coachLast}` : 'Assigning Coach...';
+        const submissionDate = m.requestDate ? m.requestDate.split(' ')[0] : 'N/A';
+        
+        let statusBadge = '';
+        if (isPending) {
+            statusBadge = '<span class="text-[8px] font-black text-amber-500 border border-amber-200 bg-amber-50 px-2.5 py-1 rounded-full uppercase">Pending Review</span>';
+        } else if (isActive) {
+            statusBadge = '<span class="text-[8px] font-black text-emerald-500 border border-emerald-200 bg-emerald-50 px-2.5 py-1 rounded-full uppercase">Active Session</span>';
+        } else {
+            statusBadge = `<span class="text-[8px] font-black text-slate-500 border border-slate-200 bg-slate-50 px-2.5 py-1 rounded-full uppercase">${status || 'Archived'}</span>`;
+        }
+
+        return `
+            <div onclick="showProjectDetail('${m.matchId}')"
+                class="flex items-center justify-between p-6 rounded-[32px] bg-slate-50/50 border border-transparent hover:border-slate-200 hover:bg-white transition-all duration-300 cursor-pointer group">
+                <div class="flex items-center gap-6">
+                    <div class="w-14 h-14 rounded-2xl bg-white shadow-sm flex items-center justify-center font-black italic text-slate-400 group-hover:text-blue-600 transition-colors">
+                        ${(m.appTitle || 'P').slice(0,2).toUpperCase()}
+                    </div>
+                    <div>
+                        <h4 class="text-md font-black italic text-slate-900 uppercase tracking-tight">${m.appTitle || 'Active Project'}</h4>
+                        <div class="flex items-center gap-3 mt-1.5 flex-wrap">
+                            <span class="text-[9px] font-bold text-slate-400 uppercase tracking-tight italic">Date: ${submissionDate}</span>
+                            <span class="text-slate-300 text-xs">•</span>
+                            <span class="text-[9px] font-bold text-slate-500 uppercase tracking-tight italic">Coach: ${coachFullName}</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex items-center gap-4">
+                    ${statusBadge}
+                    <i class="fas fa-chevron-right text-slate-200 group-hover:text-blue-600 transition-all"></i>
+                </div>
+            </div>`;
+    }
+
     function renderMatchesList(matches) {
-        const list = document.getElementById('matches-list');
-        if (matches.length === 0) { showNoMatches(); return; }
+        const dashboardList = document.getElementById('matches-list');
+        const portfolioList = document.getElementById('portfolio-list');
 
-        list.innerHTML = matches.map(m => {
-            const isPending = m.status === 'Pending';
-            const coachFullName = (m.coachFirst || m.coachLast) ? `Dr. ${m.coachFirst} ${m.coachLast}` : 'Assigning Coach...';
-            const submissionDate = m.requestDate ? m.requestDate.split(' ')[0] : 'N/A';
-            
-            const statusBadge = isPending 
-                ? '<span class="text-[8px] font-black text-amber-500 border border-amber-200 bg-amber-50 px-2.5 py-1 rounded-full uppercase">Pending Review</span>'
-                : '<span class="text-[8px] font-black text-emerald-500 border border-emerald-200 bg-emerald-50 px-2.5 py-1 rounded-full uppercase">Active Session</span>';
+        if (matches.length === 0) { 
+            showNoMatches(); 
+            return; 
+        }
 
-            return `
-                <div onclick="showProjectDetail('${m.matchId}')"
-                    class="flex items-center justify-between p-6 rounded-[32px] bg-slate-50/50 border border-transparent hover:border-slate-200 hover:bg-white transition-all duration-300 cursor-pointer group">
-                    <div class="flex items-center gap-6">
-                        <div class="w-14 h-14 rounded-2xl bg-white shadow-sm flex items-center justify-center font-black italic text-slate-400 group-hover:text-blue-600 transition-colors">
-                            ${(m.appTitle || 'P').slice(0,2).toUpperCase()}
-                        </div>
-                        <div>
-                            <h4 class="text-md font-black italic text-slate-900 uppercase tracking-tight">${m.appTitle || 'Active Project'}</h4>
-                            <div class="flex items-center gap-3 mt-1.5 flex-wrap">
-                                <span class="text-[9px] font-bold text-slate-400 uppercase tracking-tight italic">Date: ${submissionDate}</span>
-                                <span class="text-slate-300 text-xs">•</span>
-                                <span class="text-[9px] font-bold text-slate-500 uppercase tracking-tight italic">Coach: ${coachFullName}</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="flex items-center gap-4">
-                        ${statusBadge}
-                        <i class="fas fa-chevron-right text-slate-200 group-hover:text-blue-600 transition-all"></i>
-                    </div>
-                </div>`;
-        }).join('');
+        const activeMatches = matches.filter(m => m.status && m.status.trim() === 'Active');
+        dashboardList.innerHTML = activeMatches.length > 0 
+            ? activeMatches.map(createMatchCardHTML).join('')
+            : '<p class="text-center py-8 text-slate-400 text-xs font-bold uppercase tracking-widest">No active projects yet.</p>';
+
+        portfolioList.innerHTML = matches.map(createMatchCardHTML).join('');
     }
 
     function showNoMatches() {
         document.getElementById('matches-list').innerHTML = '<p class="text-center py-8 text-slate-400 text-xs font-bold uppercase tracking-widest">No active projects yet.</p>';
+        document.getElementById('portfolio-list').innerHTML = '<p class="text-center py-8 text-slate-400 text-xs font-bold uppercase tracking-widest">No project history found.</p>';
+    }
+
+    function showDashboardView() {
+        lastActiveView = 'dashboard';
+        document.getElementById('detail-view').classList.add('hidden');
+        document.getElementById('portfolio-view').classList.add('hidden');
+        document.getElementById('dashboard-view').classList.remove('hidden');
+
+        document.getElementById('nav-dashboard').classList.add('active');
+        document.getElementById('nav-portfolio').classList.remove('active');
+    }
+
+    function showPortfolioView() {
+        lastActiveView = 'portfolio';
+        document.getElementById('detail-view').classList.add('hidden');
+        document.getElementById('dashboard-view').classList.add('hidden');
+        document.getElementById('portfolio-view').classList.remove('hidden');
+
+        document.getElementById('nav-portfolio').classList.add('active');
+        document.getElementById('nav-dashboard').classList.remove('active');
+    }
+
+    function goBackToList() {
+        if (lastActiveView === 'portfolio') {
+            showPortfolioView();
+        } else {
+            showDashboardView();
+        }
     }
 
     function showProjectDetail(matchId) {
@@ -336,6 +406,7 @@
         if (!project) return;
 
         document.getElementById('dashboard-view').classList.add('hidden');
+        document.getElementById('portfolio-view').classList.add('hidden');
         const detailContainer = document.getElementById('detail-view');
         detailContainer.classList.remove('hidden');
 
@@ -359,8 +430,8 @@
         detailContainer.innerHTML = `
             <div class="fade-in">
                 <div class="flex flex-col lg:flex-row justify-between lg:items-center mb-10 gap-4">
-                    <button onclick="showDashboardView()" class="w-fit flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-widest hover:text-blue-600 transition">
-                        <i class="fas fa-arrow-left"></i> Back to Dashboard
+                    <button onclick="goBackToList()" class="w-fit flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-widest hover:text-blue-600 transition">
+                        <i class="fas fa-arrow-left"></i> Back to List
                     </button>
                     <div>
                         <span class="accent-text text-blue-600 tracking-widest block lg:text-right">Project Workspace</span>
@@ -515,11 +586,6 @@
             detailBlock.classList.add('hidden');
             icon.classList.remove('rotate-180');
         }
-    }
-
-    function showDashboardView() {
-        document.getElementById('detail-view').classList.add('hidden');
-        document.getElementById('dashboard-view').classList.remove('hidden');
     }
 
     loadMatches();
