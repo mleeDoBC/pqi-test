@@ -339,7 +339,8 @@
         const coachInitials = (((project.coachFirst||'')[0]||'') + ((project.coachLast||'')[0]||'')).toUpperCase();
         
         const coachImageHtml = project.coachImage
-            ? `<img src="${project.coachImage}" class="w-16 h-16 rounded-2xl object-cover shadow-sm border border-slate-100" alt="Coach Profile" onerror="this.outerHTML='<div class=\\'w-16 h-16 rounded-2xl bg-blue-600 flex items-center justify-center text-white font-black italic text-xl shadow-sm tracking-tighter\\'>${coachInitials}</div>'">`
+            ? `<img src="${project.coachImage}" class="w-16 h-16 rounded-2xl object-cover shadow-sm border border-slate-100" alt="Coach Profile" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+               <div class="w-16 h-16 rounded-2xl bg-blue-600 items-center justify-center text-white font-black italic text-xl shadow-sm tracking-tighter" style="display: none;">${coachInitials}</div>`
             : `<div class="w-16 h-16 rounded-2xl bg-blue-600 flex items-center justify-center text-white font-black italic text-xl shadow-sm tracking-tighter">${coachInitials}</div>`;
 
         const meetingUrl = 'meeting.html?match_id=' + encodeURIComponent(project.matchId)
