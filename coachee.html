@@ -216,6 +216,10 @@
         const table = document.querySelector('#caspio-matches table');
         if (table) {
             parseMatches(table);
+            setTimeout(() => {
+                const t = document.querySelector('#caspio-matches table');
+                if (t) parseMatches(t);
+            }, 2000);
         } else if (tries < 40) {
             setTimeout(() => waitForMatches(tries + 1), 300);
         } else {
@@ -258,9 +262,9 @@
                             const linkEl = cell.querySelector('a');
                             const rawText = getCellText(cell);
                         
-                            if (imgEl && imgEl.src) {
-                                matchObj[internalKey] = imgEl.src; 
-                            } else if (linkEl && linkEl.href && !linkEl.href.startsWith('javascript:')) {
+                           if (imgEl && (imgEl.dataset.src || imgEl.src)) {
+                                matchObj[internalKey] = imgEl.dataset.src || imgEl.src;
+                            } else if (linkEl && linkEl.href && !linkEl.href.startsWith('javascript:'))  {
                                 matchObj[internalKey] = linkEl.href;  
                             } else if (rawText.includes('http')) {
                                 const urlMatch = rawText.match(/https?:\/\/[^\s"']+/);
