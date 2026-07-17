@@ -600,7 +600,13 @@
 
     function handleLogout() {
         sessionStorage.clear();
-        window.location.href = 'login.html';
+        localStorage.clear();
+        
+        document.cookie.split(";").forEach(function(c) { 
+            document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/"); 
+        });
+
+        window.location.replace('login.html');
     }
         
     loadMatches();
