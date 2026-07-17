@@ -194,13 +194,9 @@
         const rows = table.querySelectorAll('tr');
         const matches = [];
 
-        rows.forEach((row, rowIndex) => {
+        rows.forEach(row => {
             const cells = row.querySelectorAll('td');
             if (cells.length >= 5) { 
-                // 🕵️ 디버깅: Caspio가 던져주는 진짜 데이터 순서 훔쳐보기
-                console.log(`--- 데이터 행 ${rowIndex}번 ---`);
-                cells.forEach((c, i) => console.log(`[${i}번 바구니] 들어온 값: ${getCellText(c)}`));
-                
                 const matchObj = {};
                 fieldKeys.forEach((key, index) => {
                     if (cells[index]) {
