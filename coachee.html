@@ -319,8 +319,8 @@
         const coachInitials = (((project.coachFirst||'')[0]||'') + ((project.coachLast||'')[0]||'')).toUpperCase();
         
         const coachImageHtml = project.coachImage
-            ? `<img src="${project.coachImage}" class="avatar-img w-16 h-16 rounded-2xl object-cover" onerror="this.outerHTML='<div class=\\'avatar-placeholder w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-black italic text-md\\'>${coachInitials}</div>'">`
-            : `<div class="avatar-placeholder w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-black italic text-md">${coachInitials}</div>`;
+            ? `<img src="${project.coachImage}" class="w-16 h-16 rounded-2xl object-cover shadow-sm border border-slate-100" alt="Coach Profile">`
+            : `<div class="w-16 h-16 rounded-2xl bg-blue-600 flex items-center justify-center text-white font-black italic text-xl shadow-sm tracking-tighter">${coachInitials}</div>`;
 
         const meetingUrl = 'meeting.html?match_id=' + encodeURIComponent(project.matchId)
             + '&coachee_uid=' + encodeURIComponent(project.coacheeId)
@@ -333,7 +333,6 @@
 
         detailContainer.innerHTML = `
             <div class="fade-in">
-                <!-- Back Header -->
                 <div class="flex flex-col lg:flex-row justify-between lg:items-center mb-10 gap-4">
                     <button onclick="showDashboardView()" class="w-fit flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-widest hover:text-blue-600 transition">
                         <i class="fas fa-arrow-left"></i> Back to Dashboard
@@ -346,14 +345,14 @@
 
                 <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
                     
-                    <!-- LEFT COLUMN: Application Details -->
                     <div class="lg:col-span-8 space-y-6">
+                        
                         <div class="glass-card p-8">
-                            <span class="accent-text text-blue-600 tracking-widest block mb-4">Project Context & Problems</span>
+                            <span class="accent-text text-blue-600 tracking-widest block mb-6">Project Context & Problems</span>
                             <div class="space-y-6">
                                 <div>
                                     <h4 class="text-[10px] font-black text-slate-400 uppercase italic mb-2 tracking-tighter">Primary Problem Statement</h4>
-                                    <p class="text-sm text-slate-700 font-medium leading-relaxed border-l-4 border-blue-600 pl-4 bg-slate-50 py-3 pr-4 rounded-r-xl italic">
+                                    <p class="text-sm text-slate-700 font-medium leading-relaxed border-l-4 border-blue-600 pl-4 py-1 italic">
                                         "${project.appProblem || 'No problem statement provided.'}"
                                     </p>
                                 </div>
@@ -389,7 +388,29 @@
                                 </div>
                                 <div class="p-4 bg-slate-50 border border-slate-100 rounded-2xl">
                                     <p class="text-[9px] font-black text-slate-400 uppercase leading-none mb-1.5">Project Timeline</p>
-                                    <p class="text-xs font-black text-slate-900 uppercase italic">${project.appStartDate || 'Start Date'} ~ ${project.appEndDate || 'End Date'}</p>
+                                    <p class="text-xs font-black text-slate-900 uppercase italic">${project.appStartDate || 'TBD'} ~ ${project.appEndDate || 'TBD'}</p>
+                                </div>
+                                
+                                <div class="p-4 bg-slate-50 border border-slate-100 rounded-2xl">
+                                    <p class="text-[9px] font-black text-slate-400 uppercase leading-none mb-1.5">Funding Details</p>
+                                    <p class="text-xs font-black text-slate-900 uppercase italic">${project.appFunding || 'None'}</p>
+                                </div>
+                                <div class="p-4 bg-slate-50 border border-slate-100 rounded-2xl">
+                                    <p class="text-[9px] font-black text-slate-400 uppercase leading-none mb-1.5">Ideal Coach Profile</p>
+                                    <p class="text-xs font-black text-slate-900 uppercase italic">${project.appCoachLooking || 'Any Coach'}</p>
+                                </div>
+                                <div class="p-4 bg-slate-50 border border-slate-100 rounded-2xl md:col-span-2">
+                                    <p class="text-[9px] font-black text-slate-400 uppercase leading-none mb-1.5">Availability & Meeting Preference</p>
+                                    <p class="text-xs font-black text-slate-900 uppercase italic">${project.appAvailability || 'Flexible'} / ${project.appFrequency || 'TBD'} via ${project.appMethod || 'Virtual'}</p>
+                                </div>
+                                ${project.appAdditional ? `
+                                <div class="p-4 bg-slate-50 border border-slate-100 rounded-2xl md:col-span-2">
+                                    <p class="text-[9px] font-black text-slate-400 uppercase leading-none mb-1.5">Additional Information</p>
+                                    <p class="text-xs font-black text-slate-900 uppercase italic whitespace-pre-wrap">${project.appAdditional}</p>
+                                </div>` : ''}
+                                <div class="p-4 bg-slate-50 border border-slate-100 rounded-2xl md:col-span-2">
+                                    <p class="text-[9px] font-black text-slate-400 uppercase leading-none mb-1.5">Referral Source</p>
+                                    <p class="text-xs font-black text-slate-900 uppercase italic">${project.appReferral || 'N/A'}</p>
                                 </div>
                             </div>
                         </div>
@@ -427,10 +448,10 @@
                                 <div class="border-t border-slate-100 pt-4 mt-4">
                                     <button onclick="toggleCoachProfileAccordion()" class="w-full flex justify-between items-center text-slate-600 hover:text-slate-900 transition">
                                         <span class="text-[9px] font-black uppercase tracking-widest">About Dr. ${project.coachLast}</span>
-                                        <i id="accordion-icon" class="fas fa-chevron-down text-xs transition-transform"></i>
+                                        <i id="accordion-icon" class="fas fa-chevron-down text-xs transition-transform rotate-180"></i>
                                     </button>
                                     
-                                    <div id="coach-profile-details" class="hidden mt-4 space-y-4">
+                                    <div id="coach-profile-details" class="mt-4 space-y-4">
                                         <div>
                                             <span class="text-[8px] font-black text-slate-400 uppercase tracking-tighter block mb-1">Coaching Bio</span>
                                             <p class="text-[11px] text-slate-600 font-medium leading-relaxed italic">"${project.coachAbout || 'No custom bio provided.'}"</p>
@@ -446,7 +467,7 @@
                                         ${project.coachLink ? `
                                         <div>
                                             <span class="text-[8px] font-black text-slate-400 uppercase tracking-tighter block mb-1">Booking Link</span>
-                                            <a href="${project.coachLink}" target="_blank" class="text-[11px] text-blue-600 font-black hover:underline uppercase block">${project.coachLink}</a>
+                                            <a href="${project.coachLink}" target="_blank" class="text-[11px] text-blue-600 font-black hover:underline uppercase block break-all">${project.coachLink}</a>
                                         </div>` : ''}
                                     </div>
                                 </div>
@@ -461,6 +482,7 @@
     function toggleCoachProfileAccordion() {
         const detailBlock = document.getElementById('coach-profile-details');
         const icon = document.getElementById('accordion-icon');
+        
         if (detailBlock.classList.contains('hidden')) {
             detailBlock.classList.remove('hidden');
             icon.classList.add('rotate-180');
