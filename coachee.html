@@ -601,12 +601,8 @@
     function handleLogout() {
         sessionStorage.clear();
         localStorage.clear();
-        
-        document.cookie.split(";").forEach(function(c) { 
-            document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/"); 
-        });
-
-        window.location.replace('login.html');
+    
+        window.location.replace('https://c0abr823.caspio.com/folderlogout');
     }
         
     loadMatches();
