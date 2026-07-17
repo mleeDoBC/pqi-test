@@ -257,11 +257,11 @@
                             const imgEl = cell.querySelector('img');
                             const linkEl = cell.querySelector('a');
                             const rawText = getCellText(cell);
-                            
-                            if (imgEl && !imgEl.src.startsWith('blob:')) {
-                                matchObj[internalKey] = imgEl.src;
-                            } else if (linkEl && linkEl.href) {
-                                matchObj[internalKey] = linkEl.href; 
+                        
+                            if (imgEl && imgEl.src) {
+                                matchObj[internalKey] = imgEl.src; 
+                            } else if (linkEl && linkEl.href && !linkEl.href.startsWith('javascript:')) {
+                                matchObj[internalKey] = linkEl.href;  
                             } else if (rawText.includes('http')) {
                                 const urlMatch = rawText.match(/https?:\/\/[^\s"']+/);
                                 matchObj[internalKey] = urlMatch ? urlMatch[0] : ''; 
