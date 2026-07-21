@@ -101,7 +101,6 @@
                         <span class="accent-text text-emerald-600 block mb-2">Pending Invoices</span>
                         <div class="flex items-center justify-between"><span class="text-3xl lg:text-4xl font-black italic text-slate-900 leading-none">$1,875</span></div>
                     </div>
-                    <!-- 'Support' 카드로 교체된 영역 -->
                     <div class="glass-card p-6 lg:p-8 bg-slate-900 border-none cursor-pointer hover:ring-2 hover:ring-blue-500 transition-all" onclick="window.location.href='mailto:support@coachconnect.com'">
                         <span class="accent-text text-blue-400 block mb-2 tracking-[0.2em]">Support</span>
                         <p class="text-white text-sm font-black italic mb-4 uppercase leading-tight">Need Admin Help?</p>
@@ -123,177 +122,105 @@
 
     <script>
     function showCoacheeDetail(coacheeId, matchId) {
-        const p = coacheeProfiles[coacheeId] || {};
-        const name = p.firstName ? 'Dr. ' + p.firstName + ' ' + p.lastName : coacheeId;
-        const initials = p.firstName ? (p.firstName[0] + (p.lastName ? p.lastName[0] : '')).toUpperCase() : coacheeId.slice(0,2).toUpperCase();
-        const projectTitle = p.projectTitle || '';
-        const problem = p.problem || '';
-        const about = p.about || '';
+        const project = window.cachedMatches.find(m => m.matchId === matchId);
+        if (!project) return;
+        
+        const isPending = (project.status === 'Pending' || project.status === 'Applied');
+        const name = project.coacheeFirst ? 'Dr. ' + project.coacheeFirst + ' ' + project.coacheeLast : project.coacheeId;
+        const initials = project.coacheeFirst ? (project.coacheeFirst[0] + (project.coacheeLast ? project.coacheeLast[0] : '')).toUpperCase() : project.coacheeId.slice(0,2).toUpperCase();
         const mainContent = document.getElementById('main-content');
+        
+        const currentUid = uid || sessionStorage.getItem('uid');
+        const currentName = coachName || sessionStorage.getItem('name') || '';
+        
+        const meetingUrl = 'meeting.html?match_id=' + encodeURIComponent(project.matchId)
+            + '&coachee_uid=' + encodeURIComponent(project.coacheeId)
+            + '&coach_uid=' + encodeURIComponent(currentUid)
+            + '&name=' + encodeURIComponent(currentName)
+            + '&coachee_name=' + encodeURIComponent(project.coacheeFirst + ' ' + project.coacheeLast)
+            + '&project_title=' + encodeURIComponent(project.projectTitle || '')
+            + '&problem=' + encodeURIComponent(project.problem || '')
+            + '&about=' + encodeURIComponent(project.about || '');
+
         
         const detailView = `
             <div class="fade-in">
-                <div class="flex flex-col lg:flex-row justify-between lg:items-center mb-6 lg:mb-8 gap-4">
+                <div class="flex flex-col lg:flex-row justify-between lg:items-center mb-10 gap-4">
                     <button onclick="location.reload()" class="w-fit flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-widest hover:text-blue-600 transition">
-                        <i class="fas fa-arrow-left"></i> Dashboard
+                        <i class="fas fa-arrow-left"></i> Back to Dashboard
                     </button>
-                    <div class="flex items-center gap-4 text-left lg:text-right">
-                        <div class="flex-1">
-                            <h1 class="text-xl lg:text-2xl font-black italic text-slate-900 uppercase leading-none">${name}</h1>
-                            <p class="text-[9px] font-bold text-blue-600 uppercase tracking-widest mt-1 italic leading-tight">Coach Connect</p>
-                        </div>
-                        <div class="w-10 h-10 lg:w-12 lg:h-12 rounded-2xl bg-blue-600 flex items-center justify-center text-white text-md lg:text-lg font-black italic shadow-lg">${initials}</div>
+                    <div>
+                        <span class="accent-text text-blue-600 tracking-widest block lg:text-right">Project Workspace</span>
+                        <h1 class="text-2xl font-black italic text-slate-900 uppercase leading-none mt-1 lg:text-right">${project.projectTitle || 'Workspace'}</h1>
                     </div>
                 </div>
 
-                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 lg:h-[calc(100vh-220px)]">
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
                     
-                    <div class="col-span-1 lg:col-span-8 flex flex-col min-h-[500px] lg:h-full">
-                        <section class="glass-card bg-slate-900 flex flex-col flex-1 overflow-hidden shadow-2xl border-none">
-                            <div class="px-6 lg:px-8 py-5 lg:py-6 border-b border-white/5 flex justify-between items-center bg-white/5">
+                    <div class="lg:col-span-8 space-y-6">
+                        
+                        <div class="glass-card p-8">
+                            <span class="accent-text text-blue-600 tracking-widest block mb-6">Project Context & Problems</span>
+                            <div class="space-y-6">
                                 <div>
-                                    <span class="accent-text text-blue-400 tracking-[0.2em] block">Meeting Agenda</span>
-                                    <span class="text-[8px] text-slate-500 font-bold uppercase italic opacity-60">Collaborative Workspace</span>
+                                    <h4 class="text-[10px] font-black text-slate-400 uppercase italic mb-2 tracking-tighter">Primary Problem Statement</h4>
+                                    <p class="text-sm text-slate-700 font-medium leading-relaxed border-l-4 border-blue-600 pl-4 py-1 italic">
+                                        "${project.problem || 'No problem statement provided.'}"
+                                    </p>
                                 </div>
-                                <div id="auto-tracker-status" class="flex items-center gap-2 px-3 py-1 bg-blue-500/10 rounded-full border border-blue-500/20">
-                                    <div class="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse"></div>
-                                    <span class="text-[9px] font-black text-blue-400 uppercase italic">Ready</span>
+                                <div>
+                                    <h4 class="text-[10px] font-black text-slate-400 uppercase italic mb-2 tracking-tighter">About the Coachee</h4>
+                                    <p class="text-sm text-slate-700 leading-relaxed font-medium bg-slate-50/50 p-4 rounded-2xl border border-slate-100">
+                                        ${project.about || 'No details provided.'}
+                                    </p>
                                 </div>
                             </div>
-                            
-                            <div class="p-6 lg:p-8 flex-1 overflow-y-auto space-y-4">
-                                <ul id="detail-agenda-list" class="space-y-4">
-                                    <li class="flex items-start gap-4 lg:gap-5 p-4 lg:p-5 rounded-[20px] lg:rounded-[24px] bg-white/5 border border-white/10 text-slate-200 text-sm lg:text-md italic">
-                                        <i class="far fa-square mt-1.5 text-blue-500"></i>
-                                        <span class="leading-relaxed font-medium tracking-tight">Reviewing baseline data for ER surgery wait times.</span>
-                                    </li>
-                                </ul>
-                            </div>
-
-                            <div class="p-6 lg:p-8 bg-black/20 border-t border-white/5">
-                                <input type="text" id="detail-agenda-input" placeholder="Type new agenda..." 
-                                       class="w-full bg-white/5 border border-white/10 rounded-[20px] py-4 lg:py-5 pl-10 lg:pl-12 pr-6 text-sm text-slate-100 outline-none focus:ring-2 focus:ring-blue-500/50 transition-all font-medium">
-                            </div>
-                        </section>
+                        </div>
                     </div>
 
-                    <div class="col-span-1 lg:col-span-4 flex flex-col gap-6 lg:h-full">
-                        <section id="scheduler-card" class="glass-card p-5 lg:p-6 border-2 border-blue-600 shadow-2xl transition-all duration-500">
-                            <div class="flex justify-between items-center mb-4 lg:mb-6">
-                                <span class="accent-text text-blue-600 tracking-widest text-[9px] lg:text-[10px]">Sessions Scheduler</span>
-                                <div class="flex items-center gap-2">
-                                    <button onclick="alert('Booking triggered')" class="text-[9px] font-black text-blue-600 bg-blue-50 px-2 py-1 rounded-md uppercase tracking-tighter hover:bg-blue-100 transition">Book</button>
-                                    <div id="timer-badge" class="hidden flex items-center gap-2 bg-red-50 px-2 py-1 rounded-md italic">
-                                        <span id="live-timer" class="text-[10px] font-black text-red-600 font-mono tracking-tighter">00:00</span>
-                                    </div>
+                    <div class="lg:col-span-4 space-y-6">
+                        <div class="glass-card p-6 border-2 ${isPending ? 'border-amber-300' : 'border-blue-600'}">
+                            <div class="flex justify-between items-center mb-6">
+                                <span class="accent-text text-slate-400 tracking-widest block">Assigned Coachee</span>
+                                ${isPending 
+                                    ? '<span class="text-[8px] font-black text-amber-500 bg-amber-50 px-2 py-0.5 rounded uppercase border border-amber-200">Pending Approval</span>'
+                                    : '<span class="text-[8px] font-black text-emerald-500 bg-emerald-50 px-2 py-0.5 rounded uppercase border border-emerald-200">Active</span>'
+                                }
+                            </div>
+
+                            <div class="flex items-center gap-4 mb-6">
+                                <div class="w-16 h-16 rounded-2xl bg-blue-600 flex items-center justify-center text-white font-black italic text-xl shadow-sm tracking-tighter">${initials}</div>
+                                <div>
+                                    <h3 class="text-sm font-black italic text-slate-900 uppercase">${name}</h3>
                                 </div>
                             </div>
-                            
-                            <div class="p-4 rounded-2xl bg-blue-600 text-white shadow-lg flex items-center gap-4 relative overflow-hidden group">
-                                <div class="text-center bg-white/20 px-3 py-2 rounded-xl">
-                                    <p class="text-[8px] font-bold uppercase leading-none mb-1 text-blue-100">Feb</p>
-                                    <p class="text-xl font-black italic leading-none">10</p>
-                                </div>
-                                <div class="flex-1">
-                                    <p class="text-[8px] lg:text-[9px] font-black text-blue-100 uppercase italic leading-none mb-1 opacity-70">Today · 11:00 AM</p>
-                                    <p class="text-xs font-bold uppercase tracking-tight leading-tight">Data Strategy Review</p>
-                                </div>
-                                <button id="start-btn" class="bg-white text-blue-600 px-3 py-2 rounded-xl text-[9px] font-black uppercase shadow-md hover:bg-slate-50 transition">Start</button>
-                            </div>
-                        </section>
 
-                        <section class="glass-card p-5 lg:p-6 flex-1 flex flex-col bg-slate-50 border-slate-200 overflow-hidden">
-                            <span class="accent-text text-slate-400 mb-6 tracking-widest block">Project Context & Progress</span>
-                            
-                            <div class="space-y-6 flex-1 lg:overflow-y-auto pr-1">
-                                <div>
-                                    <h4 class="text-[9px] lg:text-[10px] font-black text-slate-900 uppercase italic mb-2 tracking-tighter opacity-60">Project Title</h4>
-                                    <p class="text-[11px] lg:text-xs text-slate-600 font-medium leading-relaxed italic border-l-2 border-blue-500 pl-3">
-                                        ${projectTitle || 'No project title provided.'}
-                                    </p>
-                                </div>
-
-                                <div>
-                                    <h4 class="text-[9px] lg:text-[10px] font-black text-slate-900 uppercase italic mb-2 tracking-tighter opacity-60">Problem Statement</h4>
-                                    <p class="text-[11px] lg:text-xs text-slate-600 font-medium leading-relaxed italic border-l-2 border-slate-300 pl-3">
-                                        ${problem || 'No problem statement provided.'}
-                                    </p>
-                                </div>
-
-                                <div>
-                                    <h4 class="text-[9px] lg:text-[10px] font-black text-slate-900 uppercase italic mb-2 tracking-tighter opacity-60">About</h4>
-                                    <p class="text-[11px] lg:text-xs text-slate-600 font-medium leading-relaxed italic border-l-2 border-slate-300 pl-3">
-                                        ${about || 'No background provided.'}
-                                    </p>
-                                </div>
-                                <div class="pt-6 border-t border-slate-200 mt-auto">
-                                    <div class="flex justify-between items-end">
-                                        <div>
-                                            <span class="accent-text text-slate-400 block mb-1">Contracted Hours</span>
-                                            <p class="text-lg lg:text-xl font-black italic text-slate-900">2.5 <span class="text-slate-300 not-italic text-sm">/ 10.0h</span></p>
-                                        </div>
-                                        <div class="text-right">
-                                            <span class="text-[9px] font-black text-blue-600 uppercase italic">75% Budget Left</span>
-                                        </div>
-                                    </div>
-                                    <div class="w-full bg-slate-200 h-1 rounded-full mt-3 overflow-hidden">
-                                        <div class="bg-blue-600 h-full w-[25%] transition-all duration-1000"></div>
-                                    </div>
-                                </div>
-                            </div>
-                        </section>
-
-                        <button class="w-full bg-slate-900 text-white py-4 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] shadow-xl hover:bg-blue-600 transition-all flex items-center justify-center gap-3 shrink-0">
-                            <i class="fas fa-paper-plane text-xs"></i> Message
-                        </button>
+                             ${isPending 
+                                ? `
+                                   <div class="bg-amber-50 border border-amber-100 rounded-2xl p-4 text-center mb-4">
+                                       <p class="text-[10px] font-black text-amber-600 uppercase tracking-wide leading-relaxed mb-3">
+                                           This is a new application.
+                                       </p>
+                                       <button onclick="acceptProject('${project.matchId}')" class="w-full bg-emerald-600 text-white py-3 rounded-xl font-black text-[10px] uppercase tracking-widest shadow-lg hover:bg-emerald-500 transition">
+                                           <i class="fas fa-check mr-1.5"></i> Accept Application
+                                       </button>
+                                   </div>`
+                                : `
+                                   <button onclick="window.location.href='${meetingUrl}'" class="w-full bg-blue-600 text-white py-4 rounded-xl font-black text-[10px] uppercase tracking-widest shadow-lg hover:bg-blue-500 transition mb-4">
+                                       <i class="fas fa-video mr-1.5"></i> Enter Workspace
+                                   </button>`
+                            }
+                        </div>
                     </div>
                 </div>
             </div>
         `;
         
         mainContent.innerHTML = detailView;
+    }
 
-        let sessionSeconds = 0;
-        let sessionInterval;
-        const startBtn = document.getElementById('start-btn');
-        const schedulerCard = document.getElementById('scheduler-card');
-        const timerBadge = document.getElementById('timer-badge');
-        const liveTimerDisplay = document.getElementById('live-timer');
-        const statusIndicator = document.getElementById('auto-tracker-status');
-
-        startBtn.addEventListener('click', function() {
-            if (this.innerText === 'START') {
-                this.innerText = 'FINISH';
-                this.classList.replace('bg-white', 'bg-red-500');
-                this.classList.replace('text-blue-600', 'text-white');
-                schedulerCard.classList.replace('border-blue-600', 'border-red-500');
-                timerBadge.classList.remove('hidden');
-                statusIndicator.innerHTML = '<div class="w-1.5 h-1.5 rounded-full bg-red-500 animate-ping"></div><span class="text-[9px] font-black text-red-500 uppercase italic">Live</span>';
-                sessionInterval = setInterval(() => {
-                    sessionSeconds++;
-                    let m = Math.floor(sessionSeconds / 60).toString().padStart(2, '0');
-                    let s = (sessionSeconds % 60).toString().padStart(2, '0');
-                    liveTimerDisplay.innerText = `${m}:${s}`;
-                }, 1000);
-            } else {
-                clearInterval(sessionInterval);
-                alert(`Session Logged: ${(sessionSeconds / 60).toFixed(1)} minutes.`);
-                location.reload();
-            }
-        });
-
-        const agendaInput = document.getElementById('detail-agenda-input');
-        const agendaList = document.getElementById('detail-agenda-list');
-        agendaInput.addEventListener('keypress', function (e) {
-            if (e.key === 'Enter' && this.value.trim() !== "") {
-                const li = document.createElement('li');
-                li.className = "flex items-start gap-4 lg:gap-5 p-4 lg:p-5 rounded-[20px] lg:rounded-[24px] bg-white/5 border border-white/10 text-slate-200 text-sm lg:text-md italic hover:bg-white/10 transition-all group fade-in";
-                li.innerHTML = `<i class="far fa-square mt-1.5 text-blue-500 group-hover:scale-110 transition"></i> <span class="font-medium tracking-tight leading-relaxed">${this.value.trim()}</span>`;
-                agendaList.appendChild(li);
-                this.value = "";
-                agendaList.scrollTop = agendaList.scrollHeight;
-            }
-        });
+    function acceptProject(matchId) {
+        alert('Accept functionality will be implemented here for match: ' + matchId);
     }
 
     function showInvoiceList() {
@@ -459,7 +386,7 @@
         window.location.href = 'coach_bio.html?uid=' + encodeURIComponent(currentUid) + '&name=' + encodeURIComponent(currentName) + '&mode=edit';
     }
 
-    const coacheeProfiles = {};
+    window.cachedMatches = [];
     let activeMatches = [];
     let pendingMatches = []; 
     let pastMatches = []; 
@@ -484,12 +411,17 @@
 
     function waitForMatches(tries) {
         const table = document.querySelector('#caspio-matches table');
+        const container = document.getElementById('caspio-matches');
+        const noRecordsMsg = container ? container.querySelector('.cbResultSetRecordMessage') : null;
+
         if (table) {
             parseMatches(table);
             setTimeout(() => {
                 const t = document.querySelector('#caspio-matches table');
                 if (t) parseMatches(t);
             }, 2000);
+        } else if (noRecordsMsg && noRecordsMsg.textContent.includes('No records found')) {
+            showNoMatches();
         } else if (tries < 40) {
             setTimeout(() => waitForMatches(tries + 1), 300);
         } else {
@@ -572,7 +504,8 @@
                 }
             }
         });
-
+        
+        window.cachedMatches = rawMatches;
         activeMatches = rawMatches.filter(m => m.status === 'Active');
         pendingMatches = rawMatches.filter(m => m.status === 'Pending' || m.status === 'Applied'); 
         pastMatches = rawMatches.filter(m => m.status === 'Completed' || m.status === 'Archived' || m.status === 'Inactive');
@@ -582,8 +515,6 @@
 
     function renderMatchCards() {
         const list = document.getElementById('coachee-list');
-        const currentUid = uid || sessionStorage.getItem('uid');
-        const currentName = coachName || sessionStorage.getItem('name') || '';
         
         const dashboardData = [...pendingMatches, ...activeMatches];
 
@@ -600,17 +531,8 @@
             const isPending = (m.status === 'Pending' || m.status === 'Applied');
             const badgeHtml = isPending ? `<span class="bg-emerald-100 text-emerald-700 text-[8px] font-black px-2 py-0.5 rounded uppercase">Pending</span>` : '';
 
-            const meetingUrl = 'meeting.html?match_id=' + encodeURIComponent(m.matchId)
-                + '&coachee_uid=' + encodeURIComponent(m.coacheeId)
-                + '&coach_uid=' + encodeURIComponent(currentUid)
-                + '&name=' + encodeURIComponent(currentName)
-                + '&coachee_name=' + encodeURIComponent(m.coacheeFirst + ' ' + m.coacheeLast)
-                + '&project_title=' + encodeURIComponent(m.projectTitle || '')
-                + '&problem=' + encodeURIComponent(m.problem || '')
-                + '&about=' + encodeURIComponent(m.about || '');
-
             return `
-                <div onclick="window.location.href='${meetingUrl}'"
+                <div onclick="showCoacheeDetail('${m.coacheeId}', '${m.matchId}')"
                     class="flex items-center justify-between p-5 lg:p-6 rounded-[24px] lg:rounded-[32px] bg-slate-50/50 border border-transparent hover:border-slate-200 hover:bg-white hover:shadow-xl transition-all duration-300 cursor-pointer group">
                     <div class="flex items-center gap-4 lg:gap-6">
                         <div class="w-12 h-12 lg:w-14 lg:h-14 rounded-2xl bg-white shadow-sm flex items-center justify-center font-black italic text-slate-400 group-hover:text-blue-600">${initials}</div>
