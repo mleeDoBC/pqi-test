@@ -141,7 +141,6 @@
             + '&project_title=' + encodeURIComponent(project.projectTitle || '')
             + '&problem=' + encodeURIComponent(project.problem || '')
             + '&about=' + encodeURIComponent(project.about || '');
-
         
         const detailView = `
             <div class="fade-in">
@@ -169,11 +168,58 @@
                                     </p>
                                 </div>
                                 <div>
-                                    <h4 class="text-[10px] font-black text-slate-400 uppercase italic mb-2 tracking-tighter">About the Coachee</h4>
+                                    <h4 class="text-[10px] font-black text-slate-400 uppercase italic mb-2 tracking-tighter">Current Situation</h4>
                                     <p class="text-sm text-slate-700 leading-relaxed font-medium bg-slate-50/50 p-4 rounded-2xl border border-slate-100">
-                                        ${project.about || 'No details provided.'}
+                                        ${project.appSituation || 'No situation description provided.'}
                                     </p>
                                 </div>
+                                <div>
+                                    <h4 class="text-[10px] font-black text-slate-400 uppercase italic mb-2 tracking-tighter">About the Coachee / Support Needed</h4>
+                                    <p class="text-sm text-slate-700 leading-relaxed font-medium bg-slate-50/50 p-4 rounded-2xl border border-slate-100">
+                                        ${project.about || 'No details provided.'}
+                                        ${project.appSupport ? `<br><br><span class="font-bold text-slate-800">Support Needed:</span> ${project.appSupport}` : ''}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="glass-card p-8">
+                            <span class="accent-text text-slate-400 tracking-widest block mb-6">Application Specifications</span>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div class="p-4 bg-slate-50 border border-slate-100 rounded-2xl">
+                                    <p class="text-[9px] font-black text-slate-400 uppercase leading-none mb-1.5">Region / Location</p>
+                                    <p class="text-xs font-black text-slate-900 uppercase italic">${project.appRegion || 'N/A'}</p>
+                                </div>
+                                <div class="p-4 bg-slate-50 border border-slate-100 rounded-2xl">
+                                    <p class="text-[9px] font-black text-slate-400 uppercase leading-none mb-1.5">Physician Lead</p>
+                                    <p class="text-xs font-black text-slate-900 uppercase italic">${project.appPhysician || 'None Specified'}</p>
+                                </div>
+                                <div class="p-4 bg-slate-50 border border-slate-100 rounded-2xl">
+                                    <p class="text-[9px] font-black text-slate-400 uppercase leading-none mb-1.5">QI Level & Training</p>
+                                    <p class="text-xs font-black text-slate-900 uppercase italic">${project.appQILevel || 'No Prior Level'} (${project.appQITraining || 'No formal training'})</p>
+                                </div>
+                                <div class="p-4 bg-slate-50 border border-slate-100 rounded-2xl">
+                                    <p class="text-[9px] font-black text-slate-400 uppercase leading-none mb-1.5">Project Timeline</p>
+                                    <p class="text-xs font-black text-slate-900 uppercase italic">${project.appStartDate || 'TBD'} ~ ${project.appEndDate || 'TBD'}</p>
+                                </div>
+                                
+                                <div class="p-4 bg-slate-50 border border-slate-100 rounded-2xl">
+                                    <p class="text-[9px] font-black text-slate-400 uppercase leading-none mb-1.5">Funding Details</p>
+                                    <p class="text-xs font-black text-slate-900 uppercase italic">${project.appFunding || 'None'}</p>
+                                </div>
+                                <div class="p-4 bg-slate-50 border border-slate-100 rounded-2xl">
+                                    <p class="text-[9px] font-black text-slate-400 uppercase leading-none mb-1.5">Ideal Coach Profile</p>
+                                    <p class="text-xs font-black text-slate-900 uppercase italic">${project.appCoachLooking || 'Any Coach'}</p>
+                                </div>
+                                <div class="p-4 bg-slate-50 border border-slate-100 rounded-2xl md:col-span-2">
+                                    <p class="text-[9px] font-black text-slate-400 uppercase leading-none mb-1.5">Availability & Meeting Preference</p>
+                                    <p class="text-xs font-black text-slate-900 uppercase italic">${project.appAvailability || 'Flexible'} / ${project.appFrequency || 'TBD'} via ${project.appMethod || 'Virtual'}</p>
+                                </div>
+                                ${project.appAdditional ? `
+                                <div class="p-4 bg-slate-50 border border-slate-100 rounded-2xl md:col-span-2">
+                                    <p class="text-[9px] font-black text-slate-400 uppercase leading-none mb-1.5">Additional Information</p>
+                                    <p class="text-xs font-black text-slate-900 uppercase italic whitespace-pre-wrap">${project.appAdditional}</p>
+                                </div>` : ''}
                             </div>
                         </div>
                     </div>
@@ -218,7 +264,7 @@
         
         mainContent.innerHTML = detailView;
     }
-
+        
     function acceptProject(matchId) {
         alert('Accept functionality will be implemented here for match: ' + matchId);
     }
@@ -460,7 +506,22 @@
             'problem': 'problem',
             'coacheeapplicationproblem': 'problem',
             'about': 'about',
-            'coacheeabout': 'about'
+            'coacheeabout': 'about',
+            'coacheeapplicationsituation': 'appSituation',
+            'coacheeapplicationfunding': 'appFunding',
+            'coacheeapplicationphysicianlead': 'appPhysician',
+            'coacheeapplicationprojectregion': 'appRegion',
+            'coacheeapplicationstartdate': 'appStartDate',
+            'coacheeapplicationenddate': 'appEndDate',
+            'coacheeapplicationcoachlookingfor': 'appCoachLooking',
+            'coacheeapplicationsupportneeded': 'appSupport',
+            'coacheeapplicationqitraining': 'appQITraining',
+            'coacheeapplicationqilevel': 'appQILevel',
+            'coacheeapplicationavailability': 'appAvailability',
+            'coacheeapplicationmeetingfrequency': 'appFrequency',
+            'coacheeapplicationmeetingmethod': 'appMethod',
+            'coacheeapplicationadditionalinfo': 'appAdditional',
+            'coacheeapplicationreferral': 'appReferral'
         };
 
         rows.forEach(row => {
