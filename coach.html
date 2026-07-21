@@ -455,13 +455,13 @@
         waitForMatches(0);
     }
 
-=    function waitForMatches(tries) {
+    function waitForMatches(tries) {
         const table = document.querySelector('#caspio-matches table');
         const container = document.getElementById('caspio-matches');
         const noRecordsMsg = container ? container.querySelector('.cbResultSetRecordMessage') : null;
 
         if (table) {
-            parseMatches(table); =
+            parseMatches(table); 
         } else if (noRecordsMsg && noRecordsMsg.textContent.includes('No records found')) {
             showNoMatches();
         } else if (tries < 40) {
