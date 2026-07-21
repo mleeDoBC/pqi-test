@@ -30,7 +30,6 @@
 </head>
 <body class="antialiased text-slate-800">
 
-    <!-- Hidden Matches DataPage (script injected dynamically with uid) -->
     <div id="caspio-matches" style="position:absolute;left:-9999px;top:-9999px;visibility:hidden;"></div>
 
     <div class="flex flex-col lg:flex-row min-h-screen">
@@ -417,12 +416,10 @@
     `;
     }
     
-    // Read params from URL
     const urlParams = new URLSearchParams(window.location.search);
     const coachName = urlParams.get('name');
     const uid = urlParams.get('uid');
 
-    // Store in sessionStorage
     if (uid) sessionStorage.setItem('uid', uid);
     if (coachName) sessionStorage.setItem('name', coachName);
 
@@ -439,7 +436,6 @@
         window.location.href = 'coach_bio.html?uid=' + encodeURIComponent(currentUid) + '&name=' + encodeURIComponent(currentName) + '&mode=edit';
     }
 
-    // Store coachee profiles keyed by uid
     const coacheeProfiles = {};
     let activeMatches = [];
 
@@ -472,13 +468,17 @@
         return cell.textContent.trim();
     }
 
+    let activeMatches = [];
+    let pendingMatches = []; 
+
     function parseMatches(table) {
         const rows = table.querySelectorAll('tr');
-        activeMatches = [];
+        const rawMatches = [];
+        
         rows.forEach(row => {
             const cells = row.querySelectorAll('td');
             if (cells.length >= 7) {
-                activeMatches.push({
+                rawMatches.push({
                     matchId:        getCellText(cells[0]),
                     coachId:        getCellText(cells[1]),
                     coacheeId:      getCellText(cells[2]),
@@ -492,40 +492,35 @@
             }
         });
 
-        activeMatches = activeMatches.filter(m => m.status === 'Active');
-        if (activeMatches.length === 0) { showNoMatches(); return; }
+        activeMatches = rawMatches.filter(m => m.status === 'Active');
+        pendingMatches = rawMatches.filter(m => m.status === 'Pending' || m.status === 'Applied'); 
+
         renderMatchCards();
+        renderPendingDashboardCard(); 
     }
 
-    function renderMatchCards() {
-        const list = document.getElementById('coachee-list');
-        const currentUid = uid || sessionStorage.getItem('uid');
-        const currentName = coachName || sessionStorage.getItem('name') || '';
-        list.innerHTML = activeMatches.map(m => {
-            const fullName = m.coacheeFirst ? 'Dr. ' + m.coacheeFirst + ' ' + m.coacheeLast : m.coacheeId;
-            const projectTitle = m.projectTitle || 'Active Match';
-            const initials = m.coacheeFirst ? (m.coacheeFirst[0] + (m.coacheeLast ? m.coacheeLast[0] : '')).toUpperCase() : m.coacheeId.slice(0,2).toUpperCase();
-            const meetingUrl = 'meeting.html?match_id=' + encodeURIComponent(m.matchId)
-                + '&coachee_uid=' + encodeURIComponent(m.coacheeId)
-                + '&coach_uid=' + encodeURIComponent(currentUid)
-                + '&name=' + encodeURIComponent(currentName)
-                + '&coachee_name=' + encodeURIComponent(m.coacheeFirst + ' ' + m.coacheeLast)
-                + '&project_title=' + encodeURIComponent(m.projectTitle || '')
-                + '&problem=' + encodeURIComponent(m.problem || '')
-                + '&about=' + encodeURIComponent(m.about || '');
-            return `
-                <div onclick="window.location.href='${meetingUrl}'"
-                    class="flex items-center justify-between p-5 lg:p-6 rounded-[24px] lg:rounded-[32px] bg-slate-50/50 border border-transparent hover:border-slate-200 hover:bg-white hover:shadow-xl transition-all duration-300 cursor-pointer group">
-                    <div class="flex items-center gap-4 lg:gap-6">
-                        <div class="w-12 h-12 lg:w-14 lg:h-14 rounded-2xl bg-white shadow-sm flex items-center justify-center font-black italic text-slate-400 group-hover:text-blue-600">${initials}</div>
-                        <div>
-                            <h4 class="text-sm lg:text-md font-black italic text-slate-900 uppercase">${fullName}</h4>
-                            <p class="text-[9px] lg:text-[10px] font-bold text-slate-400 italic mt-1 uppercase tracking-tight leading-tight">${projectTitle}</p>
-                        </div>
-                    </div>
-                    <i class="fas fa-chevron-right text-slate-200 group-hover:text-blue-600 group-hover:translate-x-1 transition-all"></i>
-                </div>`;
-        }).join('');
+    function renderPendingDashboardCard() {
+        const newMatchCardContainer = document.querySelector('.glass-card.bg-slate-900');
+        if (!newMatchCardContainer) return;
+
+        if (pendingMatches.length > 0) {
+            const latestPending = pendingMatches[0];
+            const fullName = latestPending.coacheeFirst ? 'Dr. ' + latestPending.coacheeFirst + ' ' + latestPending.coacheeLast : latestPending.coacheeId;
+            const projectTitle = latestPending.projectTitle || 'New Coaching Application';
+
+            newMatchCardContainer.innerHTML = `
+                <span class="accent-text text-blue-400 block mb-2 tracking-[0.2em]">New Match Request</span>
+                <p class="text-white text-sm font-black italic mb-2 uppercase leading-tight">${fullName}</p>
+                <p class="text-[10px] text-slate-400 font-medium mb-4 truncate">${projectTitle}</p>
+                <button onclick="showPortfolioList('new')" class="w-full bg-blue-600 text-white py-3 rounded-xl font-black text-[9px] uppercase tracking-widest shadow-lg hover:bg-blue-500 transition">Review Application (${pendingMatches.length})</button>
+            `;
+        } else {
+            newMatchCardContainer.innerHTML = `
+                <span class="accent-text text-slate-500 block mb-2 tracking-[0.2em]">New Match</span>
+                <p class="text-slate-400 text-xs font-bold italic mb-4 uppercase">No pending requests</p>
+                <button class="w-full bg-slate-800 text-slate-500 py-3 rounded-xl font-black text-[9px] uppercase tracking-widest cursor-not-allowed">Up to Date</button>
+            `;
+        }
     }
 
     function showNoMatches() {
