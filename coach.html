@@ -488,19 +488,67 @@
     }
 
     function getCellText(cell) {
-        const span = cell.querySelector('span');
-        if (span) span.remove();
-        return cell.textContent.trim();
+        if (!cell) return '';
+        const clone = cell.cloneNode(true);
+        const labels = clone.querySelectorAll('.cbResultSetLabel, span[class*="Label"]');
+        labels.forEach(l => l.remove());
+        return clone.textContent.trim();
     }
 
     function parseMatches(table) {
-        const rows = table.querySelectorAll('tr');
+        const rows = table.querySelectorAll('tr[class*="cbResultSet"], tr'); 
         const rawMatches = [];
         
+        const normalizedFieldMapping = {
+            'matchid': 'matchId',
+            'coachid': 'coachId',
+            'coacheeid': 'coacheeId',
+            'status': 'status',
+            'firstname': 'coacheeFirst',
+            'lastname': 'coacheeLast',
+            'projecttitle': 'projectTitle',
+            'problem': 'problem',
+            'about': 'about'
+        };
+
+        const headers = table.querySelectorAll('th');
+        const colMap = {};
+
+        if (headers.length > 0) {
+            headers.forEach((th, index) => {
+                const headerText = th.textContent.replace(/[^a-zA-Z]/g, '').toLowerCase();
+                if (normalizedFieldMapping[headerText]) {
+                    colMap[index] = normalizedFieldMapping[headerText];
+                }
+            });
+        }
+
         rows.forEach(row => {
             const cells = row.querySelectorAll('td');
-            if (cells.length >= 7) {
-                rawMatches.push({
+            if (cells.length === 0) return; 
+
+            let matchData = {};
+
+            if (Object.keys(colMap).length > 0) {
+                cells.forEach((cell, index) => {
+                    if (colMap[index]) {
+                        matchData[colMap[index]] = getCellText(cell);
+                    }
+                });
+            } else {
+                cells.forEach(cell => {
+                    const labelNode = cell.querySelector('.cbResultSetLabel, span[class*="Label"]');
+                    if (labelNode) {
+                        const labelText = labelNode.textContent.replace(/[^a-zA-Z]/g, '').toLowerCase();
+                        if (normalizedFieldMapping[labelText]) {
+                            matchData[normalizedFieldMapping[labelText]] = getCellText(cell);
+                        }
+                    }
+                });
+            }
+
+            if (Object.keys(matchData).length === 0 && cells.length >= 7) {
+                matchData = {
                     matchId:        getCellText(cells[0]),
                     coachId:        getCellText(cells[1]),
                     coacheeId:      getCellText(cells[2]),
@@ -510,7 +558,11 @@
                     projectTitle:   getCellText(cells[6]),
                     problem:        getCellText(cells[7]),
                     about:          getCellText(cells[8])
-                });
+                };
+            }
+
+            if (matchData.matchId || matchData.status) {
+                rawMatches.push(matchData);
             }
         });
 
