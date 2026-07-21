@@ -480,6 +480,10 @@
         const table = document.querySelector('#caspio-matches table');
         if (table) {
             parseMatches(table);
+            setTimeout(() => {
+                const t = document.querySelector('#caspio-matches table');
+                if (t) parseMatches(t);
+            }, 2000);
         } else if (tries < 40) {
             setTimeout(() => waitForMatches(tries + 1), 300);
         } else {
@@ -496,6 +500,15 @@
     }
 
     function parseMatches(table) {
+        const headerCells = table.querySelectorAll('th');
+        const colIndexMap = {}; 
+        
+        headerCells.forEach((th, index) => {
+            const rawText = th.textContent || th.innerText;
+            const cleanKey = rawText.toLowerCase().replace(/[^a-z0-9]/g, '');
+            if(cleanKey) colIndexMap[cleanKey] = index;
+        });
+
         const rows = table.querySelectorAll('tr[class*="cbResultSet"], tr'); 
         const rawMatches = [];
         
@@ -505,64 +518,52 @@
             'coacheeid': 'coacheeId',
             'status': 'status',
             'firstname': 'coacheeFirst',
+            'coacheefirstname': 'coacheeFirst', 
             'lastname': 'coacheeLast',
+            'coacheelastname': 'coacheeLast',  
             'projecttitle': 'projectTitle',
+            'coacheeapplicationprojecttitle': 'projectTitle', 
             'problem': 'problem',
-            'about': 'about'
+            'coacheeapplicationproblem': 'problem',
+            'about': 'about',
+            'coacheeabout': 'about'
         };
-
-        const headers = table.querySelectorAll('th');
-        const colMap = {};
-
-        if (headers.length > 0) {
-            headers.forEach((th, index) => {
-                const headerText = th.textContent.replace(/[^a-zA-Z]/g, '').toLowerCase();
-                if (normalizedFieldMapping[headerText]) {
-                    colMap[index] = normalizedFieldMapping[headerText];
-                }
-            });
-        }
 
         rows.forEach(row => {
             const cells = row.querySelectorAll('td');
-            if (cells.length === 0) return; 
-
-            let matchData = {};
-
-            if (Object.keys(colMap).length > 0) {
+            if (cells.length > 0) { 
+                const matchData = {};
+                
                 cells.forEach((cell, index) => {
-                    if (colMap[index]) {
-                        matchData[colMap[index]] = getCellText(cell);
+                    let cleanKey = "";
+                    
+                    const labelSpan = cell.querySelector('.cbResultSetLabel, span[class*="Label"]');
+                    if (labelSpan) {
+                        cleanKey = labelSpan.textContent.toLowerCase().replace(/[^a-z0-9]/g, '');
+                    } else {
+                        cleanKey = Object.keys(colIndexMap).find(k => colIndexMap[k] === index) || "";
+                    }
+
+                    if (cleanKey && normalizedFieldMapping[cleanKey]) {
+                        matchData[normalizedFieldMapping[cleanKey]] = getCellText(cell);
                     }
                 });
-            } else {
-                cells.forEach(cell => {
-                    const labelNode = cell.querySelector('.cbResultSetLabel, span[class*="Label"]');
-                    if (labelNode) {
-                        const labelText = labelNode.textContent.replace(/[^a-zA-Z]/g, '').toLowerCase();
-                        if (normalizedFieldMapping[labelText]) {
-                            matchData[normalizedFieldMapping[labelText]] = getCellText(cell);
-                        }
-                    }
-                });
-            }
 
-            if (Object.keys(matchData).length === 0 && cells.length >= 7) {
-                matchData = {
-                    matchId:        getCellText(cells[0]),
-                    coachId:        getCellText(cells[1]),
-                    coacheeId:      getCellText(cells[2]),
-                    status:         getCellText(cells[3]),
-                    coacheeFirst:   getCellText(cells[4]),
-                    coacheeLast:    getCellText(cells[5]),
-                    projectTitle:   getCellText(cells[6]),
-                    problem:        getCellText(cells[7]),
-                    about:          getCellText(cells[8])
-                };
-            }
+                if (Object.keys(matchData).length === 0 && cells.length >= 7) {
+                    matchData.matchId = getCellText(cells[0]);
+                    matchData.coachId = getCellText(cells[1]);
+                    matchData.coacheeId = getCellText(cells[2]);
+                    matchData.status = getCellText(cells[3]);
+                    matchData.coacheeFirst = getCellText(cells[4]);
+                    matchData.coacheeLast = getCellText(cells[5]);
+                    matchData.projectTitle = getCellText(cells[6]);
+                    matchData.problem = getCellText(cells[7]);
+                    matchData.about = getCellText(cells[8]);
+                }
 
-            if (matchData.matchId || matchData.status) {
-                rawMatches.push(matchData);
+                if (matchData.matchId || matchData.status) {
+                    rawMatches.push(matchData);
+                }
             }
         });
 
