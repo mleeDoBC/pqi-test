@@ -466,12 +466,18 @@
 
     function loadMatches() {
         const currentUid = uid || sessionStorage.getItem('uid');
-        if (!currentUid) { showNoMatches(); return; }
+        if (!currentUid) { 
+            showNoMatches(); 
+            return; 
+        }
 
         const container = document.getElementById('caspio-matches');
+        container.innerHTML = ''; 
+
         const s = document.createElement('script');
         s.type = 'text/javascript';
         s.src = 'https://c0abr823.caspio.com/dp/1c9f5000779680124c1248afbd6f/emb?uid=' + encodeURIComponent(currentUid);
+        
         container.appendChild(s);
         waitForMatches(0);
     }
