@@ -101,10 +101,11 @@
                         <span class="accent-text text-emerald-600 block mb-2">Pending Invoices</span>
                         <div class="flex items-center justify-between"><span class="text-3xl lg:text-4xl font-black italic text-slate-900 leading-none">$1,875</span></div>
                     </div>
-                    <div class="glass-card p-6 lg:p-8 bg-slate-900 border-none cursor-pointer hover:ring-2 hover:ring-blue-500 transition-all" onclick="showPortfolioList('new')">
-                        <span class="accent-text text-blue-400 block mb-2 tracking-[0.2em]">New Match</span>
-                        <p class="text-white text-sm font-black italic mb-4 uppercase leading-tight">Dr. Harry Potter</p>
-                        <button class="w-full bg-blue-600 text-white py-3 rounded-xl font-black text-[9px] uppercase tracking-widest shadow-lg">View Application</button>
+                    <!-- 'Support' 카드로 교체된 영역 -->
+                    <div class="glass-card p-6 lg:p-8 bg-slate-900 border-none cursor-pointer hover:ring-2 hover:ring-blue-500 transition-all" onclick="window.location.href='mailto:support@coachconnect.com'">
+                        <span class="accent-text text-blue-400 block mb-2 tracking-[0.2em]">Support</span>
+                        <p class="text-white text-sm font-black italic mb-4 uppercase leading-tight">Need Admin Help?</p>
+                        <button class="w-full bg-blue-600 text-white py-3 rounded-xl font-black text-[9px] uppercase tracking-widest shadow-lg">Contact Staff</button>
                     </div>
                 </div>
 
@@ -296,45 +297,45 @@
     }
 
     function showInvoiceList() {
-    const navItems = document.querySelectorAll('.nav-item');
-    navItems.forEach(item => item.classList.remove('active'));
-    
-    const invoiceNav = document.getElementById('nav-invoices');
-    if (invoiceNav) invoiceNav.classList.add('active');
+        const navItems = document.querySelectorAll('.nav-item');
+        navItems.forEach(item => item.classList.remove('active'));
+        
+        const invoiceNav = document.getElementById('nav-invoices');
+        if (invoiceNav) invoiceNav.classList.add('active');
 
-    const mainContent = document.getElementById('main-content');
-    mainContent.innerHTML = `
-        <div class="fade-in">
-            <header class="flex justify-between items-center mb-12">
-                <div>
-                    <h1 class="text-3xl font-black italic text-slate-900 tracking-tighter uppercase leading-tight">Invoice Management</h1>
-                    <div class="h-1 w-12 bg-emerald-500 mt-2"></div>
-                </div>
-                <button onclick="showNewInvoiceForm()" class="bg-slate-900 text-white px-6 py-3 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] shadow-xl hover:bg-blue-600 transition">
-                    + New Invoice
-                </button>
-            </header>
-            
-            <section class="glass-card p-8">
-                <h3 class="text-sm font-black italic uppercase tracking-widest text-slate-900 mb-8">Billing History</h3>
-                <div class="space-y-4">
-                    <div class="flex items-center justify-between p-6 rounded-[24px] bg-slate-50 border border-transparent hover:border-emerald-200 transition-all cursor-pointer">
-                        <div class="flex items-center gap-6">
-                            <div class="w-12 h-12 rounded-2xl bg-emerald-100 flex items-center justify-center text-emerald-600"><i class="fas fa-clock"></i></div>
-                            <div>
-                                <h4 class="text-sm font-black italic text-slate-900 uppercase">INV-2026-004</h4>
-                                <p class="text-[10px] font-bold text-slate-400 italic mt-1 uppercase tracking-tight">Dr. Sarah Thompson</p>
+        const mainContent = document.getElementById('main-content');
+        mainContent.innerHTML = `
+            <div class="fade-in">
+                <header class="flex justify-between items-center mb-12">
+                    <div>
+                        <h1 class="text-3xl font-black italic text-slate-900 tracking-tighter uppercase leading-tight">Invoice Management</h1>
+                        <div class="h-1 w-12 bg-emerald-500 mt-2"></div>
+                    </div>
+                    <button onclick="showNewInvoiceForm()" class="bg-slate-900 text-white px-6 py-3 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] shadow-xl hover:bg-blue-600 transition">
+                        + New Invoice
+                    </button>
+                </header>
+                
+                <section class="glass-card p-8">
+                    <h3 class="text-sm font-black italic uppercase tracking-widest text-slate-900 mb-8">Billing History</h3>
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between p-6 rounded-[24px] bg-slate-50 border border-transparent hover:border-emerald-200 transition-all cursor-pointer">
+                            <div class="flex items-center gap-6">
+                                <div class="w-12 h-12 rounded-2xl bg-emerald-100 flex items-center justify-center text-emerald-600"><i class="fas fa-clock"></i></div>
+                                <div>
+                                    <h4 class="text-sm font-black italic text-slate-900 uppercase">INV-2026-004</h4>
+                                    <p class="text-[10px] font-bold text-slate-400 italic mt-1 uppercase tracking-tight">Dr. Sarah Thompson</p>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-md font-black italic text-slate-900">$250.00</p>
+                                <span class="bg-amber-100 text-amber-700 text-[8px] font-black px-2 py-0.5 rounded uppercase mt-1">Pending Payment</span>
                             </div>
                         </div>
-                        <div class="text-right">
-                            <p class="text-md font-black italic text-slate-900">$250.00</p>
-                            <span class="bg-amber-100 text-amber-700 text-[8px] font-black px-2 py-0.5 rounded uppercase mt-1">Pending Payment</span>
-                        </div>
                     </div>
-                </div>
-            </section>
-        </div>
-    `;
+                </section>
+            </div>
+        `;
     }
 
     function showNewInvoiceForm() {
@@ -344,76 +345,98 @@
     }
 
     function showPortfolioList() {
-    const navItems = document.querySelectorAll('.nav-item');
-    navItems.forEach(item => item.classList.remove('active'));
-    if (document.getElementById('nav-portfolio')) {
-        document.getElementById('nav-portfolio').classList.add('active');
-    }
+        const navItems = document.querySelectorAll('.nav-item');
+        navItems.forEach(item => item.classList.remove('active'));
+        if (document.getElementById('nav-portfolio')) {
+            document.getElementById('nav-portfolio').classList.add('active');
+        }
 
-    const mainContent = document.getElementById('main-content');
-    mainContent.innerHTML = `
-        <div class="fade-in">
-            <header class="mb-12">
-                <h1 class="text-3xl font-black italic text-slate-900 tracking-tighter uppercase">Total Portfolio</h1>
-                <div class="h-1 w-12 bg-blue-600 mt-2"></div>
-            </header>
+        const mainContent = document.getElementById('main-content');
 
-            <section class="mb-12">
-                <h3 class="text-[10px] font-black italic uppercase tracking-[0.2em] text-emerald-500 mb-6 flex items-center gap-2">
-                    <span class="w-2 h-2 rounded-full bg-emerald-500"></span> New Potential Matches
-                </h3>
-                <div class="space-y-4">
+        const generateListHTML = (matches, type, emptyMsg) => {
+            if (matches.length === 0) return `<p class="text-xs text-slate-400 font-bold uppercase tracking-widest py-4">${emptyMsg}</p>`;
+            
+            return matches.map(m => {
+                const fullName = m.coacheeFirst ? 'Dr. ' + m.coacheeFirst + ' ' + m.coacheeLast : m.coacheeId;
+                const projectTitle = m.projectTitle || 'Coaching Project';
+                const initials = m.coacheeFirst ? (m.coacheeFirst[0] + (m.coacheeLast ? m.coacheeLast[0] : '')).toUpperCase() : m.coacheeId.slice(0,2).toUpperCase();
+                
+                if (type === 'pending') {
+                    return `
                     <div class="flex items-center justify-between p-6 rounded-[24px] bg-emerald-50 border border-emerald-100 hover:border-emerald-500 transition-all cursor-pointer group">
                         <div class="flex items-center gap-6">
-                            <div class="w-12 h-12 rounded-2xl bg-white shadow-sm flex items-center justify-center font-black italic text-emerald-600">ST</div>
+                            <div class="w-12 h-12 rounded-2xl bg-white shadow-sm flex items-center justify-center font-black italic text-emerald-600">${initials}</div>
                             <div>
-                                <h4 class="text-sm font-black italic text-slate-900 uppercase">Dr. Harry Potter</h4>
-                                <p class="text-[9px] font-bold text-slate-400 italic mt-1 uppercase">Surgical Intake Optimization</p>
+                                <h4 class="text-sm font-black italic text-slate-900 uppercase">${fullName}</h4>
+                                <p class="text-[9px] font-bold text-slate-400 italic mt-1 uppercase">${projectTitle}</p>
                             </div>
                         </div>
                         <div class="flex items-center gap-4">
-                            <span class="text-[8px] font-black text-emerald-700 bg-emerald-200/50 px-2 py-1 rounded uppercase">New Application</span>
-                            <button class="bg-slate-900 text-white px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-blue-600 transition-all">Review</button>
+                            <span class="text-[8px] font-black text-emerald-700 bg-emerald-200/50 px-2 py-1 rounded uppercase">New</span>
+                            <button onclick="showCoacheeDetail('${m.coacheeId}', '${m.matchId}')" class="bg-slate-900 text-white px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-blue-600 transition-all">Review</button>
                         </div>
-                    </div>
-                </div>
-            </section>
-
-            <section class="mb-12">
-                <h3 class="text-[10px] font-black italic uppercase tracking-[0.2em] text-blue-600 mb-6 flex items-center gap-2">
-                    <span class="w-2 h-2 rounded-full bg-blue-600"></span> Active Projects
-                </h3>
-                <div class="space-y-4">
-                    <div onclick="showCoacheeDetail('Dr. Sarah Thompson', 'ST')" class="flex items-center justify-between p-6 rounded-[24px] bg-white border border-slate-100 hover:border-blue-500 hover:shadow-xl transition-all cursor-pointer group">
+                    </div>`;
+                } else if (type === 'active') {
+                    return `
+                    <div onclick="showCoacheeDetail('${m.coacheeId}', '${m.matchId}')" class="flex items-center justify-between p-6 rounded-[24px] bg-white border border-slate-100 hover:border-blue-500 hover:shadow-xl transition-all cursor-pointer group">
                         <div class="flex items-center gap-6">
-                            <div class="w-12 h-12 rounded-2xl bg-slate-50 flex items-center justify-center font-black italic text-blue-600">ST</div>
+                            <div class="w-12 h-12 rounded-2xl bg-slate-50 flex items-center justify-center font-black italic text-blue-600">${initials}</div>
                             <div>
-                                <h4 class="text-sm font-black italic text-slate-900 uppercase">Dr. Sarah Thompson</h4>
-                                <p class="text-[9px] font-bold text-slate-400 italic mt-1 uppercase">Reducing ER Surgery Wait Times</p>
+                                <h4 class="text-sm font-black italic text-slate-900 uppercase">${fullName}</h4>
+                                <p class="text-[9px] font-bold text-slate-400 italic mt-1 uppercase">${projectTitle}</p>
                             </div>
                         </div>
                         <i class="fas fa-chevron-right text-slate-200 group-hover:text-blue-600 transition-all"></i>
-                    </div>
-                </div>
-            </section>
-
-            <section>
-                <h3 class="text-[10px] font-black italic uppercase tracking-[0.2em] text-slate-400 mb-6">Past Projects</h3>
-                <div class="space-y-4 opacity-70">
+                    </div>`;
+                } else {
+                    return `
                     <div class="flex items-center justify-between p-6 rounded-[24px] bg-slate-50 border border-transparent grayscale hover:grayscale-0 transition-all cursor-pointer group">
                         <div class="flex items-center gap-6">
-                            <div class="w-12 h-12 rounded-2xl bg-white flex items-center justify-center font-black italic text-slate-300">JW</div>
+                            <div class="w-12 h-12 rounded-2xl bg-white flex items-center justify-center font-black italic text-slate-300">${initials}</div>
                             <div>
-                                <h4 class="text-sm font-black italic text-slate-900 uppercase">Dr. James Wilson</h4>
-                                <p class="text-[9px] font-bold text-slate-400 italic mt-1 uppercase">Discharge Communication Flow (Completed 2025)</p>
+                                <h4 class="text-sm font-black italic text-slate-900 uppercase">${fullName}</h4>
+                                <p class="text-[9px] font-bold text-slate-400 italic mt-1 uppercase">${projectTitle}</p>
                             </div>
                         </div>
-                        <span class="text-[8px] font-black text-slate-400 border border-slate-200 px-2 py-1 rounded uppercase group-hover:border-slate-400 transition-all">Archived</span>
+                        <span class="text-[8px] font-black text-slate-400 border border-slate-200 px-2 py-1 rounded uppercase group-hover:border-slate-400 transition-all">${m.status}</span>
+                    </div>`;
+                }
+            }).join('');
+        };
+
+        mainContent.innerHTML = `
+            <div class="fade-in">
+                <header class="mb-12">
+                    <h1 class="text-3xl font-black italic text-slate-900 tracking-tighter uppercase">Total Portfolio</h1>
+                    <div class="h-1 w-12 bg-blue-600 mt-2"></div>
+                </header>
+
+                <section class="mb-12">
+                    <h3 class="text-[10px] font-black italic uppercase tracking-[0.2em] text-emerald-500 mb-6 flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full bg-emerald-500"></span> New Potential Matches
+                    </h3>
+                    <div class="space-y-4">
+                        ${generateListHTML(pendingMatches, 'pending', 'No pending matches at the moment.')}
                     </div>
-                </div>
-            </section>
-        </div>
-    `;
+                </section>
+
+                <section class="mb-12">
+                    <h3 class="text-[10px] font-black italic uppercase tracking-[0.2em] text-blue-600 mb-6 flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full bg-blue-600"></span> Active Projects
+                    </h3>
+                    <div class="space-y-4">
+                        ${generateListHTML(activeMatches, 'active', 'No active projects.')}
+                    </div>
+                </section>
+
+                <section>
+                    <h3 class="text-[10px] font-black italic uppercase tracking-[0.2em] text-slate-400 mb-6">Past Projects</h3>
+                    <div class="space-y-4 opacity-70">
+                        ${generateListHTML(pastMatches, 'past', 'No archived projects yet.')}
+                    </div>
+                </section>
+            </div>
+        `;
     }
     
     const urlParams = new URLSearchParams(window.location.search);
@@ -438,6 +461,8 @@
 
     const coacheeProfiles = {};
     let activeMatches = [];
+    let pendingMatches = []; 
+    let pastMatches = []; 
 
     function loadMatches() {
         const currentUid = uid || sessionStorage.getItem('uid');
@@ -468,9 +493,6 @@
         return cell.textContent.trim();
     }
 
-    let activeMatches = [];
-    let pendingMatches = []; 
-
     function parseMatches(table) {
         const rows = table.querySelectorAll('tr');
         const rawMatches = [];
@@ -494,38 +516,61 @@
 
         activeMatches = rawMatches.filter(m => m.status === 'Active');
         pendingMatches = rawMatches.filter(m => m.status === 'Pending' || m.status === 'Applied'); 
+        pastMatches = rawMatches.filter(m => m.status === 'Completed' || m.status === 'Archived' || m.status === 'Inactive');
 
         renderMatchCards();
-        renderPendingDashboardCard(); 
     }
 
-    function renderPendingDashboardCard() {
-        const newMatchCardContainer = document.querySelector('.glass-card.bg-slate-900');
-        if (!newMatchCardContainer) return;
+    function renderMatchCards() {
+        const list = document.getElementById('coachee-list');
+        const currentUid = uid || sessionStorage.getItem('uid');
+        const currentName = coachName || sessionStorage.getItem('name') || '';
+        
+        const dashboardData = [...pendingMatches, ...activeMatches];
 
-        if (pendingMatches.length > 0) {
-            const latestPending = pendingMatches[0];
-            const fullName = latestPending.coacheeFirst ? 'Dr. ' + latestPending.coacheeFirst + ' ' + latestPending.coacheeLast : latestPending.coacheeId;
-            const projectTitle = latestPending.projectTitle || 'New Coaching Application';
-
-            newMatchCardContainer.innerHTML = `
-                <span class="accent-text text-blue-400 block mb-2 tracking-[0.2em]">New Match Request</span>
-                <p class="text-white text-sm font-black italic mb-2 uppercase leading-tight">${fullName}</p>
-                <p class="text-[10px] text-slate-400 font-medium mb-4 truncate">${projectTitle}</p>
-                <button onclick="showPortfolioList('new')" class="w-full bg-blue-600 text-white py-3 rounded-xl font-black text-[9px] uppercase tracking-widest shadow-lg hover:bg-blue-500 transition">Review Application (${pendingMatches.length})</button>
-            `;
-        } else {
-            newMatchCardContainer.innerHTML = `
-                <span class="accent-text text-slate-500 block mb-2 tracking-[0.2em]">New Match</span>
-                <p class="text-slate-400 text-xs font-bold italic mb-4 uppercase">No pending requests</p>
-                <button class="w-full bg-slate-800 text-slate-500 py-3 rounded-xl font-black text-[9px] uppercase tracking-widest cursor-not-allowed">Up to Date</button>
-            `;
+        if (dashboardData.length === 0) { 
+            showNoMatches(); 
+            return; 
         }
+
+        list.innerHTML = dashboardData.map(m => {
+            const fullName = m.coacheeFirst ? 'Dr. ' + m.coacheeFirst + ' ' + m.coacheeLast : m.coacheeId;
+            const projectTitle = m.projectTitle || 'Coaching Project';
+            const initials = m.coacheeFirst ? (m.coacheeFirst[0] + (m.coacheeLast ? m.coacheeLast[0] : '')).toUpperCase() : m.coacheeId.slice(0,2).toUpperCase();
+            
+            const isPending = (m.status === 'Pending' || m.status === 'Applied');
+            const badgeHtml = isPending ? `<span class="bg-emerald-100 text-emerald-700 text-[8px] font-black px-2 py-0.5 rounded uppercase">Pending</span>` : '';
+
+            const meetingUrl = 'meeting.html?match_id=' + encodeURIComponent(m.matchId)
+                + '&coachee_uid=' + encodeURIComponent(m.coacheeId)
+                + '&coach_uid=' + encodeURIComponent(currentUid)
+                + '&name=' + encodeURIComponent(currentName)
+                + '&coachee_name=' + encodeURIComponent(m.coacheeFirst + ' ' + m.coacheeLast)
+                + '&project_title=' + encodeURIComponent(m.projectTitle || '')
+                + '&problem=' + encodeURIComponent(m.problem || '')
+                + '&about=' + encodeURIComponent(m.about || '');
+
+            return `
+                <div onclick="window.location.href='${meetingUrl}'"
+                    class="flex items-center justify-between p-5 lg:p-6 rounded-[24px] lg:rounded-[32px] bg-slate-50/50 border border-transparent hover:border-slate-200 hover:bg-white hover:shadow-xl transition-all duration-300 cursor-pointer group">
+                    <div class="flex items-center gap-4 lg:gap-6">
+                        <div class="w-12 h-12 lg:w-14 lg:h-14 rounded-2xl bg-white shadow-sm flex items-center justify-center font-black italic text-slate-400 group-hover:text-blue-600">${initials}</div>
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <h4 class="text-sm lg:text-md font-black italic text-slate-900 uppercase">${fullName}</h4>
+                                ${badgeHtml}
+                            </div>
+                            <p class="text-[9px] lg:text-[10px] font-bold text-slate-400 italic mt-1 uppercase tracking-tight leading-tight">${projectTitle}</p>
+                        </div>
+                    </div>
+                    <i class="fas fa-chevron-right text-slate-200 group-hover:text-blue-600 group-hover:translate-x-1 transition-all"></i>
+                </div>`;
+        }).join('');
     }
 
     function showNoMatches() {
         const list = document.getElementById('coachee-list');
-        list.innerHTML = '<p class="text-center py-8 text-slate-400 text-xs font-bold uppercase tracking-widest">No active matches yet.</p>';
+        list.innerHTML = '<p class="text-center py-8 text-slate-400 text-xs font-bold uppercase tracking-widest">No projects available.</p>';
     }
 
     loadMatches();
