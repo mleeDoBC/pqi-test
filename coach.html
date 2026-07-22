@@ -611,6 +611,27 @@
         list.innerHTML = '<p class="text-center py-8 text-slate-400 text-xs font-bold uppercase tracking-widest">No projects available.</p>';
     }
 
+    function acceptProject(matchId) {
+        const existingIframe = document.getElementById('caspio-accept-iframe');
+        if (existingIframe) {
+            existingIframe.remove();
+        }
+    
+        const iframe = document.createElement('iframe');
+        iframe.id = 'caspio-accept-iframe';
+        iframe.style.display = 'none'; 
+    
+        const baseUrl = 'https://c0abr823.caspio.com/dp/1c9f5000930819c2679c4b239760';
+        iframe.src = `${baseUrl}?match_id=${matchId}`;
+    
+        document.body.appendChild(iframe);
+    
+        setTimeout(function() {
+            alert('New project successfully accepted!');
+            window.location.reload(); 
+        }, 1500); 
+    }
+        
     loadMatches();
 
     </script>
