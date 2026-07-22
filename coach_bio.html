@@ -293,9 +293,8 @@
     const AVAIL_DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
     
     const selectedDays = new Set();
-    const timeSlots = {}; // Object to store start/end times per day
+    const timeSlots = {}; 
 
-    // Render Availability Day Tags
     AVAIL_DAYS.forEach(day => {
         const tag = document.createElement('span');
         tag.className = 'qi-tag';
@@ -307,7 +306,7 @@
                 tag.classList.remove('selected');
             } else {
                 selectedDays.add(day);
-                timeSlots[day] = { start: "", end: "" };
+                timeSlots[day] = { start: "", start_ampm: "AM", end: "", end_ampm: "PM" };
                 tag.classList.add('selected');
             }
             renderTimeSlots();
