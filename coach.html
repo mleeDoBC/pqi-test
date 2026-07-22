@@ -607,34 +607,126 @@
         list.innerHTML = '<p class="text-center py-8 text-slate-400 text-xs font-bold uppercase tracking-widest">No projects available.</p>';
     }
 
+    let currentMatchId = "";
+    let currentCoacheeName = "";
+    
+    const coachBookingLink = "https://calendly.com/dr-cho/30min";
+    const coachAvailability = "Mon, Wed, Fri (2 PM - 5 PM)";
+    
     function acceptProject(matchId) {
-        const btn = event.currentTarget;
-        const originalText = btn.innerHTML;
-        btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-1.5"></i> Processing...';
-        btn.disabled = true;
-        btn.classList.add('opacity-70', 'cursor-not-allowed');
-
-        const existingIframe = document.getElementById('caspio-accept-iframe');
-        if (existingIframe) {
-            existingIframe.remove();
+        currentMatchId = matchId;
+        
+        const project = window.cachedMatches.find(m => m.matchId === matchId);
+        currentCoacheeName = project && project.coacheeFirst ? project.coacheeFirst : 'Coachee';
+        
+        document.getElementById('modal-coachee-name').textContent = currentCoacheeName;
+        
+        const backdrop = document.getElementById('accept-modal-backdrop');
+        const box = document.getElementById('accept-modal-box');
+        backdrop.classList.remove('hidden');
+        setTimeout(() => {
+            box.classList.remove('scale-95', 'opacity-0');
+            box.classList.add('scale-100', 'opacity-100');
+        }, 10);
+    
+        setReplyTemplate('booking');
+    
+        const caspioContainer = document.getElementById('hidden-caspio-update');
+        caspioContainer.innerHTML = ''; 
+        const script = document.createElement('script');
+        script.type = 'text/javascript';
+        script.src = `https://c0abr823.caspio.com/dp/1c9f5000caf5ea0ba6de4495aec5/emb?Match_ID=${matchId}`;
+        caspioContainer.appendChild(script);
+    }
+    
+    function closeAcceptModal() {
+        const backdrop = document.getElementById('accept-modal-backdrop');
+        const box = document.getElementById('accept-modal-box');
+        box.classList.remove('scale-100', 'opacity-100');
+        box.classList.add('scale-95', 'opacity-0');
+        setTimeout(() => backdrop.classList.add('hidden'), 300);
+    }
+    
+    function setReplyTemplate(type) {
+        const msgBox = document.getElementById('coach-message-box');
+        const optBooking = document.getElementById('opt-booking');
+        const optAvail = document.getElementById('opt-avail');
+        
+        optBooking.className = "p-3 border rounded-xl cursor-pointer transition-all border-slate-200";
+        optAvail.className = "p-3 border rounded-xl cursor-pointer transition-all border-slate-200";
+    
+        if (type === 'booking') {
+            optBooking.className = "p-3 border rounded-xl cursor-pointer transition-all border-blue-500 bg-blue-50";
+            msgBox.value = `Hi ${currentCoacheeName},\n\nI'd love to connect and discuss your QI goals. Please set up a 30-min introductory meeting using my booking link here:\n\n${coachBookingLink}\n\nLooking forward to speaking with you!`;
+        } else if (type === 'availability') {
+            optAvail.className = "p-3 border rounded-xl cursor-pointer transition-all border-blue-500 bg-blue-50";
+            msgBox.value = `Hi ${currentCoacheeName},\n\nI'd love to connect! I am generally available during these times:\n\n- ${coachAvailability}\n\nPlease reply with a few 30-minute slots that work best for you.`;
         }
+    }
     
-        const iframe = document.createElement('iframe');
-        iframe.id = 'caspio-accept-iframe';
-        iframe.style.display = 'none'; 
+    function submitAcceptMatch() {
+        const finalMessage = document.getElementById('coach-message-box').value;
+        const btn = document.getElementById('btn-send-accept');
+        
+        const caspioStatus = document.querySelector('input[id*="EditRecordStatus"]') || document.querySelector('input[name*="Status"]');
+        const caspioMessage = document.querySelector('textarea[id*="EditRecordCoach_Message"]') || document.querySelector('textarea[name*="Coach_Message"]');
+        const caspioSubmitBtn = document.querySelector('#hidden-caspio-update .cbUpdateButton');
     
-        const baseUrl = 'https://c0abr823.caspio.com/dp/1c9f5000930819c2679c4b239760';
-        iframe.src = `${baseUrl}?match_id=${matchId}`;
-    
-        document.body.appendChild(iframe);
-    
-        setTimeout(function() {
-            window.location.reload(); 
-        }, 1500); 
+        if (caspioSubmitBtn) {
+            if (caspioStatus) caspioStatus.value = 'Accepted';
+            if (caspioMessage) caspioMessage.value = finalMessage;
+            
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+            btn.disabled = true;
+            
+            caspioSubmitBtn.click();
+            
+            setTimeout(() => window.location.reload(), 2000);
+        } else {
+            alert("백엔드 폼 연동을 대기 중입니다. 1~2초 후 다시 클릭해주세요.");
+        }
     }
         
     loadMatches();
 
     </script>
+    <div id="accept-modal-backdrop" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 hidden flex items-center justify-center transition-opacity">
+        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-lg overflow-hidden transform scale-95 opacity-0 transition-all duration-300" id="accept-modal-box">
+            
+            <div class="px-8 py-6 border-b border-slate-100 flex justify-between items-center bg-slate-50">
+                <div>
+                    <h3 class="text-lg font-black text-slate-800 tracking-tight">Accept Match</h3>
+                    <p class="text-xs text-slate-500 mt-1">Reply to <span id="modal-coachee-name" class="font-bold text-blue-500">Coachee</span></p>
+                </div>
+                <button onclick="closeAcceptModal()" class="text-slate-400 hover:text-slate-600 transition-colors">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+    
+            <div class="p-8 space-y-6">
+                <div class="space-y-3">
+                    <label class="block text-xs font-black text-slate-700 uppercase tracking-wider mb-2">Choose Reply Type</label>
+                    
+                    <div class="p-3 border rounded-xl cursor-pointer transition-all border-blue-500 bg-blue-50" id="opt-booking" onclick="setReplyTemplate('booking')">
+                        <p class="font-black text-slate-800 text-sm">Send Booking Link</p>
+                    </div>
+                    <div class="p-3 border rounded-xl cursor-pointer transition-all border-slate-200" id="opt-avail" onclick="setReplyTemplate('availability')">
+                        <p class="font-black text-slate-800 text-sm">Send Availability Times</p>
+                    </div>
+                </div>
+    
+                <div>
+                    <label class="block text-xs font-black text-slate-700 uppercase tracking-wider mb-2">Message Preview</label>
+                    <textarea id="coach-message-box" class="w-full p-4 border border-slate-200 rounded-xl text-sm leading-relaxed h-32 focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Select an option above to generate a message..."></textarea>
+                </div>
+            </div>
+    
+            <div class="px-8 py-5 border-t border-slate-100 bg-slate-50 flex justify-end gap-3">
+                <button onclick="closeAcceptModal()" class="px-5 py-2 rounded-xl text-sm font-bold text-slate-600 bg-slate-200 hover:bg-slate-300 transition-colors">Cancel</button>
+                <button onclick="submitAcceptMatch()" class="px-6 py-2 rounded-xl text-sm font-bold text-white bg-blue-600 hover:bg-blue-700 transition-colors" id="btn-send-accept">Send & Accept <i class="fas fa-paper-plane ml-2"></i></button>
+            </div>
+        </div>
+    </div>
+    <div id="hidden-caspio-update" class="hidden"></div>
 </body>
 </html>
