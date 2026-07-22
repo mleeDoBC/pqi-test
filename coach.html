@@ -264,10 +264,6 @@
         
         mainContent.innerHTML = detailView;
     }
-        
-    function acceptProject(matchId) {
-        alert('Accept functionality will be implemented here for match: ' + matchId);
-    }
 
     function showInvoiceList() {
         const navItems = document.querySelectorAll('.nav-item');
@@ -612,6 +608,12 @@
     }
 
     function acceptProject(matchId) {
+        const btn = event.currentTarget;
+        const originalText = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-1.5"></i> Processing...';
+        btn.disabled = true;
+        btn.classList.add('opacity-70', 'cursor-not-allowed');
+
         const existingIframe = document.getElementById('caspio-accept-iframe');
         if (existingIframe) {
             existingIframe.remove();
@@ -627,7 +629,6 @@
         document.body.appendChild(iframe);
     
         setTimeout(function() {
-            alert('New project successfully accepted!');
             window.location.reload(); 
         }, 1500); 
     }
