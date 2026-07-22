@@ -61,7 +61,6 @@
 
 <div class="flex flex-col lg:flex-row min-h-screen">
 
-    <!-- Sidebar -->
     <aside class="w-full lg:w-80 sidebar-gradient text-slate-400 flex flex-col shadow-2xl z-50 lg:h-screen lg:sticky lg:top-0">
         <div class="p-8 pb-6">
             <div class="flex items-center gap-3 italic font-black text-2xl uppercase tracking-tighter text-white">
@@ -118,7 +117,6 @@
         </div>
     </aside>
 
-    <!-- Main -->
     <main class="flex-1 lg:h-screen lg:overflow-y-auto">
         <div class="max-w-2xl mx-auto px-6 py-12">
 
@@ -128,7 +126,6 @@
                 <p class="text-slate-500 text-sm mt-2" id="step-subtitle">Add a photo and share your story with potential coachees.</p>
             </div>
 
-            <!-- Step 1: Photo + About -->
             <div class="step-panel active" id="panel-1">
                 <div class="space-y-7">
 
@@ -178,7 +175,6 @@
                 </div>
             </div>
 
-            <!-- Step 2: Everything else -->
             <div class="step-panel" id="panel-2">
                 <div class="space-y-8">
 
@@ -222,8 +218,33 @@
                         </div>
                     </div>
 
+                    <div class="border-t border-slate-200 pt-8 mt-8">
+                        <div class="flex justify-between items-center mb-2">
+                            <div>
+                                <label class="block text-xs font-black text-slate-700 uppercase tracking-wider">Matching Availability</label>
+                                <p class="text-xs text-slate-400 mt-1">Turn this off if you want to pause receiving new coaching requests.</p>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer ml-4">
+                                <input type="checkbox" id="avail-status-toggle" class="sr-only peer" checked onchange="toggleStatus()">
+                                <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500"></div>
+                                <span class="ml-3 text-[10px] font-black uppercase tracking-widest w-16" id="status-text" style="color: #10b981;">ACTIVE</span>
+                            </label>
+                        </div>
+                        
+                        <div id="availability-details" class="space-y-6 mt-6 transition-all duration-300">
+                            <div>
+                                <label class="block text-xs font-black text-slate-700 uppercase tracking-wider mb-2">Preferred Days <span class="text-blue-500">*</span></label>
+                                <div class="flex flex-wrap gap-2" id="day-tags"></div>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-black text-slate-700 uppercase tracking-wider mb-2">Preferred Times <span class="text-blue-500">*</span></label>
+                                <div class="flex flex-wrap gap-2" id="time-tags"></div>
+                            </div>
+                        </div>
+                    </div>
+
                     <div>
-                        <label class="block text-xs font-black text-slate-700 uppercase tracking-wider mb-2">
+                        <label class="block text-xs font-black text-slate-700 uppercase tracking-wider mb-2 mt-8">
                             Anything else?
                             <span class="text-slate-400 font-normal normal-case tracking-normal ml-1">(optional)</span>
                         </label>
@@ -252,13 +273,11 @@
 </div>
 
 <script>
-    // Read params from URL
     const urlParams = new URLSearchParams(window.location.search);
     const coachName = urlParams.get('name');
     const uid = urlParams.get('uid');
     const isEditMode = urlParams.get('mode') === 'edit';
 
-    // Store in sessionStorage
     if (uid) sessionStorage.setItem('uid', uid);
     if (coachName) sessionStorage.setItem('name', coachName);
 
@@ -266,9 +285,65 @@
         document.getElementById('sidebar-name').textContent = 'Dr. ' + coachName;
     }
 
-    // If edit mode, load existing data from Details DataPage
+    const AVAIL_DAYS = ["Weekdays", "Weekends", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+    const AVAIL_TIMES = ["Mornings", "Afternoons", "Evenings"];
+    
+    const selectedDays = new Set();
+    const selectedTimes = new Set();
+    let isAvailable = true;
+
+    AVAIL_DAYS.forEach(day => {
+        const tag = document.createElement('span');
+        tag.className = 'qi-tag';
+        tag.textContent = day;
+        tag.onclick = () => {
+            if (selectedDays.has(day)) {
+                selectedDays.delete(day);
+                tag.classList.remove('selected');
+            } else {
+                selectedDays.add(day);
+                tag.classList.add('selected');
+            }
+        };
+        document.getElementById('day-tags').appendChild(tag);
+    });
+
+    AVAIL_TIMES.forEach(time => {
+        const tag = document.createElement('span');
+        tag.className = 'qi-tag';
+        tag.textContent = time;
+        tag.onclick = () => {
+            if (selectedTimes.has(time)) {
+                selectedTimes.delete(time);
+                tag.classList.remove('selected');
+            } else {
+                selectedTimes.add(time);
+                tag.classList.add('selected');
+            }
+        };
+        document.getElementById('time-tags').appendChild(tag);
+    });
+
+    function toggleStatus() {
+        const checkbox = document.getElementById('avail-status-toggle');
+        const statusText = document.getElementById('status-text');
+        const detailsDiv = document.getElementById('availability-details');
+        isAvailable = checkbox.checked;
+        
+        if (isAvailable) {
+            statusText.textContent = 'ACTIVE';
+            statusText.style.color = '#10b981'; 
+            detailsDiv.style.opacity = '1';
+            detailsDiv.style.pointerEvents = 'auto';
+        } else {
+            statusText.textContent = 'ON BREAK';
+            statusText.style.color = '#94a3b8'; 
+            detailsDiv.style.opacity = '0.5';
+            detailsDiv.style.pointerEvents = 'none';
+        }
+    }
+
     if (isEditMode) {
-        // Update UI for edit mode
         document.getElementById('step-title') && (document.getElementById('step-title').textContent = 'Edit your profile');
 
         function loadExistingData(tries) {
@@ -280,17 +355,19 @@
                 const style = document.getElementById('EditRecordCoaching_Style').value;
                 const additional = document.getElementById('EditRecordAdditional').value;
 
-                // Fill form fields
+                const availDaysField = document.getElementById('EditRecordAvailability_Days');
+                const availTimesField = document.getElementById('EditRecordAvailability_Times');
+                const availStatusField = document.getElementById('EditRecordAvailability_Status');
+
                 if (about) document.getElementById('about').value = about;
                 if (practice) document.getElementById('practice').value = practice;
                 if (additional) document.getElementById('additional').value = additional;
 
-                // Select QI tags
                 if (qi) {
                     const skills = qi.split(', ');
                     skills.forEach(skill => {
                         selectedSkills.add(skill.trim());
-                        document.querySelectorAll('.qi-tag').forEach(tag => {
+                        document.querySelectorAll('#qi-tags .qi-tag').forEach(tag => {
                             if (tag.textContent.trim() === skill.trim()) {
                                 tag.classList.add('selected');
                             }
@@ -299,16 +376,48 @@
                     document.getElementById('selected-count').textContent = selectedSkills.size;
                 }
 
-                // Select coaching style
+                if (availDaysField && availDaysField.value) {
+                    const days = availDaysField.value.split(', ');
+                    days.forEach(day => {
+                        selectedDays.add(day.trim());
+                        document.querySelectorAll('#day-tags .qi-tag').forEach(tag => {
+                            if (tag.textContent.trim() === day.trim()) {
+                                tag.classList.add('selected');
+                            }
+                        });
+                    });
+                }
+
+                if (availTimesField && availTimesField.value) {
+                    const times = availTimesField.value.split(', ');
+                    times.forEach(time => {
+                        selectedTimes.add(time.trim());
+                        document.querySelectorAll('#time-tags .qi-tag').forEach(tag => {
+                            if (tag.textContent.trim() === time.trim()) {
+                                tag.classList.add('selected');
+                            }
+                        });
+                    });
+                }
+
+                if (availStatusField && availStatusField.value) {
+                    const statusVal = availStatusField.value.toLowerCase();
+                    const checkbox = document.getElementById('avail-status-toggle');
+                    if (statusVal === 'inactive' || statusVal === 'no' || statusVal === 'on break') {
+                        checkbox.checked = false;
+                    } else {
+                        checkbox.checked = true;
+                    }
+                    toggleStatus();
+                }
+
                 if (style) selectStyle(style);
 
-                // Load booking link
                 const bookingLink = document.getElementById('EditRecordBooking_Link');
                 if (bookingLink && bookingLink.value) {
                     document.getElementById('booking-link').value = bookingLink.value;
                 }
 
-                // Load profile image
                 const img = document.querySelector('#caspio-details img[alt]');
                 if (img && img.src) {
                     const preview = document.getElementById('avatar-preview');
@@ -322,7 +431,6 @@
         }
         setTimeout(() => loadExistingData(0), 1000);
 
-        // Hide Caspio Save button
         function hideUpdateBtn(tries) {
             const btn = document.querySelector('.cbUpdateButton');
             if (btn) {
@@ -333,11 +441,9 @@
         }
         hideUpdateBtn(0);
 
-        // Update button text and show cancel
         document.getElementById('submit-btn').innerHTML = 'Save <i class="fas fa-save ml-2"></i>';
         document.getElementById('cancel-btn').style.display = 'block';
 
-        // Show back to dashboard
         const backBtn = document.getElementById('back-to-dashboard');
         backBtn.style.display = 'flex';
         backBtn.href = 'coach.html?uid=' + encodeURIComponent(uid || '') + '&name=' + encodeURIComponent(coachName || '');
@@ -361,7 +467,6 @@
         2: { title: "Your practice & strengths", sub: "Help coachees understand what you do and how you work." }
     };
 
-    // Render QI tags
     QI_SKILLS.forEach(skill => {
         const tag = document.createElement('span');
         tag.className = 'qi-tag';
@@ -441,7 +546,6 @@
         warning.classList.add('hidden');
         warning.textContent = '';
 
-        // Check file type
         if (!['image/jpeg', 'image/png'].includes(file.type)) {
             warning.textContent = 'Only JPG or PNG files are accepted.';
             warning.classList.remove('hidden');
@@ -449,7 +553,6 @@
             return;
         }
 
-        // Check file size (5MB)
         if (file.size > 5 * 1024 * 1024) {
             warning.textContent = 'File too large. Please upload an image under 5MB.';
             warning.classList.remove('hidden');
@@ -461,7 +564,6 @@
         reader.onload = e => {
             const img = new Image();
             img.onload = () => {
-                // Block non-square images
                 if (Math.abs(img.width - img.height) > 50) {
                     warning.textContent = 'Please upload a square image (equal width and height).';
                     warning.classList.remove('hidden');
@@ -494,9 +596,15 @@
             });
             return;
         }
+        
+        if (isAvailable && (selectedDays.size === 0 || selectedTimes.size === 0)) {
+            document.getElementById('availability-details').scrollIntoView({ behavior: 'smooth', block: 'center' });
+            document.getElementById('availability-details').style.opacity = '0.4';
+            setTimeout(() => document.getElementById('availability-details').style.opacity = '1', 600);
+            return;
+        }
 
         if (isEditMode) {
-            // Update mode — fill Update DataPage fields and click Save
             function tryUpdate(tries) {
                 const editAbout = document.getElementById('EditRecordAbout');
                 if (editAbout) {
@@ -505,11 +613,15 @@
                     document.getElementById('EditRecordQI_Strengths').value = Array.from(selectedSkills).join(', ');
                     document.getElementById('EditRecordCoaching_Style').value = coachingStyle;
                     document.getElementById('EditRecordAdditional').value = document.getElementById('additional').value.trim();
+                    
+                    if (document.getElementById('EditRecordAvailability_Days')) document.getElementById('EditRecordAvailability_Days').value = Array.from(selectedDays).join(', ');
+                    if (document.getElementById('EditRecordAvailability_Times')) document.getElementById('EditRecordAvailability_Times').value = Array.from(selectedTimes).join(', ');
+                    if (document.getElementById('EditRecordAvailability_Status')) document.getElementById('EditRecordAvailability_Status').value = isAvailable ? 'Active' : 'Inactive';
+
                     if (document.getElementById('EditRecordBooking_Link')) {
                         document.getElementById('EditRecordBooking_Link').value = document.getElementById('booking-link').value.trim();
                     }
 
-                    // Handle profile image
                     const avatarInput = document.getElementById('avatar-input');
                     const caspioFileInput = document.getElementById('EditRecordProfile_Image');
                     if (avatarInput && avatarInput.files[0] && caspioFileInput) {
@@ -530,7 +642,6 @@
             }
             tryUpdate(0);
         } else {
-            // Insert mode — fill Submission Form and submit
             function trySubmit(tries) {
                 const aboutField = document.getElementById('InsertRecordAbout');
                 if (aboutField) {
@@ -539,6 +650,11 @@
                     document.getElementById('InsertRecordQI_Strengths').value = Array.from(selectedSkills).join(', ');
                     document.getElementById('InsertRecordCoaching_Style').value = coachingStyle;
                     document.getElementById('InsertRecordAdditional').value = document.getElementById('additional').value.trim();
+                    
+                    if (document.getElementById('InsertRecordAvailability_Days')) document.getElementById('InsertRecordAvailability_Days').value = Array.from(selectedDays).join(', ');
+                    if (document.getElementById('InsertRecordAvailability_Times')) document.getElementById('InsertRecordAvailability_Times').value = Array.from(selectedTimes).join(', ');
+                    if (document.getElementById('InsertRecordAvailability_Status')) document.getElementById('InsertRecordAvailability_Status').value = isAvailable ? 'Active' : 'Inactive';
+
                     if (document.getElementById('InsertRecordBooking_Link')) {
                         document.getElementById('InsertRecordBooking_Link').value = document.getElementById('booking-link').value.trim();
                     }
@@ -547,7 +663,6 @@
                         document.getElementById('InsertRecordUser_ID').value = currentUid;
                     }
 
-                    // Handle profile image
                     const avatarInput = document.getElementById('avatar-input');
                     const caspioFileInput = document.getElementById('InsertRecordProfile_Image');
                     if (avatarInput && avatarInput.files[0] && caspioFileInput) {
@@ -571,12 +686,10 @@
     }
 </script>
 
-<!-- Hidden Caspio Coach_Profile form -->
 <div id="caspio-container" style="position:absolute;left:-9999px;top:-9999px;">
     <script type="text/javascript" src="https://c0abr823.caspio.com/dp/1c9f500034a6b3bfe06f45b59571/emb"></script>
 </div>
 
-<!-- Hidden Caspio Details DataPage for loading existing data -->
 <div id="caspio-details" style="position:absolute;left:-9999px;top:-9999px;">
     <script type="text/javascript" src="https://c0abr823.caspio.com/dp/1c9f50007723793e9ab84cefb35f/emb"></script>
 </div>
