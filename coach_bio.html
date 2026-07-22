@@ -34,10 +34,6 @@
         .form-input:focus { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59,130,246,0.1); }
         .form-input::placeholder { color: #94a3b8; }
         .form-input.error { border-color: #ef4444; box-shadow: 0 0 0 3px rgba(239,68,68,0.1); }
-        
-        /* Time Input Styling */
-        input[type="time"]::-webkit-calendar-picker-indicator { cursor: pointer; opacity: 0.6; transition: opacity 0.2s; }
-        input[type="time"]::-webkit-calendar-picker-indicator:hover { opacity: 1; }
 
         .step-panel { display: none; animation: fadeUp 0.35s ease-out; }
         .step-panel.active { display: block; }
@@ -243,7 +239,7 @@
                                 <div id="time-slots-container" class="space-y-3 p-4 bg-white border border-slate-200 rounded-2xl shadow-sm">
                                     <!-- Time rows will be injected here via JS -->
                                 </div>
-                                <p class="text-[10px] text-red-500 font-bold mt-2 hidden" id="time-error">Please set a start and end time for all selected days.</p>
+                                <p class="text-[10px] text-red-500 font-bold mt-2 hidden" id="time-error">Please set a valid start and end time for all selected days.</p>
                             </div>
                         </div>
                     </div>
@@ -306,6 +302,7 @@
                 tag.classList.remove('selected');
             } else {
                 selectedDays.add(day);
+                // AM, PM 상태 기본값 세팅
                 timeSlots[day] = { start: "", start_ampm: "AM", end: "", end_ampm: "PM" };
                 tag.classList.add('selected');
             }
@@ -313,6 +310,15 @@
         };
         document.getElementById('day-tags').appendChild(tag);
     });
+
+    // 시간 입력 시 0930 -> 09:30으로 자동 변환해주는 편의 함수
+    function formatTimeInput(input) {
+        let val = input.value.replace(/[^\d:]/g, ''); 
+        if (val.length === 2 && !val.includes(':') && input.value.length === 2) {
+            val += ':';
+        }
+        input.value = val;
+    }
 
     function renderTimeSlots() {
         const wrapper = document.getElementById('time-slots-wrapper');
@@ -326,17 +332,36 @@
         }
 
         wrapper.classList.remove('hidden');
-        
-        // Sort days to appear in standard week order
         const sortedDays = Array.from(selectedDays).sort((a, b) => AVAIL_DAYS.indexOf(a) - AVAIL_DAYS.indexOf(b));
         
+        // 커스텀 UI 적용: 텍스트 입력창 + AM/PM 드롭다운
         container.innerHTML = sortedDays.map(day => `
             <div class="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-6 p-3 bg-slate-50 border border-slate-100 rounded-xl fade-in">
                 <span class="text-xs font-black text-slate-800 uppercase w-24">${day}</span>
-                <div class="flex items-center gap-3">
-                    <input type="time" class="form-input !py-2 !px-3 !text-xs w-32" value="${timeSlots[day]?.start || ''}" onchange="updateTime('${day}', 'start', this.value)">
-                    <span class="text-[10px] font-black text-slate-400 uppercase">To</span>
-                    <input type="time" class="form-input !py-2 !px-3 !text-xs w-32" value="${timeSlots[day]?.end || ''}" onchange="updateTime('${day}', 'end', this.value)">
+                <div class="flex items-center gap-2">
+                    <!-- 시작 시간 -->
+                    <div class="flex items-center gap-1">
+                        <input type="text" placeholder="09:00" maxlength="5" class="form-input !py-2 !px-3 !text-xs w-20 text-center" 
+                               value="${timeSlots[day]?.start || ''}" 
+                               oninput="formatTimeInput(this)" onchange="updateTime('${day}', 'start', this.value)">
+                        <select class="form-input !py-2 !px-1 !text-xs w-16 cursor-pointer text-center" onchange="updateTime('${day}', 'start_ampm', this.value)">
+                            <option value="AM" ${timeSlots[day]?.start_ampm === 'AM' ? 'selected' : ''}>AM</option>
+                            <option value="PM" ${timeSlots[day]?.start_ampm === 'PM' ? 'selected' : ''}>PM</option>
+                        </select>
+                    </div>
+                    
+                    <span class="text-[10px] font-black text-slate-400 uppercase mx-1">To</span>
+                    
+                    <!-- 종료 시간 -->
+                    <div class="flex items-center gap-1">
+                        <input type="text" placeholder="05:00" maxlength="5" class="form-input !py-2 !px-3 !text-xs w-20 text-center" 
+                               value="${timeSlots[day]?.end || ''}" 
+                               oninput="formatTimeInput(this)" onchange="updateTime('${day}', 'end', this.value)">
+                        <select class="form-input !py-2 !px-1 !text-xs w-16 cursor-pointer text-center" onchange="updateTime('${day}', 'end_ampm', this.value)">
+                            <option value="AM" ${timeSlots[day]?.end_ampm === 'AM' ? 'selected' : ''}>AM</option>
+                            <option value="PM" ${timeSlots[day]?.end_ampm === 'PM' ? 'selected' : ''}>PM</option>
+                        </select>
+                    </div>
                 </div>
             </div>
         `).join('');
@@ -379,16 +404,24 @@
                     document.getElementById('selected-count').textContent = selectedSkills.size;
                 }
 
-                // Parse complex availability string (e.g., "Monday: 09:00-12:00 | Thursday: 13:00-17:00")
+                // Edit 모드일 때 DB 데이터를 AM/PM 구조에 맞게 쪼개는 파서(Parser)
                 if (availTimesField && availTimesField.value) {
                     const chunks = availTimesField.value.split(' | ');
                     chunks.forEach(chunk => {
                         const [dayPart, timePart] = chunk.split(': ');
                         if (dayPart && timePart) {
-                            const [start, end] = timePart.split('-');
-                            if (AVAIL_DAYS.includes(dayPart.trim())) {
+                            const [startFull, endFull] = timePart.split('-');
+                            if (AVAIL_DAYS.includes(dayPart.trim()) && startFull && endFull) {
+                                const startParts = startFull.trim().split(' ');
+                                const endParts = endFull.trim().split(' ');
+                                
                                 selectedDays.add(dayPart.trim());
-                                timeSlots[dayPart.trim()] = { start: start.trim(), end: end.trim() };
+                                timeSlots[dayPart.trim()] = { 
+                                    start: startParts[0] || '', 
+                                    start_ampm: startParts[1] || 'AM', 
+                                    end: endParts[0] || '', 
+                                    end_ampm: endParts[1] || 'PM' 
+                                };
                                 
                                 document.querySelectorAll('#day-tags .qi-tag').forEach(tag => {
                                     if (tag.textContent.trim() === dayPart.trim()) {
@@ -587,7 +620,6 @@
             return;
         }
         
-        // Validate that all selected days have both start and end times
         let timeValid = true;
         for (let day of selectedDays) {
             if (!timeSlots[day].start || !timeSlots[day].end) {
@@ -604,9 +636,11 @@
             return;
         }
 
-        // Format the availability data for Caspio
         const formattedDays = Array.from(selectedDays).join(', ');
-        const formattedTimes = Array.from(selectedDays).map(day => `${day}: ${timeSlots[day].start}-${timeSlots[day].end}`).join(' | ');
+        const formattedTimes = Array.from(selectedDays).map(day => {
+            const t = timeSlots[day];
+            return `${day}: ${t.start} ${t.start_ampm}-${t.end} ${t.end_ampm}`;
+        }).join(' | ');
 
         if (isEditMode) {
             function tryUpdate(tries) {
