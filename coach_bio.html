@@ -34,10 +34,16 @@
         .form-input:focus { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59,130,246,0.1); }
         .form-input::placeholder { color: #94a3b8; }
         .form-input.error { border-color: #ef4444; box-shadow: 0 0 0 3px rgba(239,68,68,0.1); }
+        
+        /* Time Input Styling */
+        input[type="time"]::-webkit-calendar-picker-indicator { cursor: pointer; opacity: 0.6; transition: opacity 0.2s; }
+        input[type="time"]::-webkit-calendar-picker-indicator:hover { opacity: 1; }
 
         .step-panel { display: none; animation: fadeUp 0.35s ease-out; }
         .step-panel.active { display: block; }
         @keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+        .fade-in { animation: fadeIn 0.3s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
         .btn-primary { background: linear-gradient(135deg, #3b82f6, #6366f1); color: white; border: none; border-radius: 12px; padding: 14px 32px; font-size: 12px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.15em; cursor: pointer; transition: all 0.2s ease; }
         .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 8px 24px rgba(99,102,241,0.3); }
@@ -218,27 +224,26 @@
                         </div>
                     </div>
 
+                    <!-- REVISED: Availability Section with Dynamic Time Inputs -->
                     <div class="border-t border-slate-200 pt-8 mt-8">
-                        <div class="flex justify-between items-center mb-2">
-                            <div>
-                                <label class="block text-xs font-black text-slate-700 uppercase tracking-wider">Matching Availability</label>
-                                <p class="text-xs text-slate-400 mt-1">Turn this off if you want to pause receiving new coaching requests.</p>
-                            </div>
-                            <label class="relative inline-flex items-center cursor-pointer ml-4">
-                                <input type="checkbox" id="avail-status-toggle" class="sr-only peer" checked onchange="toggleStatus()">
-                                <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500"></div>
-                                <span class="ml-3 text-[10px] font-black uppercase tracking-widest w-16" id="status-text" style="color: #10b981;">ACTIVE</span>
-                            </label>
+                        <div class="mb-6">
+                            <h4 class="text-xs font-black text-slate-700 uppercase tracking-wider">Matching Availability</h4>
+                            <p class="text-xs text-slate-400 mt-1">Select the days you are available and specify your working hours for each.</p>
                         </div>
                         
-                        <div id="availability-details" class="space-y-6 mt-6 transition-all duration-300">
+                        <div class="space-y-6">
                             <div>
-                                <label class="block text-xs font-black text-slate-700 uppercase tracking-wider mb-2">Preferred Days <span class="text-blue-500">*</span></label>
+                                <label class="block text-xs font-black text-slate-700 uppercase tracking-wider mb-2">Available Days <span class="text-blue-500">*</span></label>
                                 <div class="flex flex-wrap gap-2" id="day-tags"></div>
                             </div>
-                            <div>
-                                <label class="block text-xs font-black text-slate-700 uppercase tracking-wider mb-2">Preferred Times <span class="text-blue-500">*</span></label>
-                                <div class="flex flex-wrap gap-2" id="time-tags"></div>
+                            
+                            <!-- Dynamic Container for Time Inputs -->
+                            <div id="time-slots-wrapper" class="hidden">
+                                <label class="block text-xs font-black text-slate-700 uppercase tracking-wider mb-3">Available Hours <span class="text-blue-500">*</span></label>
+                                <div id="time-slots-container" class="space-y-3 p-4 bg-white border border-slate-200 rounded-2xl shadow-sm">
+                                    <!-- Time rows will be injected here via JS -->
+                                </div>
+                                <p class="text-[10px] text-red-500 font-bold mt-2 hidden" id="time-error">Please set a start and end time for all selected days.</p>
                             </div>
                         </div>
                     </div>
@@ -285,13 +290,12 @@
         document.getElementById('sidebar-name').textContent = 'Dr. ' + coachName;
     }
 
-    const AVAIL_DAYS = ["Weekdays", "Weekends", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
-    const AVAIL_TIMES = ["Mornings", "Afternoons", "Evenings"];
+    const AVAIL_DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
     
     const selectedDays = new Set();
-    const selectedTimes = new Set();
-    let isAvailable = true;
+    const timeSlots = {}; // Object to store start/end times per day
 
+    // Render Availability Day Tags
     AVAIL_DAYS.forEach(day => {
         const tag = document.createElement('span');
         tag.className = 'qi-tag';
@@ -299,47 +303,49 @@
         tag.onclick = () => {
             if (selectedDays.has(day)) {
                 selectedDays.delete(day);
+                delete timeSlots[day];
                 tag.classList.remove('selected');
             } else {
                 selectedDays.add(day);
+                timeSlots[day] = { start: "", end: "" };
                 tag.classList.add('selected');
             }
+            renderTimeSlots();
         };
         document.getElementById('day-tags').appendChild(tag);
     });
 
-    AVAIL_TIMES.forEach(time => {
-        const tag = document.createElement('span');
-        tag.className = 'qi-tag';
-        tag.textContent = time;
-        tag.onclick = () => {
-            if (selectedTimes.has(time)) {
-                selectedTimes.delete(time);
-                tag.classList.remove('selected');
-            } else {
-                selectedTimes.add(time);
-                tag.classList.add('selected');
-            }
-        };
-        document.getElementById('time-tags').appendChild(tag);
-    });
-
-    function toggleStatus() {
-        const checkbox = document.getElementById('avail-status-toggle');
-        const statusText = document.getElementById('status-text');
-        const detailsDiv = document.getElementById('availability-details');
-        isAvailable = checkbox.checked;
+    function renderTimeSlots() {
+        const wrapper = document.getElementById('time-slots-wrapper');
+        const container = document.getElementById('time-slots-container');
+        document.getElementById('time-error').classList.add('hidden');
         
-        if (isAvailable) {
-            statusText.textContent = 'ACTIVE';
-            statusText.style.color = '#10b981'; 
-            detailsDiv.style.opacity = '1';
-            detailsDiv.style.pointerEvents = 'auto';
-        } else {
-            statusText.textContent = 'ON BREAK';
-            statusText.style.color = '#94a3b8'; 
-            detailsDiv.style.opacity = '0.5';
-            detailsDiv.style.pointerEvents = 'none';
+        if (selectedDays.size === 0) {
+            wrapper.classList.add('hidden');
+            container.innerHTML = '';
+            return;
+        }
+
+        wrapper.classList.remove('hidden');
+        
+        // Sort days to appear in standard week order
+        const sortedDays = Array.from(selectedDays).sort((a, b) => AVAIL_DAYS.indexOf(a) - AVAIL_DAYS.indexOf(b));
+        
+        container.innerHTML = sortedDays.map(day => `
+            <div class="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-6 p-3 bg-slate-50 border border-slate-100 rounded-xl fade-in">
+                <span class="text-xs font-black text-slate-800 uppercase w-24">${day}</span>
+                <div class="flex items-center gap-3">
+                    <input type="time" class="form-input !py-2 !px-3 !text-xs w-32" value="${timeSlots[day]?.start || ''}" onchange="updateTime('${day}', 'start', this.value)">
+                    <span class="text-[10px] font-black text-slate-400 uppercase">To</span>
+                    <input type="time" class="form-input !py-2 !px-3 !text-xs w-32" value="${timeSlots[day]?.end || ''}" onchange="updateTime('${day}', 'end', this.value)">
+                </div>
+            </div>
+        `).join('');
+    }
+
+    function updateTime(day, type, value) {
+        if (timeSlots[day]) {
+            timeSlots[day][type] = value;
         }
     }
 
@@ -355,9 +361,7 @@
                 const style = document.getElementById('EditRecordCoaching_Style').value;
                 const additional = document.getElementById('EditRecordAdditional').value;
 
-                const availDaysField = document.getElementById('EditRecordAvailability_Days');
                 const availTimesField = document.getElementById('EditRecordAvailability_Times');
-                const availStatusField = document.getElementById('EditRecordAvailability_Status');
 
                 if (about) document.getElementById('about').value = about;
                 if (practice) document.getElementById('practice').value = practice;
@@ -376,39 +380,26 @@
                     document.getElementById('selected-count').textContent = selectedSkills.size;
                 }
 
-                if (availDaysField && availDaysField.value) {
-                    const days = availDaysField.value.split(', ');
-                    days.forEach(day => {
-                        selectedDays.add(day.trim());
-                        document.querySelectorAll('#day-tags .qi-tag').forEach(tag => {
-                            if (tag.textContent.trim() === day.trim()) {
-                                tag.classList.add('selected');
-                            }
-                        });
-                    });
-                }
-
+                // Parse complex availability string (e.g., "Monday: 09:00-12:00 | Thursday: 13:00-17:00")
                 if (availTimesField && availTimesField.value) {
-                    const times = availTimesField.value.split(', ');
-                    times.forEach(time => {
-                        selectedTimes.add(time.trim());
-                        document.querySelectorAll('#time-tags .qi-tag').forEach(tag => {
-                            if (tag.textContent.trim() === time.trim()) {
-                                tag.classList.add('selected');
+                    const chunks = availTimesField.value.split(' | ');
+                    chunks.forEach(chunk => {
+                        const [dayPart, timePart] = chunk.split(': ');
+                        if (dayPart && timePart) {
+                            const [start, end] = timePart.split('-');
+                            if (AVAIL_DAYS.includes(dayPart.trim())) {
+                                selectedDays.add(dayPart.trim());
+                                timeSlots[dayPart.trim()] = { start: start.trim(), end: end.trim() };
+                                
+                                document.querySelectorAll('#day-tags .qi-tag').forEach(tag => {
+                                    if (tag.textContent.trim() === dayPart.trim()) {
+                                        tag.classList.add('selected');
+                                    }
+                                });
                             }
-                        });
+                        }
                     });
-                }
-
-                if (availStatusField && availStatusField.value) {
-                    const statusVal = availStatusField.value.toLowerCase();
-                    const checkbox = document.getElementById('avail-status-toggle');
-                    if (statusVal === 'inactive' || statusVal === 'no' || statusVal === 'on break') {
-                        checkbox.checked = false;
-                    } else {
-                        checkbox.checked = true;
-                    }
-                    toggleStatus();
+                    renderTimeSlots();
                 }
 
                 if (style) selectStyle(style);
@@ -597,12 +588,26 @@
             return;
         }
         
-        if (isAvailable && (selectedDays.size === 0 || selectedTimes.size === 0)) {
-            document.getElementById('availability-details').scrollIntoView({ behavior: 'smooth', block: 'center' });
-            document.getElementById('availability-details').style.opacity = '0.4';
-            setTimeout(() => document.getElementById('availability-details').style.opacity = '1', 600);
+        // Validate that all selected days have both start and end times
+        let timeValid = true;
+        for (let day of selectedDays) {
+            if (!timeSlots[day].start || !timeSlots[day].end) {
+                timeValid = false;
+                break;
+            }
+        }
+        
+        if (selectedDays.size === 0 || !timeValid) {
+            if (!timeValid) document.getElementById('time-error').classList.remove('hidden');
+            document.getElementById('day-tags').scrollIntoView({ behavior: 'smooth', block: 'center' });
+            document.getElementById('day-tags').style.opacity = '0.4';
+            setTimeout(() => document.getElementById('day-tags').style.opacity = '1', 600);
             return;
         }
+
+        // Format the availability data for Caspio
+        const formattedDays = Array.from(selectedDays).join(', ');
+        const formattedTimes = Array.from(selectedDays).map(day => `${day}: ${timeSlots[day].start}-${timeSlots[day].end}`).join(' | ');
 
         if (isEditMode) {
             function tryUpdate(tries) {
@@ -614,9 +619,8 @@
                     document.getElementById('EditRecordCoaching_Style').value = coachingStyle;
                     document.getElementById('EditRecordAdditional').value = document.getElementById('additional').value.trim();
                     
-                    if (document.getElementById('EditRecordAvailability_Days')) document.getElementById('EditRecordAvailability_Days').value = Array.from(selectedDays).join(', ');
-                    if (document.getElementById('EditRecordAvailability_Times')) document.getElementById('EditRecordAvailability_Times').value = Array.from(selectedTimes).join(', ');
-                    if (document.getElementById('EditRecordAvailability_Status')) document.getElementById('EditRecordAvailability_Status').value = isAvailable ? 'Active' : 'Inactive';
+                    if (document.getElementById('EditRecordAvailability_Days')) document.getElementById('EditRecordAvailability_Days').value = formattedDays;
+                    if (document.getElementById('EditRecordAvailability_Times')) document.getElementById('EditRecordAvailability_Times').value = formattedTimes;
 
                     if (document.getElementById('EditRecordBooking_Link')) {
                         document.getElementById('EditRecordBooking_Link').value = document.getElementById('booking-link').value.trim();
@@ -651,9 +655,8 @@
                     document.getElementById('InsertRecordCoaching_Style').value = coachingStyle;
                     document.getElementById('InsertRecordAdditional').value = document.getElementById('additional').value.trim();
                     
-                    if (document.getElementById('InsertRecordAvailability_Days')) document.getElementById('InsertRecordAvailability_Days').value = Array.from(selectedDays).join(', ');
-                    if (document.getElementById('InsertRecordAvailability_Times')) document.getElementById('InsertRecordAvailability_Times').value = Array.from(selectedTimes).join(', ');
-                    if (document.getElementById('InsertRecordAvailability_Status')) document.getElementById('InsertRecordAvailability_Status').value = isAvailable ? 'Active' : 'Inactive';
+                    if (document.getElementById('InsertRecordAvailability_Days')) document.getElementById('InsertRecordAvailability_Days').value = formattedDays;
+                    if (document.getElementById('InsertRecordAvailability_Times')) document.getElementById('InsertRecordAvailability_Times').value = formattedTimes;
 
                     if (document.getElementById('InsertRecordBooking_Link')) {
                         document.getElementById('InsertRecordBooking_Link').value = document.getElementById('booking-link').value.trim();
