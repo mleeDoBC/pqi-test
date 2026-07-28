@@ -610,8 +610,16 @@
     let currentMatchId = "";
     let currentCoacheeName = "";
     
-    const coachBookingLink = "https://calendly.com/dr-cho/30min";
-    const coachAvailability = "Mon, Wed, Fri (2 PM - 5 PM)";
+    let coachBookingLink = "";
+    let coachAvailability = "";
+    
+    document.addEventListener('DataPageReady', function (event) {
+        const linkElement = document.getElementById('realBookingLink');
+        const availElement = document.getElementById('realAvailability');
+        
+        if (linkElement) coachBookingLink = linkElement.innerText.trim();
+        if (availElement) coachAvailability = availElement.innerText.trim();
+    });
     
     function acceptProject(matchId) {
         currentMatchId = matchId;
@@ -683,11 +691,25 @@
             
             setTimeout(() => window.location.reload(), 2000);
         } else {
-            alert("백엔드 폼 연동을 대기 중입니다. 1~2초 후 다시 클릭해주세요.");
+            alert("Please wait a moment while the system loads, then try again.");
         }
+    }
+    
+    function loadCoachProfile() {
+        const currentUid = uid || sessionStorage.getItem('uid');
+        if (!currentUid) return;
+
+        const container = document.getElementById('hidden-caspio-profile');
+        container.innerHTML = ''; 
+        
+        const script = document.createElement('script');
+        script.type = 'text/javascript';
+        script.src = 'https://c0abr823.caspio.com/dp/1c9f5000b2913e9359ef4de69730/emb?uid=' + encodeURIComponent(currentUid);
+        container.appendChild(script);
     }
         
     loadMatches();
+    loadCoachProfile(); 
 
     </script>
     <div id="accept-modal-backdrop" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 hidden flex items-center justify-center transition-opacity">
@@ -728,5 +750,5 @@
         </div>
     </div>
     <div id="hidden-caspio-update" class="hidden"></div>
-</body>
+    <div id="hidden-caspio-profile" class="hidden"></div></body>
 </html>
