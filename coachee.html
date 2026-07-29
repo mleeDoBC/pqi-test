@@ -227,7 +227,9 @@
         'coacheeapplicationadditionalinfo': 'appAdditional',
         'coacheeapplicationreferral': 'appReferral',
         'coacheefirstname': 'coacheeFirst',
-        'coacheelastname': 'coacheeLast'
+        'coacheelastname': 'coacheeLast',
+        'coachcontractsigneddate': 'coachSignedDate',
+        'coacheecontractsigneddate': 'coacheeSignedDate'
     };
 
     window.cachedMatches = []; 
@@ -609,6 +611,12 @@
     }
         
     loadMatches();
+
+    document.addEventListener('FormSubmitted', function(event) {
+        setTimeout(function() {
+            window.location.reload();
+        }, 1500);
+    });
     </script>
 </body>
 </html>
