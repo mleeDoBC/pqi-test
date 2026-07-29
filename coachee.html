@@ -571,9 +571,7 @@
                                 ? `<div class="bg-amber-50 border border-amber-100 rounded-2xl p-4 text-center mb-4">
                                        <p class="text-[10px] font-black text-amber-600 uppercase tracking-wide leading-relaxed">Waiting for Coach acceptance.<br>Review timeline up to 5 business days.</p>
                                    </div>`
-                                : `<button onclick="window.location.href='${meetingUrl}'" class="w-full bg-blue-600 text-white py-4 rounded-xl font-black text-[10px] uppercase tracking-widest shadow-lg hover:bg-blue-500 transition mb-4">
-                                       <i class="fas fa-video mr-1.5"></i> Join Live Session Mode
-                                   </button>`
+                                : buttonHTML
                             }
 
                             ${(project.coachFirst || project.coachLast) ? `
