@@ -27,22 +27,35 @@
             .main-content-height { height: 100vh; }
         }
 
-        #tnc-caspio-container form[id^="caspioform"], 
-        #tnc-caspio-container .cbFormTable, 
-        #tnc-caspio-container .cbFormTable tbody, 
-        #tnc-caspio-container .cbFormTable tr, 
-        #tnc-caspio-container .cbFormTable td {
-            display: block !important;
-            width: 100% !important;
+        #tnc-caspio-container { 
+            overflow-x: hidden; 
+        }
+        
+        #tnc-caspio-container * {
             max-width: 100% !important;
+            min-width: 0 !important;
             box-sizing: border-box !important;
             white-space: normal !important;
             word-break: break-word !important;
         }
         
-        #tnc-caspio-container .cbFormTable td {
+        #tnc-caspio-container [style*="width"],
+        #tnc-caspio-container [width] { 
+            width: auto !important; 
+        }
+        
+        #tnc-caspio-container table,
+        #tnc-caspio-container tbody,
+        #tnc-caspio-container tr,
+        #tnc-caspio-container td,
+        #tnc-caspio-container th {
+            display: block !important;
+            width: auto !important;
             padding: 0 !important;
-            padding-bottom: 10px !important;
+        }
+        
+        #tnc-caspio-container td {
+            padding-bottom: 15px !important;
         }
         
     </style>
