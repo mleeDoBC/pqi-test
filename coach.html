@@ -57,6 +57,29 @@
         #tnc-caspio-container td {
             padding-bottom: 15px !important;
         }
+
+        .cbUpdateButton, .cbSubmitButton {
+            display: block !important;
+            background-color: #2563eb !important; 
+            color: white !important;
+            padding: 16px 24px !important;
+            border-radius: 12px !important;
+            font-weight: 900 !important;
+            font-size: 14px !important;
+            text-transform: uppercase !important;
+            letter-spacing: 0.05em !important;
+            border: none !important;
+            width: 100% !important; 
+            box-sizing: border-box !important; 
+            margin-top: 24px !important;
+            cursor: pointer !important;
+        }
+        
+        .cbUpdateButton:disabled, .cbSubmitButton:disabled {
+            background-color: #cbd5e1 !important;
+            color: #64748b !important;
+            cursor: not-allowed !important;
+        }
         
     </style>
 </head>
@@ -843,6 +866,32 @@
             document.getElementById('tnc-caspio-container').innerHTML = ''; 
         }, 300);
     }
+    
+    document.addEventListener('DataPageReady', function () {
+        const c = document.getElementById('tnc-caspio-container');
+        if (!c) return;
+        
+        const fix = el => {
+            el.removeAttribute('width');
+            el.style.setProperty('max-width', '100%', 'important');
+            el.style.setProperty('min-width', '0', 'important');
+            el.style.setProperty('box-sizing', 'border-box', 'important');
+        };
+        
+        [...c.children].forEach(el => {
+            fix(el);
+            el.style.setProperty('width', '100%', 'important');
+        });
+        
+        c.querySelectorAll('*').forEach(el => {
+            fix(el);
+            if (/^(TABLE|TBODY|TR|TD|TH)$/.test(el.tagName)) {
+                el.style.setProperty('display', 'block', 'important');
+                el.style.setProperty('width', 'auto', 'important');
+            }
+        });
+    });
+        
     </script>
     
     </body>
