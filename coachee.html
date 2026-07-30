@@ -666,36 +666,39 @@
         window.location.replace('https://c0abr823.caspio.com/folderlogout');
     }
 
+    // Caspio Single Record Update DataPage — URL(iframe) deploy.
+    // NOTE: iframe URL is the DataPage base URL WITHOUT the trailing /emb.
+    const MEETING_DP_URL = 'https://c0abr823.caspio.com/dp/1c9f5000930819c2679c4b239760';
+
     function openLogMeetingModal(matchId) {
         const modal = document.getElementById('meeting-log-modal');
-        const container = document.getElementById('meeting-log-container');
-        
+        const frame = document.getElementById('meeting-log-frame');
+
+        frame.src = MEETING_DP_URL + '?match_ID=' + encodeURIComponent(matchId);
         modal.classList.remove('hidden');
-        container.innerHTML = '<div class="text-center py-10 text-slate-400 text-xs font-bold uppercase tracking-widest"><i class="fas fa-spinner fa-spin mr-2"></i>Loading Calendar...</div>';
-        
-        setTimeout(() => {
-            container.innerHTML = ''; 
-            const script = document.createElement('script');
-            script.type = 'text/javascript';
-            script.src = 'https://c0abr823.caspio.com/dp/1c9f5000930819c2679c4b239760/emb?match_ID=' + encodeURIComponent(matchId);
-            container.appendChild(script);
-        }, 100);
     }
 
     function closeLogMeetingModal() {
         const modal = document.getElementById('meeting-log-modal');
-        const container = document.getElementById('meeting-log-container');
-        container.innerHTML = ''; 
+        const frame = document.getElementById('meeting-log-frame');
+
         modal.classList.add('hidden');
+        frame.src = 'about:blank';
+
+        // Card must re-render to pick up the newly saved Intro_Meeting_Date.
+        if (window.__meetingLogSaved) {
+            window.__meetingLogSaved = false;
+            window.location.reload();
+        }
     }
 
-    document.addEventListener('FormSubmitted', function(e) {
-        const meetingContainer = document.getElementById('meeting-log-container');
-        if (!meetingContainer || !meetingContainer.contains(e.target)) return;
-        
-        setTimeout(function() {
-            window.location.reload();
-        }, 1500);
+    // The Caspio form lives in the iframe, so submission is detected there.
+    // Add this to the DataPage Footer in Caspio (see note at bottom of file).
+    window.addEventListener('message', function(e) {
+        if (e.data === 'caspio:meeting-logged') {
+            window.__meetingLogSaved = true;
+            closeLogMeetingModal();
+        }
     });
         
     function requestRematch(matchId) {
@@ -706,12 +709,6 @@
     }
         
     loadMatches();
-
-    document.addEventListener('FormSubmitted', function(event) {
-        setTimeout(function() {
-            window.location.reload();
-        }, 1500);
-    });
     </script>
 
     <div id="meeting-log-modal" class="hidden fixed inset-0 z-[9999] bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 fade-in">
@@ -727,11 +724,13 @@
                 </button>
             </div>
             
-            <div class="w-full min-h-[300px] bg-white p-6 pb-72 overflow-y-auto" id="meeting-log-container">
-                <div class="text-center py-10 text-slate-400 text-xs font-bold uppercase tracking-widest">
-                    <i class="fas fa-spinner fa-spin mr-2"></i>Loading Calendar...
-                </div>
-            </div>
+            <!-- Height must clear the calendar popup, which renders INSIDE the iframe.
+                 Too short = date picker opens off-document and is invisible. -->
+            <iframe id="meeting-log-frame"
+                    src="about:blank"
+                    title="Log Meeting Date"
+                    class="w-full block border-0 bg-white rounded-b-3xl"
+                    style="height: 620px;"></iframe>
             
         </div>
     </div>
