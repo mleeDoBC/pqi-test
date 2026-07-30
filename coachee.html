@@ -665,6 +665,18 @@
     
         window.location.replace('https://c0abr823.caspio.com/folderlogout');
     }
+
+    function openLogMeetingModal(matchId) {
+        console.log("Log Meeting Modal Opened for Match ID:", matchId);
+        alert("이곳에 미팅 시간을 입력하는 Caspio 폼이 모달로 열립니다.\nMatch ID: " + matchId);
+    }
+
+    function requestRematch(matchId) {
+        console.log("Rematch Requested for Match ID:", matchId);
+        if(confirm("다른 코치 배정을 요청하시겠습니까?")) {
+            alert("재배정 요청 프로세스가 시작됩니다.");
+        }
+    }
         
     loadMatches();
 
