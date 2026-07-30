@@ -567,7 +567,7 @@
                                 </div>
                             </div>
 
-                            ${project.coachMessage && !isPending ? `
+                            ${project.coachMessage ? `
                                 <div class="bg-blue-50/50 border border-blue-100 rounded-2xl p-5 mb-6">
                                     <span class="text-[9px] font-black text-blue-600 uppercase tracking-widest block mb-2"><i class="fas fa-comment-dots mr-1"></i> Message from Coach</span>
                                     <p class="text-[11px] text-slate-700 leading-relaxed whitespace-pre-wrap italic mb-4">"${project.coachMessage}"</p>
