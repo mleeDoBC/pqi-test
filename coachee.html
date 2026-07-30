@@ -668,22 +668,25 @@
 
     function openLogMeetingModal(matchId) {
         const modal = document.getElementById('meeting-log-modal');
-        const iframe = document.getElementById('meeting-log-iframe');
+        const container = document.getElementById('meeting-log-container');
         
-        const caspioUrl = 'https://c0abr823.caspio.com/dp/1c9f5000930819c2679c4b239760?match_id=' + encodeURIComponent(matchId);
+        container.innerHTML = ''; 
         
-        iframe.src = caspioUrl;
+        const script = document.createElement('script');
+        script.type = 'text/javascript';
+        script.src = 'https://c0abr823.caspio.com/dp/1c9f5000930819c2679c4b239760/emb?match_ID=' + encodeURIComponent(matchId);
+        
+        container.appendChild(script);
         modal.classList.remove('hidden');
     }
 
     function closeLogMeetingModal() {
         const modal = document.getElementById('meeting-log-modal');
-        const iframe = document.getElementById('meeting-log-iframe');
+        const container = document.getElementById('meeting-log-container');
         
-        iframe.src = ''; 
+        container.innerHTML = '<div class="text-center py-10 text-slate-400 text-xs"><i class="fas fa-spinner fa-spin"></i></div>'; 
         modal.classList.add('hidden');
     }
-
     function requestRematch(matchId) {
         console.log("Rematch Requested for Match ID:", matchId);
         if(confirm("Would you like to explore other coaches?")) {
