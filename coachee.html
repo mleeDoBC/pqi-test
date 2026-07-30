@@ -374,7 +374,7 @@
 
         const dashboardMatches = matches.filter(m => {
             const status = m.status ? m.status.trim() : '';
-            return status === 'Active' || status === 'Pending';
+            return status !== 'Completed' && status !== 'Cancelled' && status !== 'Archived';
         });
         
         dashboardList.innerHTML = dashboardMatches.length > 0 
@@ -555,7 +555,7 @@
                                 <span class="accent-text text-slate-400 tracking-widest block">Assigned Coach</span>
                                 ${isPending 
                                     ? '<span class="text-[8px] font-black text-amber-500 bg-amber-50 px-2 py-0.5 rounded uppercase border border-amber-200">Pending Approval</span>'
-                                    : '<span class="text-[8px] font-black text-emerald-500 bg-emerald-50 px-2 py-0.5 rounded uppercase border border-emerald-200">Active</span>'
+                                    : '<span class="text-[8px] font-black text-blue-600 bg-blue-50 px-2 py-0.5 rounded uppercase border border-blue-200">Match Found</span>'
                                 }
                             </div>
 
@@ -567,36 +567,62 @@
                                 </div>
                             </div>
 
-                            ${project.coachMessage ? `
-                                <div class="bg-blue-50/50 border border-blue-100 rounded-2xl p-5 mb-6">
-                                    <span class="text-[9px] font-black text-blue-600 uppercase tracking-widest block mb-2"><i class="fas fa-comment-dots mr-1"></i> Message from Coach</span>
-                                    <p class="text-[11px] text-slate-700 leading-relaxed whitespace-pre-wrap italic mb-4">"${project.coachMessage}"</p>
-                                    
-                                    <div class="border-t border-blue-100 pt-4 mt-2">
-                                        <p class="text-[9px] font-black text-slate-500 uppercase tracking-tight mb-2">Need to adjust the time?</p>
-                                        <a href="mailto:${project.coachEmail || ''}?subject=Intro Meeting Setup - Coaching Connect" 
-                                           class="block w-full bg-white border border-blue-200 text-blue-600 text-center py-3 rounded-xl font-black text-[9px] uppercase tracking-widest shadow-sm hover:bg-blue-600 hover:text-white transition-colors">
-                                            <i class="fas fa-envelope mr-1.5"></i> Reply via Email
-                                        </a>
-                                    </div>
-                                </div>
-                            ` : ''}
-
                             ${isPending 
-                                ? `<div class="bg-amber-50 border border-amber-100 rounded-2xl p-4 text-center mb-4">
+                                ? `<div class="bg-amber-50 border border-amber-100 rounded-2xl p-4 text-center mt-4">
                                        <p class="text-[10px] font-black text-amber-600 uppercase tracking-wide leading-relaxed">Waiting for Coach acceptance.<br>Review timeline up to 5 business days.</p>
                                    </div>`
-                                : buttonHTML
+                                : (!project.coacheeSignedDate ? `
+                                    <!-- 📌 Phase 1: Intro Meeting Flow -->
+                                    <div class="bg-blue-50/50 border border-blue-100 rounded-2xl p-5 mb-4">
+                                        <span class="text-[9px] font-black text-blue-600 uppercase tracking-widest block mb-3"><i class="fas fa-handshake mr-1"></i> Step 1: Intro Setup</span>
+                                        ${project.coachMessage ? `<p class="text-[11px] text-slate-700 leading-relaxed whitespace-pre-wrap italic mb-4 border-l-2 border-blue-300 pl-3">"${project.coachMessage}"</p>` : ''}
+                                        
+                                        <div class="flex gap-2">
+                                            <a href="mailto:${project.coachEmail || ''}?subject=Intro Meeting Setup - Coaching Connect" 
+                                               class="flex-1 bg-white border border-blue-200 text-blue-600 text-center py-3 rounded-xl font-black text-[9px] uppercase tracking-widest shadow-sm hover:bg-blue-500 hover:border-blue-500 hover:text-white transition-colors">
+                                                <i class="fas fa-envelope mr-1.5"></i> Reply via Email
+                                            </a>
+                                            <button onclick="window.location.href='${meetingUrl}'"
+                                               class="flex-1 bg-blue-600 border border-blue-600 text-white text-center py-3 rounded-xl font-black text-[9px] uppercase tracking-widest shadow-sm hover:bg-blue-500 transition-colors">
+                                                <i class="fas fa-video mr-1.5"></i> Intro Meeting
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <!-- 📌 Phase 2: Confirmation & Sign Flow -->
+                                    <div class="bg-slate-50 border border-slate-200 rounded-2xl p-5">
+                                        <span class="text-[9px] font-black text-slate-500 uppercase tracking-widest block mb-2"><i class="fas fa-file-signature mr-1"></i> Step 2: Official Match</span>
+                                        <p class="text-[10px] text-slate-500 mb-4 leading-relaxed">Had your intro call? If you'd like to proceed with Dr. ${project.coachLast}, confirm your match below.</p>
+                                        <button onclick="openCoacheeSignModal('${project.matchId}')" 
+                                                class="w-full bg-slate-800 text-white py-3.5 rounded-xl font-black text-[9px] uppercase tracking-widest shadow-sm hover:bg-slate-700 transition">
+                                            I choose this Coach & Sign T&C
+                                        </button>
+                                    </div>
+                                ` : (!project.coachSignedDate ? `
+                                    <div class="mt-4 border-t border-slate-100 pt-5">
+                                        <button class="w-full bg-slate-300 text-white py-3.5 rounded-xl font-black text-[9px] uppercase tracking-widest cursor-not-allowed" disabled>
+                                            Waiting for Coach to sign...
+                                        </button>
+                                    </div>
+                                ` : `
+                                    <div class="mt-4 border-t border-slate-100 pt-5">
+                                        <button onclick="window.location.href='${meetingUrl}'" 
+                                                class="w-full bg-emerald-500 text-white py-3.5 rounded-xl font-black text-[10px] uppercase tracking-widest shadow-lg hover:bg-emerald-400 transition">
+                                            <i class="fas fa-video mr-1.5"></i> Join Live Session Mode
+                                        </button>
+                                    </div>
+                                `))
                             }
 
                             ${(project.coachFirst || project.coachLast) ? `
-                                <div class="border-t border-slate-100 pt-4 mt-4">
+                                <div class="border-t border-slate-100 pt-4 mt-5">
                                     <button onclick="toggleCoachProfileAccordion()" class="w-full flex justify-between items-center text-slate-600 hover:text-slate-900 transition">
                                         <span class="text-[9px] font-black uppercase tracking-widest">About Dr. ${project.coachLast}</span>
                                         <i id="accordion-icon" class="fas fa-chevron-down text-xs transition-transform rotate-180"></i>
                                     </button>
                                     
                                     <div id="coach-profile-details" class="mt-4 space-y-4">
+                                        <!-- (기존 프로필 내용과 동일) -->
                                         <div>
                                             <span class="text-[8px] font-black text-slate-400 uppercase tracking-tighter block mb-1">Coaching Bio</span>
                                             <p class="text-[11px] text-slate-600 font-medium leading-relaxed italic">"${project.coachAbout || 'No custom bio provided.'}"</p>
@@ -609,11 +635,6 @@
                                             <span class="text-[8px] font-black text-slate-400 uppercase tracking-tighter block mb-1">Coaching Style</span>
                                             <p class="text-[11px] text-slate-600 font-medium leading-relaxed">${project.coachStyle || 'N/A'}</p>
                                         </div>
-                                        ${project.coachLink ? `
-                                        <div>
-                                            <span class="text-[8px] font-black text-slate-400 uppercase tracking-tighter block mb-1">Booking Link</span>
-                                            <a href="${project.coachLink}" target="_blank" class="text-[11px] text-blue-600 font-black hover:underline uppercase block break-all">${project.coachLink}</a>
-                                        </div>` : ''}
                                     </div>
                                 </div>
                             ` : ''}
