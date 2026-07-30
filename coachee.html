@@ -668,19 +668,24 @@
 
     function openLogMeetingModal(matchId) {
         const modal = document.getElementById('meeting-log-modal');
-        const iframe = document.getElementById('meeting-log-iframe');
+        const container = document.getElementById('meeting-log-container');
         
-        const caspioUrl = 'https://c0abr823.caspio.com/dp/1c9f5000930819c2679c4b239760?match_ID=' + encodeURIComponent(matchId);
-        
-        iframe.src = caspioUrl;
         modal.classList.remove('hidden');
+        container.innerHTML = '<div class="text-center py-10 text-slate-400 text-xs font-bold uppercase tracking-widest"><i class="fas fa-spinner fa-spin mr-2"></i>Loading Calendar...</div>';
+        
+        setTimeout(() => {
+            container.innerHTML = ''; 
+            const script = document.createElement('script');
+            script.type = 'text/javascript';
+            script.src = 'https://c0abr823.caspio.com/dp/1c9f5000930819c2679c4b239760/emb?match_ID=' + encodeURIComponent(matchId);
+            container.appendChild(script);
+        }, 100);
     }
 
     function closeLogMeetingModal() {
         const modal = document.getElementById('meeting-log-modal');
-        const iframe = document.getElementById('meeting-log-iframe');
-        
-        iframe.src = ''; 
+        const container = document.getElementById('meeting-log-container');
+        container.innerHTML = ''; 
         modal.classList.add('hidden');
     }
         
@@ -712,8 +717,7 @@
                 </button>
             </div>
             
-            <div class="flex-1 w-full h-[400px] overflow-hidden relative bg-white">
-                <iframe id="meeting-log-iframe" src="" class="absolute inset-0 w-full h-full border-0" frameborder="0"></iframe>
+            <div class="flex-1 w-full min-h-[300px] overflow-y-auto relative bg-white p-6" id="meeting-log-container">
             </div>
         </div>
     </div>
