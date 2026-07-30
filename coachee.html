@@ -688,6 +688,15 @@
         container.innerHTML = ''; 
         modal.classList.add('hidden');
     }
+
+    document.addEventListener('FormSubmitted', function(e) {
+        const meetingContainer = document.getElementById('meeting-log-container');
+        if (!meetingContainer || !meetingContainer.contains(e.target)) return;
+        
+        setTimeout(function() {
+            window.location.reload();
+        }, 1500);
+    });
         
     function requestRematch(matchId) {
         console.log("Rematch Requested for Match ID:", matchId);
@@ -706,7 +715,8 @@
     </script>
 
     <div id="meeting-log-modal" class="hidden fixed inset-0 z-[9999] bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 fade-in">
-        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden flex flex-col max-h-[90vh]">
+        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-md flex flex-col">
+            
             <div class="flex justify-between items-center p-6 border-b border-slate-100 bg-slate-50">
                 <div>
                     <h3 class="text-lg font-black italic text-slate-900 uppercase">Log Meeting Date</h3>
@@ -717,8 +727,12 @@
                 </button>
             </div>
             
-            <div class="flex-1 w-full min-h-[300px] overflow-y-auto relative bg-white p-6" id="meeting-log-container">
+            <div class="w-full min-h-[300px] bg-white p-6 pb-72 overflow-y-auto" id="meeting-log-container">
+                <div class="text-center py-10 text-slate-400 text-xs font-bold uppercase tracking-widest">
+                    <i class="fas fa-spinner fa-spin mr-2"></i>Loading Calendar...
+                </div>
             </div>
+            
         </div>
     </div>
 </body>
