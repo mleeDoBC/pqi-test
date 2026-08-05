@@ -183,6 +183,7 @@
         const isPending = (project.status === 'Pending' || project.status === 'Applied');
         const isAccepted = (project.status === 'Accepted');
         const hasCoachSigned = project.coachSignedDate && project.coachSignedDate.trim() !== '';
+        const hasCoacheeSigned = project.coacheeSignedDate && project.coacheeSignedDate.trim() !== '';
         const name = project.coacheeFirst ? 'Dr. ' + project.coacheeFirst + ' ' + project.coacheeLast : project.coacheeId;
         const initials = project.coacheeFirst ? (project.coacheeFirst[0] + (project.coacheeLast ? project.coacheeLast[0] : '')).toUpperCase() : project.coacheeId.slice(0,2).toUpperCase();
         const mainContent = document.getElementById('main-content');
@@ -311,16 +312,27 @@
                                        </button>
                                    </div>`
                             : isAccepted
-                            ? (hasCoachSigned 
-                                ? `
-                                   <div class="bg-slate-50 border border-slate-200 rounded-2xl p-4 text-center mb-4">
-                                       <p class="text-[10px] font-black text-slate-500 uppercase tracking-wide leading-relaxed mb-3">
-                                           Waiting for Coachee to sign...
-                                       </p>
-                                       <button disabled class="w-full bg-slate-200 text-slate-400 py-4 rounded-xl font-black text-[10px] uppercase tracking-widest cursor-not-allowed mb-4">
-                                           <i class="fas fa-check-circle mr-1.5"></i> Agreement Signed
-                                       </button>
-                                   </div>`
+                            ? (hasCoacheeSigned 
+                                ? (hasCoachSigned 
+                                    ? `
+                                       <div class="bg-slate-50 border border-slate-200 rounded-2xl p-4 text-center mb-4">
+                                           <p class="text-[10px] font-black text-slate-500 uppercase tracking-wide leading-relaxed mb-3">
+                                               Both parties have signed.
+                                           </p>
+                                           <button disabled class="w-full bg-slate-200 text-slate-400 py-4 rounded-xl font-black text-[10px] uppercase tracking-widest cursor-not-allowed mb-4">
+                                               <i class="fas fa-check-circle mr-1.5"></i> Agreement Complete
+                                           </button>
+                                       </div>`
+                                    : `
+                                       <div class="bg-emerald-50 border border-emerald-100 rounded-2xl p-4 text-center mb-4">
+                                           <p class="text-[10px] font-black text-emerald-600 uppercase tracking-wide leading-relaxed mb-3">
+                                               Coachee has decided to proceed!<br>Please sign to activate the workspace.
+                                           </p>
+                                           <button onclick="openTncModal('${project.matchId}')" class="w-full bg-slate-900 text-white py-3.5 rounded-xl font-black text-[10px] uppercase tracking-widest shadow-lg hover:bg-slate-800 transition mb-2">
+                                               <i class="fas fa-file-signature mr-1.5"></i> Sign Agreement
+                                           </button>
+                                       </div>`
+                                  )
                                 : `
                                    <div class="bg-blue-50 border border-blue-100 rounded-2xl p-4 text-center mb-4">
                                        <p class="text-[10px] font-black text-blue-600 uppercase tracking-wide leading-relaxed mb-3">
@@ -345,12 +357,13 @@
                                        </div>
                                        `}
 
-                                       <p class="text-[9px] font-bold text-slate-500 mb-2">Please sign the agreement AFTER the meeting.</p>
-                                       <button onclick="openTncModal('${project.matchId}')" class="w-full bg-slate-900 text-white py-3.5 rounded-xl font-black text-[10px] uppercase tracking-widest shadow-lg hover:bg-slate-800 transition mb-2">
-                                           <i class="fas fa-file-signature mr-1.5"></i> Sign Agreement
-                                       </button>
+                                       <div class="pt-2 border-t border-blue-200/50 mt-2">
+                                           <p class="text-[9px] font-bold text-slate-500 flex items-center justify-center gap-1.5">
+                                               <i class="fas fa-hourglass-half"></i> Waiting for Coachee to sign
+                                           </p>
+                                       </div>
                                    </div>`
-                                  )    
+                              )    
                                 : `
                                    <button onclick="window.location.href='${meetingUrl}'" class="w-full bg-blue-600 text-white py-4 rounded-xl font-black text-[10px] uppercase tracking-widest shadow-lg hover:bg-blue-500 transition mb-4">
                                        <i class="fas fa-video mr-1.5"></i> Enter Workspace
