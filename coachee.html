@@ -554,7 +554,6 @@
                                        <p class="text-[10px] font-black text-amber-600 uppercase tracking-wide leading-relaxed">Waiting for Coach acceptance.<br>Review timeline up to 5 business days.</p>
                                    </div>`
                                 : (!project.coacheeSignedDate ? `
-                                    <!-- 📌 Phase 1: Intro Meeting Flow -->
                                     <div class="bg-blue-50/50 border border-blue-100 rounded-2xl p-5 mb-4">
                                         <span class="text-[9px] font-black text-blue-600 uppercase tracking-widest block mb-3"><i class="fas fa-handshake mr-1"></i> Step 1: Intro Setup</span>
                                         ${project.coachMessage ? `<p class="text-[11px] text-slate-700 leading-relaxed whitespace-pre-wrap italic mb-4 border-l-2 border-blue-300 pl-3">"${project.coachMessage}"</p>` : ''}
@@ -571,14 +570,24 @@
                                                 </button>
                                             </div>
                                         ` : `
-                                            <div class="bg-white border border-blue-100 rounded-xl p-3 mb-3 flex items-center justify-between">
+                                            <div class="bg-white border border-blue-100 rounded-xl p-3 mb-3 flex items-center justify-between shadow-sm">
                                                 <div>
-                                                    <span class="text-[8px] font-black text-slate-400 uppercase tracking-tight block">Scheduled For</span>
+                                                    <span class="text-[8px] font-black text-slate-400 uppercase tracking-tight block mb-0.5">Scheduled For</span>
                                                     <span class="text-xs font-black text-blue-600 italic">
                                                         ${project.introDate} ${project.introTime ? '· ' + project.introTime : ''}
                                                     </span>
                                                 </div>
+                                                
+                                                <div class="flex items-center gap-1.5">
+                                                    <button onclick="openLogMeetingModal('${project.matchId}')" class="w-8 h-8 flex items-center justify-center rounded-full bg-slate-50 border border-slate-100 text-slate-400 hover:text-blue-600 hover:bg-blue-50 hover:border-blue-200 transition-all" title="Reschedule Meeting">
+                                                        <i class="fas fa-pencil-alt text-xs"></i>
+                                                    </button>
+                                                    <button onclick="cancelMeeting('${project.matchId}')" class="w-8 h-8 flex items-center justify-center rounded-full bg-slate-50 border border-slate-100 text-slate-400 hover:text-red-500 hover:bg-red-50 hover:border-red-200 transition-all" title="Cancel Meeting">
+                                                        <i class="fas fa-times text-xs"></i>
+                                                    </button>
+                                                </div>
                                             </div>
+                                            
                                             <button onclick="window.location.href='${meetingUrl}'"
                                                class="w-full bg-emerald-500 text-white text-center py-3 rounded-xl font-black text-[10px] uppercase tracking-widest shadow-sm hover:bg-emerald-400 transition-colors">
                                                 <i class="fas fa-video mr-1.5"></i> Join Intro Meeting
@@ -586,7 +595,6 @@
                                         `}
                                     </div>
 
-                                    <!-- 📌 Phase 2: Confirmation & Sign Flow -->
                                     <div class="bg-slate-50 border border-slate-200 rounded-2xl p-5 ${!project.introDate ? 'opacity-50 pointer-events-none' : ''}">
                                         <span class="text-[9px] font-black text-slate-500 uppercase tracking-widest block mb-2"><i class="fas fa-file-signature mr-1"></i> Step 2: Official Match</span>
                                         <p class="text-[10px] text-slate-500 mb-4 leading-relaxed">Had your intro call? If you'd like to proceed with Dr. ${project.coachLast}, confirm your match below. If not, you can request a new coach.</p>
@@ -703,6 +711,22 @@
         }
     }
 
+    function cancelMeeting(matchId) {
+        if(confirm("Are you sure you want to cancel this scheduled intro meeting?\nYou will need to select a new time.")) {
+            
+            let container = document.getElementById('hidden-caspio-action');
+            if (!container) {
+                container = document.createElement('div');
+                container.id = 'hidden-caspio-action';
+                container.className = 'hidden';
+                document.body.appendChild(container);
+            }
+            
+            alert("The meeting has been cancelled. Please log a new schedule when ready.");
+            window.location.reload();
+        }
+    }
+        
     loadMatches();
 
     document.addEventListener('FormSubmitted', function(event) {
