@@ -693,21 +693,26 @@
         container.innerHTML = '';
     }
 
-    window.addEventListener('message', function(e) {
-        if (e.data === 'caspio:meeting-logged') {
-            window.__meetingLogSaved = true;
-            closeLogMeetingModal();
-        }
-    });
-        
     function requestRematch(matchId) {
         console.log("Rematch Requested for Match ID:", matchId);
         if(confirm("Would you like to explore other coaches?")) {
             alert("The reassignment request process is initiated.");
         }
     }
-        
+
     loadMatches();
+
+    document.addEventListener('FormSubmitted', function(event) {
+        closeLogMeetingModal();
+        
+        const container = document.getElementById('meeting-log-container');
+        if (container) {
+            container.innerHTML = '';
+        }
+        
+        window.location.reload();
+    });
+        
     </script>
 
     <div id="meeting-log-modal" class="hidden fixed inset-0 z-[9999] bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 fade-in">
