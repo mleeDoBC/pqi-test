@@ -232,7 +232,8 @@
         'coachcontractsigneddate': 'coachSignedDate',
         'coacheecontractsigneddate': 'coacheeSignedDate',
         'coachmessage': 'coachMessage',
-        'intromeetingdate': 'introDate'
+        'intromeetingdate': 'introDate',
+        'intromeetingtime': 'introTime'
     };
 
     window.cachedMatches = []; 
@@ -573,7 +574,9 @@
                                             <div class="bg-white border border-blue-100 rounded-xl p-3 mb-3 flex items-center justify-between">
                                                 <div>
                                                     <span class="text-[8px] font-black text-slate-400 uppercase tracking-tight block">Scheduled For</span>
-                                                    <span class="text-xs font-black text-blue-600 italic">${project.introDate}</span>
+                                                    <span class="text-xs font-black text-blue-600 italic">
+                                                        ${project.introDate} ${project.introTime ? '· ' + project.introTime : ''}
+                                                    </span>
                                                 </div>
                                             </div>
                                             <button onclick="window.location.href='${meetingUrl}'"
