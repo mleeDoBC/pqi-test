@@ -20,64 +20,6 @@
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         
         @media (min-width: 1024px) { body { overflow: hidden; } .main-content-height { height: 100vh; } }
-
-        /* --- 모달 가로 스크롤 방지 및 Caspio 강제 리셋 --- */
-        #meeting-log-container {
-            overflow-x: hidden; 
-        }
-        
-        #meeting-log-container * {
-            max-width: 100% !important;
-            min-width: 0 !important;
-            box-sizing: border-box !important;
-            /* 핵심 1: Caspio의 줄바꿈 방지(nowrap) 강제 해제 */
-            white-space: normal !important;
-            word-break: break-word !important;
-        }
-        
-        /* 핵심 2: Caspio가 몰래 넣는 고정 width 속성 강제 100% 변환 */
-        #meeting-log-container [style*="width"],
-        #meeting-log-container [width] { 
-            width: 100% !important; 
-        }
-        
-        #meeting-log-container table,
-        #meeting-log-container tbody,
-        #meeting-log-container tr,
-        #meeting-log-container td,
-        #meeting-log-container th {
-            display: block !important;
-            width: 100% !important;
-            padding: 0 !important;
-            margin: 0 !important;
-        }
-        
-        #meeting-log-container td {
-            padding-bottom: 12px !important; 
-        }
-
-        #meeting-log-container input[type="text"] {
-            width: 100% !important;
-            padding: 12px !important;
-            border-radius: 8px !important;
-            border: 1px solid #cbd5e1 !important;
-            margin-top: 4px !important;
-        }
-
-        #meeting-log-container .cbUpdateButton {
-            display: block !important;
-            background-color: #2563eb !important; 
-            color: white !important;
-            padding: 16px 24px !important;
-            border-radius: 12px !important;
-            font-weight: 900 !important;
-            font-size: 14px !important;
-            text-transform: uppercase !important;
-            width: 100% !important; 
-            margin-top: 15px !important;
-            cursor: pointer !important;
-            border: none !important;
-        }
     </style>
 </head>
 <body class="antialiased text-slate-800">
