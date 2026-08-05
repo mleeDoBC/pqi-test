@@ -712,7 +712,8 @@
     </script>
 
     <div id="meeting-log-modal" class="hidden fixed inset-0 z-[9999] bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 fade-in">
-        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-md flex flex-col">
+        <!-- 모달 전체 최대 높이 및 패널 크기 확장 -->
+        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-md flex flex-col max-h-[95vh]">
             
             <div class="flex justify-between items-center p-6 border-b border-slate-100 bg-slate-50">
                 <div>
@@ -724,13 +725,12 @@
                 </button>
             </div>
             
-            <!-- Height must clear the calendar popup, which renders INSIDE the iframe.
-                 Too short = date picker opens off-document and is invisible. -->
+            <!-- iframe 높이를 460px에서 560px로 대폭 늘려서 달력과 버튼이 한눈에 들어오게 조정 -->
             <iframe id="meeting-log-frame"
                     src="about:blank"
                     title="Log Meeting Date"
                     class="w-full block border-0 bg-white rounded-b-3xl"
-                    style="height: 460px;"></iframe>
+                    style="height: 560px;"></iframe>
             
         </div>
     </div>
