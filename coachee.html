@@ -20,6 +20,38 @@
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         
         @media (min-width: 1024px) { body { overflow: hidden; } .main-content-height { height: 100vh; } }
+
+        #meeting-log-container * {
+            max-width: 100% !important;
+            min-width: 0 !important;
+            box-sizing: border-box !important;
+        }
+        #meeting-log-container table,
+        #meeting-log-container tbody,
+        #meeting-log-container tr,
+        #meeting-log-container td,
+        #meeting-log-container th {
+            display: block !important;
+            width: auto !important;
+            padding: 0 !important;
+        }
+        #meeting-log-container td {
+            padding-bottom: 10px !important; 
+        }
+        #meeting-log-container .cbUpdateButton {
+            display: block !important;
+            background-color: #2563eb !important; 
+            color: white !important;
+            padding: 16px 24px !important;
+            border-radius: 12px !important;
+            font-weight: 900 !important;
+            font-size: 14px !important;
+            text-transform: uppercase !important;
+            width: 100% !important; 
+            margin-top: 15px !important;
+            cursor: pointer !important;
+            border: none !important;
+        }
     </style>
 </head>
 <body class="antialiased text-slate-800">
@@ -666,34 +698,32 @@
         window.location.replace('https://c0abr823.caspio.com/folderlogout');
     }
 
-    // Caspio Single Record Update DataPage — URL(iframe) deploy.
-    // NOTE: iframe URL is the DataPage base URL WITHOUT the trailing /emb.
     const MEETING_DP_URL = 'https://c0abr823.caspio.com/dp/1c9f50001b2f5aa86f624c8d8ec5';
 
     function openLogMeetingModal(matchId) {
         const modal = document.getElementById('meeting-log-modal');
-        const frame = document.getElementById('meeting-log-frame');
+        const container = document.getElementById('meeting-log-container');
 
-        frame.src = MEETING_DP_URL + '?match_ID=' + encodeURIComponent(matchId);
+        container.innerHTML = '<div class="text-center py-10 text-slate-400 text-xs font-bold uppercase tracking-widest"><i class="fas fa-spinner fa-spin mr-2"></i>Loading Calendar...</div>';
         modal.classList.remove('hidden');
+        
+        setTimeout(() => {
+            container.innerHTML = ''; 
+            const script = document.createElement('script');
+            script.type = 'text/javascript';
+            script.src = 'https://c0abr823.caspio.com/dp/1c9f50001b2f5aa86f624c8d8ec5/emb?match_ID=' + encodeURIComponent(matchId);
+            container.appendChild(script);
+        }, 100);
     }
 
     function closeLogMeetingModal() {
         const modal = document.getElementById('meeting-log-modal');
-        const frame = document.getElementById('meeting-log-frame');
+        const container = document.getElementById('meeting-log-container');
 
         modal.classList.add('hidden');
-        frame.src = 'about:blank';
-
-        // Card must re-render to pick up the newly saved Intro_Meeting_Date.
-        if (window.__meetingLogSaved) {
-            window.__meetingLogSaved = false;
-            window.location.reload();
-        }
+        container.innerHTML = '';
     }
 
-    // The Caspio form lives in the iframe, so submission is detected there.
-    // Add this to the DataPage Footer in Caspio (see note at bottom of file).
     window.addEventListener('message', function(e) {
         if (e.data === 'caspio:meeting-logged') {
             window.__meetingLogSaved = true;
@@ -712,8 +742,7 @@
     </script>
 
     <div id="meeting-log-modal" class="hidden fixed inset-0 z-[9999] bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 fade-in">
-        <!-- 모달 전체 최대 높이 및 패널 크기 확장 -->
-        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-md flex flex-col max-h-[95vh]">
+        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-md flex flex-col">
             
             <div class="flex justify-between items-center p-6 border-b border-slate-100 bg-slate-50">
                 <div>
@@ -725,12 +754,8 @@
                 </button>
             </div>
             
-            <!-- iframe 높이를 460px에서 560px로 대폭 늘려서 달력과 버튼이 한눈에 들어오게 조정 -->
-            <iframe id="meeting-log-frame"
-                    src="about:blank"
-                    title="Log Meeting Date"
-                    class="w-full block border-0 bg-white rounded-b-3xl"
-                    style="height: 560px;"></iframe>
+            <div class="w-full bg-white p-8 pb-72 overflow-y-auto max-h-[70vh]" id="meeting-log-container">
+            </div>
             
         </div>
     </div>
