@@ -714,19 +714,19 @@
    function cancelMeeting(matchId) {
         if(confirm("Are you sure you want to cancel this scheduled intro meeting?\nYou will need to select a new time.")) {
             
-            let container = document.getElementById('hidden-caspio-action');
-            if (!container) {
-                container = document.createElement('div');
-                container.id = 'hidden-caspio-action';
-                container.className = 'hidden'; 
-                document.body.appendChild(container);
+            let iframe = document.getElementById('hidden-caspio-iframe');
+            if (!iframe) {
+                iframe = document.createElement('iframe');
+                iframe.id = 'hidden-caspio-iframe';
+                iframe.style.cssText = 'position:absolute; left:-9999px; top:-9999px; width:1px; height:1px; border:none; visibility:hidden;';
+                document.body.appendChild(iframe);
             }
             
-            container.innerHTML = '';
-            const script = document.createElement('script');
-            script.type = 'text/javascript';
-            script.src = 'https://c0abr823.caspio.com/dp/1c9f500031b33de40972480b8bf3/emb?Match_ID=' + encodeURIComponent(matchId);
-            container.appendChild(script);
+            iframe.src = 'https://c0abr823.caspio.com/dp/1c9f500031b33de40972480b8bf3?Match_ID=' + encodeURIComponent(matchId);
+
+            setTimeout(() => {
+                window.location.reload();
+            }, 2000);
         }
     }
         
