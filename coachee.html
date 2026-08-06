@@ -711,37 +711,40 @@
         }
     }
 
-   function cancelMeeting(matchId) {
+   let isCanceling = false; 
+
+    function cancelMeeting(matchId) {
         if(confirm("Are you sure you want to cancel this scheduled intro meeting?\nYou will need to select a new time.")) {
             
-            let iframe = document.getElementById('hidden-caspio-iframe');
-            if (!iframe) {
-                iframe = document.createElement('iframe');
-                iframe.id = 'hidden-caspio-iframe';
-                iframe.style.cssText = 'position:absolute; left:-9999px; top:-9999px; width:1px; height:1px; border:none; visibility:hidden;';
-                document.body.appendChild(iframe);
+            isCanceling = true; 
+            
+            let container = document.getElementById('hidden-caspio-action');
+            if (!container) {
+                container = document.createElement('div');
+                container.id = 'hidden-caspio-action';
+                container.style.cssText = 'position:absolute; left:-9999px; top:-9999px; visibility:hidden; width:1px; height:1px;';
+                document.body.appendChild(container);
             }
             
-            iframe.src = 'https://c0abr823.caspio.com/dp/1c9f500031b33de40972480b8bf3?Match_ID=' + encodeURIComponent(matchId);
-
-            setTimeout(() => {
-                window.location.reload();
-            }, 2000);
+            container.innerHTML = '';
+            const script = document.createElement('script');
+            script.type = 'text/javascript';
+            script.src = 'https://c0abr823.caspio.com/dp/1c9f500031b33de40972480b8bf3/emb?Match_ID=' + encodeURIComponent(matchId);
+            container.appendChild(script);
         }
     }
         
     loadMatches();
 
     document.addEventListener('FormSubmitted', function(event) {
-        closeLogMeetingModal();
-        
-        const container = document.getElementById('meeting-log-container');
-        if (container) {
-            container.innerHTML = '';
-        }
-        setTimeout(function() {
+        if (isCanceling) {
+            setTimeout(() => {
+                window.location.reload();
+            }, 500); 
+            isCanceling = false; 
+        } else {
             window.location.reload();
-        }, 1500);
+        }
     });
         
     </script>
