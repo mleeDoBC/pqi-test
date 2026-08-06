@@ -710,25 +710,6 @@
             alert("The reassignment request process is initiated.");
         }
     }
-
-    function cancelMeeting(matchId) {
-        if(confirm("Are you sure you want to cancel this scheduled intro meeting?\nYou will need to select a new time.")) {
-            
-            let container = document.getElementById('hidden-caspio-action');
-            if (!container) {
-                container = document.createElement('div');
-                container.id = 'hidden-caspio-action';
-                container.className = 'hidden';
-                document.body.appendChild(container);
-            }
-            
-            container.innerHTML = '';
-            const script = document.createElement('script');
-            script.type = 'text/javascript';
-            script.src = 'https://c0abr823.caspio.com/dp/1c9f500031b33de40972480b8bf3/emb?match_ID=' + encodeURIComponent(matchId);
-            container.appendChild(script);
-        }
-    }
         
     loadMatches();
 
