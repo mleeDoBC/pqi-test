@@ -720,16 +720,45 @@
         const modal = document.getElementById('meeting-cancel-modal');
         const container = document.getElementById('meeting-cancel-container');
 
+        console.log('%c[CANCEL] BUILD 2026-08-06 / cancelMeeting()', 'color:#0af;font-weight:bold', 'matchId =', matchId);
+
+        if (!modal || !container) {
+            console.error('[CANCEL] modal/container DOM not found', !!modal, !!container);
+            return;
+        }
+
         window.__caspioSubmitted = false;
         container.innerHTML = '<div class="text-center py-10 text-slate-400 text-xs font-bold uppercase tracking-widest"><i class="fas fa-spinner fa-spin mr-2"></i>Loading...</div>';
         modal.classList.remove('hidden');
 
         setTimeout(() => {
             container.innerHTML = '';
+            const url = CANCEL_DP_URL + '/emb?Match_ID=' + encodeURIComponent(matchId);
             const script = document.createElement('script');
             script.type = 'text/javascript';
-            script.src = CANCEL_DP_URL + '/emb?Match_ID=' + encodeURIComponent(matchId);
+            script.src = url;
+            script.onload  = () => console.log('[CANCEL] embed script LOADED ok');
+            script.onerror = (e) => console.error('[CANCEL] embed script FAILED to load →', url, e);
             container.appendChild(script);
+            console.log('[CANCEL] injected →', url);
+
+            // report what actually landed in the container
+            let n = 0;
+            const watch = setInterval(() => {
+                n++;
+                const html = container.innerHTML.trim();
+                if (html.length > 0) {
+                    clearInterval(watch);
+                    console.log('[CANCEL] container filled after ' + (n * 300) + 'ms, ' + html.length + ' chars');
+                    console.log('[CANCEL] forms:', container.querySelectorAll('form').length,
+                                '| inputs:', container.querySelectorAll('input').length,
+                                '| selects:', container.querySelectorAll('select').length);
+                    console.log('[CANCEL] first 400 chars:', html.slice(0, 400));
+                } else if (n >= 30) {
+                    clearInterval(watch);
+                    console.error('[CANCEL] container STILL EMPTY after 9s → DataPage rendered nothing');
+                }
+            }, 300);
         }, 100);
     }
 
