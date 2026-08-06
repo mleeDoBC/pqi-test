@@ -700,8 +700,8 @@
         const modal = document.getElementById('meeting-log-modal');
         const container = document.getElementById('meeting-log-container');
 
-        modal.classList.add('hidden');
-        container.innerHTML = '';
+        if (modal) modal.classList.add('hidden');
+        if (container) container.innerHTML = '';
     }
 
     function requestRematch(matchId) {
@@ -711,18 +711,24 @@
         }
     }
 
+    const CANCEL_DP_URL = 'https://c0abr823.caspio.com/dp/1c9f500031b33de40972480b8bf3';
+
+    // set true only after a Caspio form actually submits, so plain "close" never reloads
+    window.__caspioSubmitted = false;
+
     function cancelMeeting(matchId) {
         const modal = document.getElementById('meeting-cancel-modal');
         const container = document.getElementById('meeting-cancel-container');
 
+        window.__caspioSubmitted = false;
         container.innerHTML = '<div class="text-center py-10 text-slate-400 text-xs font-bold uppercase tracking-widest"><i class="fas fa-spinner fa-spin mr-2"></i>Loading...</div>';
         modal.classList.remove('hidden');
-        
+
         setTimeout(() => {
-            container.innerHTML = ''; 
+            container.innerHTML = '';
             const script = document.createElement('script');
             script.type = 'text/javascript';
-            script.src = 'https://c0abr823.caspio.com/dp/1c9f500031b33de40972480b8bf3/emb?Match_ID=' + encodeURIComponent(matchId) + '&clear_data=true';
+            script.src = CANCEL_DP_URL + '/emb?Match_ID=' + encodeURIComponent(matchId);
             container.appendChild(script);
         }, 100);
     }
@@ -733,13 +739,28 @@
 
         modal.classList.add('hidden');
         container.innerHTML = '';
-        window.location.reload(); 
+
+        // only refresh when something was actually saved
+        if (window.__caspioSubmitted) {
+            window.__caspioSubmitted = false;
+            window.location.reload();
+        }
     }
         
     loadMatches();
 
     document.addEventListener('FormSubmitted', function(event) {
-        window.location.reload();
+        console.log('[Caspio] FormSubmitted');
+        window.__caspioSubmitted = true;
+
+        closeLogMeetingModal();
+
+        const cancelModal = document.getElementById('meeting-cancel-modal');
+        if (cancelModal) cancelModal.classList.add('hidden');
+
+        // DO NOT reload immediately - an instant reload aborts the in-flight POST
+        // and the record never gets written.
+        setTimeout(function () { window.location.reload(); }, 1200);
     });
         
     </script>
