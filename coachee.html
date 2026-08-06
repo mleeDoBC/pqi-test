@@ -712,65 +712,47 @@
     }
 
    function cancelMeeting(matchId) {
-    if(confirm("Are you sure you want to cancel this scheduled intro meeting?\nYou will need to select a new time.")) {
-        
-        // 1. 모달 배경(검은색 반투명) 요소 찾기 또는 생성
-        let modalOverlay = document.getElementById('caspio-cancel-modal');
-        
-        if (!modalOverlay) {
-            modalOverlay = document.createElement('div');
-            modalOverlay.id = 'caspio-cancel-modal';
-            modalOverlay.style.cssText = 'position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:99999; display:flex; justify-content:center; align-items:center;';
+        if(confirm("Are you sure you want to cancel this scheduled intro meeting?\nYou will need to select a new time.")) {
             
-            // 2. 모달 하얀색 컨텐츠 박스 생성
-            const modalBox = document.createElement('div');
-            modalBox.style.cssText = 'background:white; padding:20px; border-radius:10px; width:90%; max-width:400px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); position:relative;';
+            let modalOverlay = document.getElementById('caspio-cancel-modal');
             
-            // 3. 닫기 & 새로고침 버튼 (X)
-            const closeBtn = document.createElement('button');
-            closeBtn.innerHTML = '✕ 닫기';
-            closeBtn.style.cssText = 'position:absolute; top:15px; right:15px; background:none; border:none; font-size:14px; font-weight:bold; cursor:pointer; color:#333;';
-            closeBtn.onclick = function() {
-                // 모달을 닫을 때 메인 화면을 새로고침하여 상태를 갱신합니다.
-                window.location.reload(); 
-            };
+            if (!modalOverlay) {
+                modalOverlay = document.createElement('div');
+                modalOverlay.id = 'caspio-cancel-modal';
+                modalOverlay.style.cssText = 'position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:99999; display:flex; justify-content:center; align-items:center;';
+                
+                const modalBox = document.createElement('div');
+                modalBox.style.cssText = 'background:white; padding:20px; border-radius:10px; width:90%; max-width:400px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); position:relative;';
+                
+                const closeBtn = document.createElement('button');
+                closeBtn.innerHTML = '✕ 닫기';
+                closeBtn.style.cssText = 'position:absolute; top:15px; right:15px; background:none; border:none; font-size:14px; font-weight:bold; cursor:pointer; color:#333;';
+                closeBtn.onclick = function() {
+                    window.location.reload(); 
+                };
+                
+                const iframe = document.createElement('iframe');
+                iframe.id = 'caspio-cancel-iframe';
+                iframe.style.cssText = 'width:100%; height:250px; border:none; margin-top:20px;';
+                
+                modalBox.appendChild(closeBtn);
+                modalBox.appendChild(iframe);
+                modalOverlay.appendChild(modalBox);
+                document.body.appendChild(modalOverlay);
+            }
+    
+            const iframe = document.getElementById('caspio-cancel-iframe');
             
-            // 4. Caspio 폼을 담을 iframe 생성
-            const iframe = document.createElement('iframe');
-            iframe.id = 'caspio-cancel-iframe';
-            // 스크롤바 없이 폼 높이에 맞춤 (필요시 height 조절)
-            iframe.style.cssText = 'width:100%; height:250px; border:none; margin-top:20px;';
+            iframe.src = 'https://c0abr823.caspio.com/dp/1c9f500031b33de40972480b8bf3?Match_ID=' + encodeURIComponent(matchId) + '&clear_data=true';
             
-            // DOM 조립
-            modalBox.appendChild(closeBtn);
-            modalBox.appendChild(iframe);
-            modalOverlay.appendChild(modalBox);
-            document.body.appendChild(modalOverlay);
+            modalOverlay.style.display = 'flex';
         }
-
-        // 5. 파라미터 전달 및 모달 띄우기
-        const iframe = document.getElementById('caspio-cancel-iframe');
-        
-        // 말씀하신 Match_ID와 추가 파라미터(clear_data 등)를 URL에 실어서 보냅니다.
-        // /emb 대신 원래 DataPage URL을 사용해야 iframe 안에서 정상 작동합니다.
-        iframe.src = 'https://c0abr823.caspio.com/dp/1c9f500031b33de40972480b8bf3?Match_ID=' + encodeURIComponent(matchId) + '&clear_data=true';
-        
-        // 숨겨져 있던 모달을 보이게 처리
-        modalOverlay.style.display = 'flex';
     }
-}
         
     loadMatches();
 
     document.addEventListener('FormSubmitted', function(event) {
-        if (isCanceling) {
-            setTimeout(() => {
-                window.location.reload();
-            }, 500); 
-            isCanceling = false; 
-        } else {
-            window.location.reload();
-        }
+        window.location.reload();
     });
         
     </script>
