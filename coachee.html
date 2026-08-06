@@ -722,8 +722,11 @@
                 document.body.appendChild(container);
             }
             
-            alert("The meeting has been cancelled. Please log a new schedule when ready.");
-            window.location.reload();
+            container.innerHTML = '';
+            const script = document.createElement('script');
+            script.type = 'text/javascript';
+            script.src = 'https://c0abr823.caspio.com/dp/1c9f500031b33de40972480b8bf3/emb?match_ID=' + encodeURIComponent(matchId);
+            container.appendChild(script);
         }
     }
         
