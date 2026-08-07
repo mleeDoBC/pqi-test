@@ -730,7 +730,7 @@
             container.innerHTML = ''; 
             const script = document.createElement('script');
             script.type = 'text/javascript';
-            script.src = REMATCH_DP_URL + '/emb?Match_ID=' + encodeURIComponent(matchId);
+            script.src = REMATCH_DP_URL + '/emb?Match_ID=' + encodeURIComponent(matchId) + '&Status=Rematch%20Requested';
             container.appendChild(script);
         }, 100);
     }
@@ -772,6 +772,67 @@
         window.location.reload(); 
     }
 
+    const CANCEL_APP_DP_URL = 'https://c0abr823.caspio.com/dp/새로만든_취소_DP_아이디';
+
+    function cancelApplication(matchId) {
+        if(!confirm("Are you absolutely sure you want to cancel your entire application?\nThis will end the coaching process completely.")) return;
+        
+        isRematching = false; 
+        
+        const modal = document.getElementById('cancel-app-modal');
+        const container = document.getElementById('cancel-app-container');
+
+        container.innerHTML = '<div class="text-center py-10 text-slate-400 text-xs font-bold uppercase tracking-widest"><i class="fas fa-spinner fa-spin mr-2"></i>Processing...</div>';
+        modal.classList.remove('hidden');
+        
+        setTimeout(() => {
+            container.innerHTML = ''; 
+            const script = document.createElement('script');
+            script.type = 'text/javascript';
+            script.src = CANCEL_APP_DP_URL + '/emb?Match_ID=' + encodeURIComponent(matchId) + '&Status=Cancelled';
+            container.appendChild(script);
+        }, 100);
+    }
+
+    function closeCancelAppModal() {
+        const modal = document.getElementById('cancel-app-modal');
+        const container = document.getElementById('cancel-app-container');
+        if (modal) modal.classList.add('hidden');
+        if (container) container.innerHTML = '';
+        window.location.reload(); 
+    }
+
+    document.addEventListener('FormSubmitted', function(event) {
+        console.log('[Caspio] FormSubmitted');
+        window.__caspioSubmitted = true;
+
+        closeLogMeetingModal();
+        
+        const rematchModal = document.getElementById('rematch-modal');
+        if (rematchModal) rematchModal.classList.add('hidden');
+        
+        const cancelAppModal = document.getElementById('cancel-app-modal');
+        if (cancelAppModal) cancelAppModal.classList.add('hidden');
+
+        if (isRematching) {
+            showBusyOverlay('Redirecting to Coach List...');
+        } else {
+            showBusyOverlay('Saving...');
+        }
+        
+        setTimeout(function () { 
+            if (isRematching) {
+                const currentUid = uid || sessionStorage.getItem('uid') || '';
+                const currentName = coacheeName || sessionStorage.getItem('name') || '';
+                window.location.href = 'coach_list.html?uid=' + encodeURIComponent(currentUid) 
+                                     + '&name=' + encodeURIComponent(currentName) 
+                                     + '&App_ID=' + encodeURIComponent(currentRematchAppId);
+            } else {
+                window.location.reload(); 
+            }
+        }, 1200);
+    });
+        
     const CANCEL_DP_URL = 'https://c0abr823.caspio.com/dp/1c9f500031b33de40972480b8bf3';
 
     window.__caspioSubmitted = false;
@@ -857,6 +918,20 @@
             <div class="w-full bg-white p-8 min-h-[250px]" id="rematch-container"></div>
         </div>
     </div>
-    
+
+    <div id="cancel-app-modal" class="hidden fixed inset-0 z-[9999] bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 fade-in">
+        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-md flex flex-col">
+            <div class="flex justify-between items-center p-6 border-b border-red-100 bg-red-50 rounded-t-3xl">
+                <div>
+                    <h3 class="text-lg font-black italic text-red-600 uppercase">Cancel Application</h3>
+                    <p class="text-[9px] text-red-400 font-bold uppercase tracking-widest mt-1">This action cannot be undone</p>
+                </div>
+                <button onclick="closeCancelAppModal()" class="text-slate-400 hover:text-red-600 transition-colors w-8 h-8 flex items-center justify-center rounded-full hover:bg-white">
+                    <i class="fas fa-times text-lg"></i>
+                </button>
+            </div>
+            <div class="w-full bg-white p-8 min-h-[150px]" id="cancel-app-container"></div>
+        </div>
+    </div>
 </body>
 </html>
