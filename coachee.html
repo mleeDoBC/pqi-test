@@ -377,7 +377,7 @@
 
         const dashboardMatches = matches.filter(m => {
             const status = m.status ? m.status.trim() : '';
-            return status !== 'Completed' && status !== 'Cancelled' && status !== 'Archived';
+            return status !== 'Completed' && status !== 'Cancelled' && status !== 'Archived' && status !== 'Rematch Requested';
         });
         
         dashboardList.innerHTML = dashboardMatches.length > 0 
