@@ -811,37 +811,6 @@
         if (container) container.innerHTML = '';
         window.location.reload(); 
     }
-
-    document.addEventListener('FormSubmitted', function(event) {
-        console.log('[Caspio] FormSubmitted');
-        window.__caspioSubmitted = true;
-
-        closeLogMeetingModal();
-        
-        const rematchModal = document.getElementById('rematch-modal');
-        if (rematchModal) rematchModal.classList.add('hidden');
-        
-        const cancelAppModal = document.getElementById('cancel-app-modal');
-        if (cancelAppModal) cancelAppModal.classList.add('hidden');
-
-        if (isRematching) {
-            showBusyOverlay('Redirecting to Coach List...');
-        } else {
-            showBusyOverlay('Saving...');
-        }
-        
-        setTimeout(function () { 
-            if (isRematching) {
-                const currentUid = uid || sessionStorage.getItem('uid') || '';
-                const currentName = coacheeName || sessionStorage.getItem('name') || '';
-                window.location.href = 'coach_list.html?uid=' + encodeURIComponent(currentUid) 
-                                     + '&name=' + encodeURIComponent(currentName) 
-                                     + '&App_ID=' + encodeURIComponent(currentRematchAppId);
-            } else {
-                window.location.reload(); 
-            }
-        }, 1200);
-    });
         
     const CANCEL_DP_URL = 'https://c0abr823.caspio.com/dp/1c9f500031b33de40972480b8bf3';
 
