@@ -704,10 +704,21 @@
         if (container) container.innerHTML = '';
     }
 
-    const REMATCH_DP_URL = 'https://c0abr823.caspio.com/dp/1c9f5000460ea4e138b44c17ade3'; 
+    let isRematching = false;
+    let currentRematchAppId = '';
+    const REMATCH_DP_URL = 'https://c0abr823.caspio.com/dp/1c9f5000460ea4e138b44c17ade3';
 
     function requestRematch(matchId) {
+        const project = window.cachedMatches.find(m => m.matchId === matchId);
+        if (!project) {
+            alert("Project details not found.");
+            return;
+        }
+
         if(!confirm("Would you like to explore other coaches?\nYour current match will be cancelled.")) return;
+        
+        isRematching = true;
+        currentRematchAppId = project.applicationId; 
         
         const modal = document.getElementById('rematch-modal');
         const container = document.getElementById('rematch-container');
@@ -723,6 +734,33 @@
             container.appendChild(script);
         }, 100);
     }
+
+    document.addEventListener('FormSubmitted', function(event) {
+        console.log('[Caspio] FormSubmitted');
+        window.__caspioSubmitted = true;
+
+        closeLogMeetingModal();
+        const rematchModal = document.getElementById('rematch-modal');
+        if (rematchModal) rematchModal.classList.add('hidden');
+
+        if (isRematching) {
+            showBusyOverlay('Redirecting to Coach List...');
+        } else {
+            showBusyOverlay('Saving...');
+        }
+        
+        setTimeout(function () { 
+            if (isRematching) {
+                const currentUid = uid || sessionStorage.getItem('uid') || '';
+                const currentName = coacheeName || sessionStorage.getItem('name') || '';
+                window.location.href = 'coach_list.html?uid=' + encodeURIComponent(currentUid) 
+                                     + '&name=' + encodeURIComponent(currentName) 
+                                     + '&App_ID=' + encodeURIComponent(currentRematchAppId);
+            } else {
+                window.location.reload(); 
+            }
+        }, 1200);
+    });
 
     function closeRematchModal() {
         const modal = document.getElementById('rematch-modal');
@@ -783,16 +821,6 @@
     }
 
     loadMatches();
-
-    document.addEventListener('FormSubmitted', function(event) {
-        console.log('[Caspio] FormSubmitted');
-        window.__caspioSubmitted = true;
-
-        closeLogMeetingModal();
-        showBusyOverlay('Saving...');
-        
-        setTimeout(function () { window.location.reload(); }, 1200);
-    });
         
     </script>
 
