@@ -595,18 +595,18 @@
                                         `}
                                     </div>
 
-                                    <div class="bg-slate-50 border border-slate-200 rounded-2xl p-5 ${!project.introDate ? 'opacity-50 pointer-events-none' : ''}">
+                                    <div class="bg-slate-50 border border-slate-200 rounded-2xl p-5">
                                         <span class="text-[9px] font-black text-slate-500 uppercase tracking-widest block mb-2"><i class="fas fa-file-signature mr-1"></i> Step 2: Official Match</span>
-                                        <p class="text-[10px] text-slate-500 mb-4 leading-relaxed">Had your intro call? If you'd like to proceed with Dr. ${project.coachLast}, confirm your match below. If not, you can request a new coach.</p>
+                                        <p class="text-[10px] text-slate-500 mb-4 leading-relaxed">If you'd like to proceed with Dr. ${project.coachLast}, please have your intro call first. Or, you can request a new coach anytime.</p>
                                         
                                         <div class="flex flex-col gap-2">
                                             <button onclick="openCoacheeSignModal('${project.matchId}')" 
-                                                    class="w-full bg-slate-800 text-white py-3.5 rounded-xl font-black text-[9px] uppercase tracking-widest shadow-sm hover:bg-slate-700 transition" ${!project.introDate ? 'disabled' : ''}>
+                                                    class="w-full bg-slate-800 text-white py-3.5 rounded-xl font-black text-[9px] uppercase tracking-widest shadow-sm hover:bg-slate-700 transition disabled:opacity-50 disabled:cursor-not-allowed" ${!project.introDate ? 'disabled' : ''}>
                                                 <i class="fas fa-check-circle mr-1"></i> I choose this Coach & Sign T&C
                                             </button>
                                             
                                             <button onclick="requestRematch('${project.matchId}')" 
-                                                    class="w-full bg-white border border-slate-300 text-slate-500 py-3 rounded-xl font-black text-[9px] uppercase tracking-widest hover:bg-slate-100 hover:text-slate-700 transition" ${!project.introDate ? 'disabled' : ''}>
+                                                    class="w-full bg-white border border-slate-300 text-slate-500 py-3 rounded-xl font-black text-[9px] uppercase tracking-widest hover:bg-slate-100 hover:text-slate-700 transition">
                                                 <i class="fas fa-sync-alt mr-1"></i> Request Different Coach
                                             </button>
                                         </div>
