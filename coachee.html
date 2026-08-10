@@ -80,7 +80,7 @@
                 </header>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
-                    <div class="glass-card p-8 group hover:border-blue-500 transition-all cursor-pointer">
+                    <div id="notification-card" class="glass-card p-8 group hover:border-blue-500 transition-all cursor-pointer">
                         <span class="accent-text text-blue-600 block mb-4">Upcoming Session</span>
                         <div class="flex items-center gap-4">
                             <div class="text-center bg-slate-50 px-3 py-2 rounded-xl border border-slate-100">
@@ -386,6 +386,88 @@
 
         portfolioList.innerHTML = matches.map(createMatchCardHTML).join('');
     }
+
+    function updateNotificationCard(matches) {
+        const card = document.getElementById('notification-card');
+        if (!card) return;
+    
+        if (!matches || matches.length === 0) {
+            card.onclick = () => newProject();
+            card.innerHTML = `
+                <span class="accent-text text-blue-600 block mb-2">Get Started</span>
+                <h4 class="text-sm font-black italic text-slate-900 uppercase mb-1">Start Coaching Journey</h4>
+                <p class="text-[10px] text-slate-500 font-medium">Create a new project application to get matched with a coach.</p>
+            `;
+            return;
+        }
+    
+        const latest = matches.find(m => {
+            const s = (m.status || '').trim();
+            return s !== 'Completed' && s !== 'Cancelled' && s !== 'Archived';
+        }) || matches[0];
+    
+        const status = (latest.status || '').trim();
+        const coachName = (latest.coachFirst || latest.coachLast) ? `Dr. ${latest.coachFirst} ${latest.coachLast}` : 'Assigned Coach';
+    
+        if (status === 'Pending') {
+            card.onclick = () => showProjectDetail(latest.matchId);
+            card.innerHTML = `
+                <span class="accent-text text-amber-500 block mb-2"><i class="fas fa-hourglass-half mr-1"></i> Review Phase</span>
+                <h4 class="text-sm font-black italic text-slate-900 uppercase mb-1">Application Pending</h4>
+                <p class="text-[10px] text-slate-500 font-medium">Reviewing your project. You will be notified once matched.</p>
+            `;
+        } 
+        else if (!latest.introDate && !latest.coacheeSignedDate) {
+            card.onclick = () => showProjectDetail(latest.matchId);
+            card.innerHTML = `
+                <span class="accent-text text-blue-600 block mb-2"><i class="fas fa-calendar-alt mr-1"></i> Action Required</span>
+                <h4 class="text-sm font-black italic text-slate-900 uppercase mb-1">Schedule Intro Call</h4>
+                <p class="text-[10px] text-slate-500 font-medium">Connect with ${coachName} to log your introductory meeting date.</p>
+            `;
+        } 
+        else if (latest.introDate && !latest.coacheeSignedDate) {
+            card.onclick = () => showProjectDetail(latest.matchId);
+            card.innerHTML = `
+                <span class="accent-text text-blue-600 block mb-2"><i class="fas fa-video mr-1"></i> Next Step: Intro Call</span>
+                <h4 class="text-sm font-black italic text-slate-900 uppercase mb-1">${latest.introDate} ${latest.introTime ? '· ' + latest.introTime : ''}</h4>
+                <p class="text-[10px] text-slate-500 font-medium">Intro meeting scheduled with ${coachName}.</p>
+            `;
+        } 
+        else if (!latest.coacheeSignedDate) {
+            card.onclick = () => showProjectDetail(latest.matchId);
+            card.innerHTML = `
+                <span class="accent-text text-emerald-600 block mb-2"><i class="fas fa-file-signature mr-1"></i> Final Action</span>
+                <h4 class="text-sm font-black italic text-slate-900 uppercase mb-1">Sign Agreement</h4>
+                <p class="text-[10px] text-slate-500 font-medium">Sign Terms & Conditions to confirm your match with ${coachName}.</p>
+            `;
+        } 
+        else if (latest.coacheeSignedDate && !latest.coachSignedDate) {
+            card.onclick = () => showProjectDetail(latest.matchId);
+            card.innerHTML = `
+                <span class="accent-text text-slate-500 block mb-2"><i class="fas fa-clock mr-1"></i> Waiting for Coach</span>
+                <h4 class="text-sm font-black italic text-slate-900 uppercase mb-1">Agreement Signed</h4>
+                <p class="text-[10px] text-slate-500 font-medium">Waiting for ${coachName} to complete final sign-off.</p>
+            `;
+        } 
+        else if (status === 'Active') {
+            const meetingUrl = 'meeting.html?match_id=' + encodeURIComponent(latest.matchId)
+                + '&role=Coachee&uid=' + encodeURIComponent(uid || sessionStorage.getItem('uid') || '')
+                + '&coachee_uid=' + encodeURIComponent(latest.coacheeId)
+                + '&coach_uid=' + encodeURIComponent(latest.coachId)
+                + '&name=' + encodeURIComponent(coacheeName || sessionStorage.getItem('name') || '')
+                + '&coachee_name=' + encodeURIComponent(latest.coacheeFirst + ' ' + latest.coacheeLast)
+                + '&project_title=' + encodeURIComponent(latest.appTitle || '')
+                + '&problem=' + encodeURIComponent(latest.appProblem || '')
+                + '&about=' + encodeURIComponent(latest.coacheeAbout || '');
+    
+            card.onclick = () => window.location.href = meetingUrl;
+            card.innerHTML = `
+                <span class="accent-text text-emerald-500 block mb-2"><i class="fas fa-check-circle mr-1"></i> Workspace Active</span>
+                <h4 class="text-sm font-black italic text-slate-900 uppercase mb-1">Enter Live Session Mode</h4>
+                <p class="text-[10px] text-slate-500 font-medium">Click to enter collaborative workspace with ${coachName}.</p>
+            `;
+        }
+    }
         
     function showNoMatches() {
         document.getElementById('matches-list').innerHTML = '<p class="text-center py-8 text-slate-400 text-xs font-bold uppercase tracking-widest">No active projects yet.</p>';
@@ -532,7 +614,6 @@
                                 </div>
                             </div>
                             
-                            <!-- 🟢 새롭게 추가되는 어플리케이션 전체 취소 버튼 -->
                             <div class="mt-8 pt-6 border-t border-slate-200">
                                 <button onclick="cancelApplication('${project.matchId}')" class="text-[10px] font-black text-red-500 uppercase tracking-widest hover:text-red-700 transition flex items-center gap-2">
                                     <i class="fas fa-trash-alt"></i> Cancel Entire Application
@@ -646,7 +727,6 @@
                                     </button>
                                     
                                     <div id="coach-profile-details" class="mt-4 space-y-4">
-                                        <!-- (기존 프로필 내용과 동일) -->
                                         <div>
                                             <span class="text-[8px] font-black text-slate-400 uppercase tracking-tighter block mb-1">Coaching Bio</span>
                                             <p class="text-[11px] text-slate-600 font-medium leading-relaxed italic">"${project.coachAbout || 'No custom bio provided.'}"</p>
