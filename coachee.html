@@ -942,8 +942,9 @@
     </div>
 
     <div id="coachee-sign-modal" class="hidden fixed inset-0 z-[9999] bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 fade-in">
-        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-md flex flex-col">
-            <div class="flex justify-between items-center p-6 border-b border-slate-100 bg-slate-50">
+        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-2xl flex flex-col max-h-[90vh] overflow-hidden">
+            
+            <div class="flex justify-between items-center p-6 border-b border-slate-100 bg-slate-50 shrink-0">
                 <div>
                     <h3 class="text-lg font-black italic text-slate-900 uppercase">Confirm Match</h3>
                     <p class="text-[9px] text-slate-500 font-bold uppercase tracking-widest mt-1">Sign Terms & Conditions</p>
@@ -952,7 +953,9 @@
                     <i class="fas fa-times text-lg"></i>
                 </button>
             </div>
-            <div class="w-full bg-white p-8 min-h-[200px]" id="coachee-sign-container"></div>
+            
+            <div class="w-full bg-white p-8 overflow-y-auto max-h-[75vh]" id="coachee-sign-container"></div>
+            
         </div>
     </div>
 </body>
