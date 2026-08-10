@@ -438,6 +438,8 @@
             : `<div class="w-16 h-16 rounded-2xl bg-blue-600 flex items-center justify-center text-white font-black italic text-xl shadow-sm tracking-tighter">${coachInitials}</div>`;
 
         const meetingUrl = 'meeting.html?match_id=' + encodeURIComponent(project.matchId)
+            + '&role=Coachee'
+            + '&uid=' + encodeURIComponent(uid || sessionStorage.getItem('uid') || '')
             + '&coachee_uid=' + encodeURIComponent(project.coacheeId)
             + '&coach_uid=' + encodeURIComponent(project.coachId)
             + '&name=' + encodeURIComponent(coacheeName || sessionStorage.getItem('name') || '')
