@@ -391,25 +391,25 @@
     function updateNotificationCard(matches) {
         const card = document.getElementById('notification-card');
         if (!card) return;
-    
+
         if (!matches || matches.length === 0) {
             card.onclick = () => newProject();
             card.innerHTML = `
-                <span class="accent-text text-blue-600 block mb-2">Get Started</span>
+                <span class="accent-text text-blue-600 block mb-2"><i class="fas fa-rocket mr-1"></i> Get Started</span>
                 <h4 class="text-sm font-black italic text-slate-900 uppercase mb-1">Start Coaching Journey</h4>
                 <p class="text-[10px] text-slate-500 font-medium">Create a new project application to get matched with a coach.</p>
             `;
             return;
         }
-    
+
         const latest = matches.find(m => {
             const s = (m.status || '').trim();
             return s !== 'Completed' && s !== 'Cancelled' && s !== 'Archived';
         }) || matches[0];
-    
+
         const status = (latest.status || '').trim();
         const coachName = (latest.coachFirst || latest.coachLast) ? `Dr. ${latest.coachFirst} ${latest.coachLast}` : 'Assigned Coach';
-    
+
         if (status === 'Pending') {
             card.onclick = () => showProjectDetail(latest.matchId);
             card.innerHTML = `
@@ -431,15 +431,7 @@
             card.innerHTML = `
                 <span class="accent-text text-blue-600 block mb-2"><i class="fas fa-video mr-1"></i> Next Step: Intro Call</span>
                 <h4 class="text-sm font-black italic text-slate-900 uppercase mb-1">${latest.introDate} ${latest.introTime ? '· ' + latest.introTime : ''}</h4>
-                <p class="text-[10px] text-slate-500 font-medium">Intro meeting scheduled with ${coachName}.</p>
-            `;
-        } 
-        else if (!latest.coacheeSignedDate) {
-            card.onclick = () => showProjectDetail(latest.matchId);
-            card.innerHTML = `
-                <span class="accent-text text-emerald-600 block mb-2"><i class="fas fa-file-signature mr-1"></i> Final Action</span>
-                <h4 class="text-sm font-black italic text-slate-900 uppercase mb-1">Sign Agreement</h4>
-                <p class="text-[10px] text-slate-500 font-medium">Sign Terms & Conditions to confirm your match with ${coachName}.</p>
+                <p class="text-[10px] text-slate-500 font-medium">Intro call scheduled with ${coachName}. Sign agreement after the call.</p>
             `;
         } 
         else if (latest.coacheeSignedDate && !latest.coachSignedDate) {
@@ -450,7 +442,7 @@
                 <p class="text-[10px] text-slate-500 font-medium">Waiting for ${coachName} to complete final sign-off.</p>
             `;
         } 
-        else if (status === 'Active') {
+        else if (status === 'Active' || (latest.coacheeSignedDate && latest.coachSignedDate)) {
             const meetingUrl = 'meeting.html?match_id=' + encodeURIComponent(latest.matchId)
                 + '&role=Coachee&uid=' + encodeURIComponent(uid || sessionStorage.getItem('uid') || '')
                 + '&coachee_uid=' + encodeURIComponent(latest.coacheeId)
@@ -460,12 +452,12 @@
                 + '&project_title=' + encodeURIComponent(latest.appTitle || '')
                 + '&problem=' + encodeURIComponent(latest.appProblem || '')
                 + '&about=' + encodeURIComponent(latest.coacheeAbout || '');
-    
+
             card.onclick = () => window.location.href = meetingUrl;
             card.innerHTML = `
                 <span class="accent-text text-emerald-500 block mb-2"><i class="fas fa-check-circle mr-1"></i> Workspace Active</span>
-                <h4 class="text-sm font-black italic text-slate-900 uppercase mb-1">Enter Live Session Mode</h4>
-                <p class="text-[10px] text-slate-500 font-medium">Click to enter collaborative workspace with ${coachName}.</p>
+                <h4 class="text-sm font-black italic text-slate-900 uppercase mb-1">Enter Live Workspace</h4>
+                <p class="text-[10px] text-slate-500 font-medium">Click to enter collaborative meeting workspace with ${coachName}.</p>
             `;
         }
     }
