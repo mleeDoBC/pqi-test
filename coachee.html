@@ -861,29 +861,43 @@
     }
 
     const COACHEE_SIGN_DP_URL = 'https://c0abr823.caspio.com/dp/1c9f5000738a635cc77d4c85a2c7';
-        
+    let coacheeSignObserver = null;
+
     function openCoacheeSignModal(matchId, coachFullName) {
         isRematching = false; 
         
         const modal = document.getElementById('coachee-sign-modal');
         const container = document.getElementById('coachee-sign-container');
 
-        container.innerHTML = '<div class="text-center py-10 text-slate-400 text-xs font-bold uppercase tracking-widest"><i class="fas fa-spinner fa-spin mr-2"></i>Loading Form...</div>';
+        // 스피너는 지우지 않고 그대로 둔 채 Caspio script를 옆에 삽입 → 폼이 실제로 그려지는 순간에만 제거
+        container.innerHTML = '<div id="coachee-sign-spinner" class="text-center py-10 text-slate-400 text-xs font-bold uppercase tracking-widest"><i class="fas fa-spinner fa-spin mr-2"></i>Loading Form...</div>';
         modal.classList.remove('hidden');
-        
-        setTimeout(() => {
-            container.innerHTML = ''; 
-            const script = document.createElement('script');
-            script.type = 'text/javascript';
-            script.src = COACHEE_SIGN_DP_URL + '/emb?Match_ID=' + encodeURIComponent(matchId) 
-                       + '&Coach_Name=' + encodeURIComponent(coachFullName);
-            container.appendChild(script);
-        }, 100);
+
+        if (coacheeSignObserver) coacheeSignObserver.disconnect();
+        coacheeSignObserver = new MutationObserver(() => {
+            const spinner = document.getElementById('coachee-sign-spinner');
+            const hasContent = Array.from(container.children).some(
+                el => el.id !== 'coachee-sign-spinner' && el.tagName !== 'SCRIPT'
+            );
+            if (hasContent) {
+                if (spinner) spinner.remove();
+                coacheeSignObserver.disconnect();
+                coacheeSignObserver = null;
+            }
+        });
+        coacheeSignObserver.observe(container, { childList: true, subtree: true });
+
+        const script = document.createElement('script');
+        script.type = 'text/javascript';
+        script.src = COACHEE_SIGN_DP_URL + '/emb?Match_ID=' + encodeURIComponent(matchId) 
+                   + '&Coach_Name=' + encodeURIComponent(coachFullName);
+        container.appendChild(script);
     }
 
     function closeCoacheeSignModal() {
         const modal = document.getElementById('coachee-sign-modal');
         const container = document.getElementById('coachee-sign-container');
+        if (coacheeSignObserver) { coacheeSignObserver.disconnect(); coacheeSignObserver = null; }
         if (modal) modal.classList.add('hidden');
         if (container) container.innerHTML = '';
     }
@@ -984,7 +998,7 @@
                 </button>
             </div>
             
-            <div class="w-full bg-white p-8 overflow-y-auto overflow-x-hidden max-h-[75vh]" id="coachee-sign-container"></div>
+            <div class="w-full bg-white p-8 overflow-y-auto overflow-x-hidden max-h-[75vh] min-h-[300px]" id="coachee-sign-container"></div>
             
         </div>
     </div>
