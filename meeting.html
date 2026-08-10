@@ -132,19 +132,24 @@
 
 <script>
     // ── URL Params ───────────────────────────────────────────
-    const params      = new URLSearchParams(window.location.search);
-    const matchId     = params.get('match_id') || sessionStorage.getItem('match_id') || '';
-    const sessionId   = params.get('session_id') || sessionStorage.getItem('session_id') || '';
-    const coacheeUid  = params.get('coachee_uid') || sessionStorage.getItem('coachee_uid') || '';
-    const coachUid    = params.get('coach_uid') || sessionStorage.getItem('coach_uid') || '';
-    const coacheeName = params.get('coachee_name') || sessionStorage.getItem('coachee_name') || '';
+    // ── URL Params ───────────────────────────────────────────
+    const params       = new URLSearchParams(window.location.search);
+    const matchId      = params.get('match_id') || sessionStorage.getItem('match_id') || '';
+    const sessionId    = params.get('session_id') || sessionStorage.getItem('session_id') || '';
+    const coacheeUid   = params.get('coachee_uid') || sessionStorage.getItem('coachee_uid') || '';
+    const coachUid     = params.get('coach_uid') || sessionStorage.getItem('coach_uid') || '';
+    const coacheeName  = params.get('coachee_name') || sessionStorage.getItem('coachee_name') || '';
     const projectTitle = params.get('project_title') || sessionStorage.getItem('project_title') || '';
-    const myName      = params.get('name') || sessionStorage.getItem('name') || '';
-    const myUid       = coachUid || sessionStorage.getItem('uid') || '';
+    const myName       = params.get('name') || sessionStorage.getItem('name') || '';
     const problemParam = params.get('problem') || sessionStorage.getItem('problem') || '';
     const aboutParam   = params.get('about') || sessionStorage.getItem('about') || '';
 
+    const role         = params.get('role') || sessionStorage.getItem('role') || 'Coach';
+    const myUid        = params.get('uid') || (role === 'Coachee' ? coacheeUid : coachUid) || sessionStorage.getItem('uid') || '';
+
     // Save all params to sessionStorage for after redirect
+    if (role) sessionStorage.setItem('role', role);
+    if (myUid) sessionStorage.setItem('uid', myUid);
     if (matchId) sessionStorage.setItem('match_id', matchId);
     if (sessionId) sessionStorage.setItem('session_id', sessionId);
     if (coacheeUid) sessionStorage.setItem('coachee_uid', coacheeUid);
@@ -163,7 +168,8 @@
     }
 
     function goBack() {
-        const page = sessionStorage.getItem('role') === 'Coachee' ? 'coachee.html' : 'coach.html';
+        const currentRole = params.get('role') || sessionStorage.getItem('role');
+        const page = currentRole === 'Coachee' ? 'coachee.html' : 'coach.html';
         window.location.href = page + '?uid=' + encodeURIComponent(myUid) + '&name=' + encodeURIComponent(myName);
     }
 
