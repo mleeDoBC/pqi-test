@@ -941,19 +941,33 @@
         </div>
     </div>
 
-    <!-- 🟢 Caspio 강제 가로 스크롤 방지 및 줄바꿈 CSS -->
     <style>
+        #coachee-sign-container,
+        #coachee-sign-container * {
+            max-width: 100% !important;
+            min-width: 0 !important;
+            box-sizing: border-box !important;
+        }
+        #coachee-sign-container form,
+        #coachee-sign-container section {
+            width: 100% !important;
+        }
         #coachee-sign-container table {
             width: 100% !important;
-            table-layout: fixed !important; /* 테이블이 바깥으로 뚫고 나가는 것을 원천 차단 */
+            table-layout: fixed !important; 
+        }
+        #coachee-sign-container input:not([type="checkbox"]):not([type="radio"]):not([type="submit"]):not([type="button"]),
+        #coachee-sign-container textarea,
+        #coachee-sign-container select {
+            width: 100% !important;
         }
         #coachee-sign-container td, 
         #coachee-sign-container p, 
         #coachee-sign-container span,
         #coachee-sign-container div {
-            white-space: normal !important; /* 글자가 한 줄로 쭉 이어지는 것을 해제 */
+            white-space: normal !important; 
             word-wrap: break-word !important;
-            word-break: break-word !important; /* 박스 끝에 닿으면 무조건 줄바꿈 */
+            word-break: break-word !important; 
         }
     </style>
 
