@@ -941,6 +941,22 @@
         </div>
     </div>
 
+    <!-- 🟢 Caspio 강제 가로 스크롤 방지 및 줄바꿈 CSS -->
+    <style>
+        #coachee-sign-container table {
+            width: 100% !important;
+            table-layout: fixed !important; /* 테이블이 바깥으로 뚫고 나가는 것을 원천 차단 */
+        }
+        #coachee-sign-container td, 
+        #coachee-sign-container p, 
+        #coachee-sign-container span,
+        #coachee-sign-container div {
+            white-space: normal !important; /* 글자가 한 줄로 쭉 이어지는 것을 해제 */
+            word-wrap: break-word !important;
+            word-break: break-word !important; /* 박스 끝에 닿으면 무조건 줄바꿈 */
+        }
+    </style>
+
     <div id="coachee-sign-modal" class="hidden fixed inset-0 z-[9999] bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 fade-in">
         <div class="bg-white rounded-3xl shadow-2xl w-full max-w-2xl flex flex-col max-h-[90vh] overflow-hidden">
             
@@ -954,7 +970,7 @@
                 </button>
             </div>
             
-            <div class="w-full bg-white p-8 overflow-y-auto max-h-[75vh]" id="coachee-sign-container"></div>
+            <div class="w-full bg-white p-8 overflow-y-auto overflow-x-hidden max-h-[75vh]" id="coachee-sign-container"></div>
             
         </div>
     </div>
