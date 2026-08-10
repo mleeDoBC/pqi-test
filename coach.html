@@ -192,6 +192,8 @@
         const currentName = coachName || sessionStorage.getItem('name') || '';
         
         const meetingUrl = 'meeting.html?match_id=' + encodeURIComponent(project.matchId)
+            + '&role=Coach'
+            + '&uid=' + encodeURIComponent(currentUid || '')
             + '&coachee_uid=' + encodeURIComponent(project.coacheeId)
             + '&coach_uid=' + encodeURIComponent(currentUid)
             + '&name=' + encodeURIComponent(currentName)
