@@ -272,7 +272,7 @@
         document.getElementById('start-btn').style.display = 'flex';
         document.getElementById('stop-btn').style.display = 'none';
         
-        saveSession({ timerStart: '' }); 
+        saveSession({ timerStart: '', status: 'Completed' }); 
 
         openSessionLogModal(currentSessionId, elapsedMins);
     }
@@ -387,6 +387,9 @@
 
     // ── Session ──────────────────────────────────────────────
     let currentSessionId = sessionId || '';
+    let sessionInsertDone = false; // hard guard: max ONE insert per page load
+
+    const SESSION_REPORT_URL = 'https://c0abr823.caspio.com/dp/1c9f50008d6578f1dda0494d85a7';
 
     function initSession() {
         // Always check for existing session first by match_id
@@ -394,54 +397,69 @@
         checkExistingSession(0);
     }
 
-    function checkExistingSession(tries) {
-        if (tries === 0) {
-            const container = document.getElementById('caspio-insert');
-            container.innerHTML = '';
-            const s = document.createElement('script');
-            s.src = 'https://c0abr823.caspio.com/dp/1c9f50008d6578f1dda0494d85a7/emb?match_id=' + encodeURIComponent(matchId) + '&cbCache=' + Date.now();
-            container.appendChild(s);
-        }
-        
-        const container = document.getElementById('caspio-insert');
-        const table = container.querySelector('table');
-        const textContent = container.textContent || ""; 
-
-        if (table) {
-            const rows = table.querySelectorAll('tr');
-            let found = false;
-            rows.forEach(row => {
-                const cells = row.querySelectorAll('td');
-                if (cells.length >= 3) {
-                    found = true;
-                    currentSessionId = getCellText(cells[0]);
-                    sessionStorage.setItem('session_id', currentSessionId);
-                    const agendaRaw = getCellText(cells[2]);
-                    try {
-                        const loaded = JSON.parse(agendaRaw);
-                        agendaItems = loaded.filter(item => !item.done);
-                    } catch(e) {
-                        agendaItems = [];
+    // Fetch the Active session row via HTTP (same reliable method as the 5s polling),
+    // instead of injecting an embed script and scraping a hidden div.
+    function fetchActiveSession() {
+        const url = SESSION_REPORT_URL + '?match_id=' + encodeURIComponent(matchId) + '&cbCache=' + Date.now();
+        return fetch(url)
+            .then(response => response.text())
+            .then(html => {
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+                const table = doc.querySelector('table');
+                if (!table) return null;
+                let result = null;
+                table.querySelectorAll('tr').forEach(row => {
+                    const cells = row.querySelectorAll('td');
+                    if (!result && cells.length >= 3) {
+                        result = {
+                            sessionId: getCellText(cells[0]),
+                            agendaRaw: getCellText(cells[2])
+                        };
                     }
-                    renderAgenda();
-                }
+                });
+                return result;
             });
-            
-            if (!found) {
-                createNewSession(); 
-            } else {
-                document.getElementById('sync-status').textContent = 'Live';
-            }
-        } else if (textContent.toLowerCase().includes('no record') || textContent.toLowerCase().includes('no data')) {
-            createNewSession();
-        } else if (tries < 40) {
-            setTimeout(() => checkExistingSession(tries + 1), 300);
-        } else {
-            createNewSession();
+    }
+
+    function adoptSession(found) {
+        currentSessionId = found.sessionId;
+        sessionStorage.setItem('session_id', currentSessionId);
+        try {
+            const loaded = JSON.parse(found.agendaRaw);
+            agendaItems = loaded.filter(item => !item.done);
+        } catch(e) {
+            agendaItems = [];
         }
+        renderAgenda();
+        document.getElementById('sync-status').textContent = 'Live';
+    }
+
+    function checkExistingSession(tries) {
+        fetchActiveSession().then(found => {
+            if (found && found.sessionId) {
+                adoptSession(found);
+            } else if (!sessionInsertDone) {
+                // No Active session and we haven't inserted yet → create exactly once
+                createNewSession();
+            } else if (tries < 10) {
+                // We already inserted; the row just hasn't appeared yet. Wait — NEVER insert again.
+                setTimeout(() => checkExistingSession(tries + 1), 1000);
+            } else {
+                document.getElementById('sync-status').textContent = 'Error';
+            }
+        }).catch(err => {
+            console.warn('Session check failed:', err);
+            if (tries < 10) {
+                setTimeout(() => checkExistingSession(tries + 1), 1000);
+            } else {
+                document.getElementById('sync-status').textContent = 'Offline';
+            }
+        });
     }
 
     function createNewSession() {
+        sessionInsertDone = true; // set BEFORE any async work — guarantees single insert
         document.getElementById('sync-status').textContent = 'Starting...';
         const container = document.getElementById('caspio-insert');
         container.innerHTML = '';
@@ -454,24 +472,29 @@
     function waitForInsertForm(tries) {
         const form = document.querySelector('#caspio-insert form');
         if (form) {
-            let matchField = document.getElementById('InsertRecordMatch_ID') || document.querySelector('input[name*="Match_ID"]');
+            let matchField = document.getElementById('InsertRecordMatch_ID') || document.querySelector('#caspio-insert input[name*="Match_ID"]');
             if (matchField) matchField.value = matchId;
 
-            let agendaField = document.getElementById('InsertRecordAgenda') || document.querySelector('input[name*="Agenda"]');
+            let agendaField = document.getElementById('InsertRecordAgenda') || document.querySelector('#caspio-insert input[name*="Agenda"]');
             if (agendaField) agendaField.value = '[]';
+
+            let statusField = document.getElementById('InsertRecordStatus') || document.querySelector('#caspio-insert select[name*="Status"], #caspio-insert input[name*="Status"]');
+            if (statusField) statusField.value = 'Active';
 
             form.target = 'caspio-update-frame';
             
             document.getElementById('caspio-update-frame').onload = function() {
                 document.getElementById('caspio-update-frame').onload = null; 
                 setTimeout(() => {
-                    checkExistingSession(0); 
+                    checkExistingSession(1); // re-check only; sessionInsertDone blocks re-insert
                 }, 1000);
             };
             
             form.submit();
         } else if (tries < 30) {
             setTimeout(() => waitForInsertForm(tries + 1), 300);
+        } else {
+            document.getElementById('sync-status').textContent = 'Error';
         }
     }
 
@@ -514,6 +537,10 @@
             if (data.timerStart !== undefined) {
                 const f = document.getElementById('EditRecordTimer_Start');
                 if (f) f.value = data.timerStart;
+            }
+            if (data.status !== undefined) {
+                const f = document.getElementById('EditRecordStatus') || document.querySelector('#caspio-update select[name*="Status"], #caspio-update input[name*="Status"]');
+                if (f) f.value = data.status;
             }
 
             // Target hidden iframe so main page doesn't reload
