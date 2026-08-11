@@ -388,65 +388,96 @@
     // ── Session ──────────────────────────────────────────────
     let currentSessionId = sessionId || '';
     let sessionInsertDone = false; // hard guard: max ONE insert per page load
+    let generatedSessionId = null; // client-generated ID (used if insert form has a Session_ID field)
 
     const SESSION_REPORT_URL = 'https://c0abr823.caspio.com/dp/1c9f50008d6578f1dda0494d85a7';
 
     function initSession() {
-        // Always check for existing session first by match_id
+        // 1) If we already know our session (URL param or sessionStorage), use it — no re-check, no re-insert
+        if (currentSessionId) {
+            document.getElementById('sync-status').textContent = 'Live';
+            // Best-effort agenda load; never creates anything
+            fetchActiveSession().then(found => {
+                if (found && found.agendaRaw) {
+                    try {
+                        const loaded = JSON.parse(found.agendaRaw);
+                        agendaItems = loaded.filter(item => !item.done);
+                        renderAgenda();
+                    } catch(e) {}
+                }
+            }).catch(() => {});
+            return;
+        }
         document.getElementById('sync-status').textContent = 'Loading...';
         checkExistingSession(0);
     }
 
-    // Fetch the Active session row via HTTP (same reliable method as the 5s polling),
-    // instead of injecting an embed script and scraping a hidden div.
+    // Fetch the Active session row via HTTP. Tries both param spellings and logs diagnostics.
     function fetchActiveSession() {
-        const url = SESSION_REPORT_URL + '?match_id=' + encodeURIComponent(matchId) + '&cbCache=' + Date.now();
+        return fetchSessionReport('match_id').then(found => {
+            if (found) return found;
+            return fetchSessionReport('Match_ID');
+        });
+    }
+
+    function fetchSessionReport(paramName) {
+        const url = SESSION_REPORT_URL + '?' + paramName + '=' + encodeURIComponent(matchId) + '&cbCache=' + Date.now();
         return fetch(url)
             .then(response => response.text())
             .then(html => {
                 const parser = new DOMParser();
                 const doc = parser.parseFromString(html, 'text/html');
-                const table = doc.querySelector('table');
-                if (!table) return null;
+                const tables = doc.querySelectorAll('table');
                 let result = null;
-                table.querySelectorAll('tr').forEach(row => {
-                    const cells = row.querySelectorAll('td');
-                    if (!result && cells.length >= 3) {
-                        result = {
-                            sessionId: getCellText(cells[0]),
-                            agendaRaw: getCellText(cells[2])
-                        };
-                    }
+                tables.forEach(table => {
+                    table.querySelectorAll('tr').forEach(row => {
+                        const cells = row.querySelectorAll('td');
+                        if (!result && cells.length >= 3) {
+                            result = {
+                                sessionId: getCellText(cells[0]),
+                                agendaRaw: getCellText(cells[2])
+                            };
+                        }
+                    });
                 });
+                // ── Diagnostics: check DevTools console to see what the report actually returns
+                const bodyText = (doc.body ? doc.body.textContent : '').replace(/\s+/g, ' ').trim();
+                console.log('[session-report]', paramName, '| tables:', tables.length,
+                    '| hasForm:', !!doc.querySelector('form'),
+                    '| result:', result,
+                    '| text:', bodyText.slice(0, 300));
                 return result;
             });
     }
 
-    function adoptSession(found) {
-        currentSessionId = found.sessionId;
+    function adoptSession(sid, agendaRaw) {
+        currentSessionId = sid;
         sessionStorage.setItem('session_id', currentSessionId);
-        try {
-            const loaded = JSON.parse(found.agendaRaw);
-            agendaItems = loaded.filter(item => !item.done);
-        } catch(e) {
-            agendaItems = [];
+        if (agendaRaw !== undefined && agendaRaw !== null) {
+            try {
+                const loaded = JSON.parse(agendaRaw);
+                agendaItems = loaded.filter(item => !item.done);
+            } catch(e) {
+                agendaItems = [];
+            }
+            renderAgenda();
         }
-        renderAgenda();
         document.getElementById('sync-status').textContent = 'Live';
     }
 
     function checkExistingSession(tries) {
         fetchActiveSession().then(found => {
             if (found && found.sessionId) {
-                adoptSession(found);
+                adoptSession(found.sessionId, found.agendaRaw);
             } else if (!sessionInsertDone) {
                 // No Active session and we haven't inserted yet → create exactly once
                 createNewSession();
             } else if (tries < 10) {
-                // We already inserted; the row just hasn't appeared yet. Wait — NEVER insert again.
+                // We already inserted; wait for the row to appear — NEVER insert again.
                 setTimeout(() => checkExistingSession(tries + 1), 1000);
             } else {
                 document.getElementById('sync-status').textContent = 'Error';
+                console.error('[session] Inserted a row but the report never returned it. Check the report DataPage config (parameter name, Status filter).');
             }
         }).catch(err => {
             console.warn('Session check failed:', err);
@@ -481,13 +512,27 @@
             let statusField = document.getElementById('InsertRecordStatus') || document.querySelector('#caspio-insert select[name*="Status"], #caspio-insert input[name*="Status"]');
             if (statusField) statusField.value = 'Active';
 
+            // If the insert form exposes a Session_ID field, generate the ID ourselves.
+            // Then we don't need to read anything back from the report.
+            let sidField = document.getElementById('InsertRecordSession_ID') || document.querySelector('#caspio-insert input[name*="Session_ID"]');
+            if (sidField) {
+                generatedSessionId = 'S' + Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+                sidField.value = generatedSessionId;
+            }
+            console.log('[session-insert] fields — match:', !!matchField, 'agenda:', !!agendaField, 'status:', !!statusField, 'session_id:', !!sidField);
+
             form.target = 'caspio-update-frame';
             
             document.getElementById('caspio-update-frame').onload = function() {
                 document.getElementById('caspio-update-frame').onload = null; 
-                setTimeout(() => {
-                    checkExistingSession(1); // re-check only; sessionInsertDone blocks re-insert
-                }, 1000);
+                if (generatedSessionId) {
+                    // We set the ID ourselves — adopt immediately, no report round-trip needed
+                    adoptSession(generatedSessionId, null);
+                } else {
+                    setTimeout(() => {
+                        checkExistingSession(1); // re-check only; sessionInsertDone blocks re-insert
+                    }, 1000);
+                }
             };
             
             form.submit();
