@@ -441,23 +441,39 @@
         const container = document.getElementById('caspio-insert');
         container.innerHTML = '';
         const s = document.createElement('script');
-        s.src = 'https://c0abr823.caspio.com/dp/1c9f500099edf2611dd64a8fa537/emb';
+        s.src = 'https://c0abr823.caspio.com/dp/1c9f500099edf2611dd64a8fa537/emb?Match_ID=' + encodeURIComponent(matchId);
         container.appendChild(s);
         waitForInsertForm(0);
     }
 
-
-
     function waitForInsertForm(tries) {
-        const matchField = document.getElementById('InsertRecordMatch_ID');
-        if (matchField) {
-            matchField.value = matchId;
-            const agendaField = document.getElementById('InsertRecordAgenda');
+        const form = document.querySelector('#caspio-insert form');
+        if (form) {
+            let matchField = document.getElementById('InsertRecordMatch_ID') || document.querySelector('input[name*="Match_ID"]');
+            if (matchField) matchField.value = matchId;
+            else {
+                matchField = document.createElement('input'); matchField.type = 'hidden'; matchField.name = 'InsertRecordMatch_ID'; matchField.value = matchId; form.appendChild(matchField);
+            }
+
+            let agendaField = document.getElementById('InsertRecordAgenda') || document.querySelector('[name*="Agenda"]');
             if (agendaField) agendaField.value = '[]';
-            const statusField = document.getElementById('InsertRecordStatus');
+            else {
+                agendaField = document.createElement('input'); agendaField.type = 'hidden'; agendaField.name = 'InsertRecordAgenda'; agendaField.value = '[]'; form.appendChild(agendaField);
+            }
+
+            let statusField = document.getElementById('InsertRecordStatus') || document.querySelector('input[name*="Status"]');
             if (statusField) statusField.value = 'Active';
-            const form = document.querySelector('#caspio-insert form');
-            if (form) form.submit(); // Redirects back with session_id
+            else {
+                statusField = document.createElement('input'); statusField.type = 'hidden'; statusField.name = 'InsertRecordStatus'; statusField.value = 'Active'; form.appendChild(statusField);
+            }
+
+            form.target = 'caspio-update-frame';
+            form.submit();
+
+            setTimeout(() => {
+                checkExistingSession(0);
+            }, 1500);
+            
         } else if (tries < 30) {
             setTimeout(() => waitForInsertForm(tries + 1), 300);
         }
@@ -564,7 +580,7 @@
     setInterval(() => {
         if (!currentSessionId) return;
 
-        const fetchUrl = 'https://c0abr823.caspio.com/dp/1c9f50008d6578f1dda0494d85a7?cbCache=' + Date.now();
+        const fetchUrl = 'https://c0abr823.caspio.com/dp/1c9f50008d6578f1dda0494d85a7?match_id=' + encodeURIComponent(matchId) + '&cbCache=' + Date.now();
 
         fetch(fetchUrl)
             .then(response => response.text())
