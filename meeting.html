@@ -52,6 +52,7 @@
 
     <!-- Hidden Caspio DataPages -->
     <div id="caspio-insert" style="position:absolute;left:-9999px;top:-9999px;visibility:hidden;"></div>
+    <div id="caspio-report" style="position:absolute;left:-9999px;top:-9999px;visibility:hidden;"></div>
     <div id="caspio-update" style="position:absolute;left:-9999px;top:-9999px;visibility:hidden;"></div>
     <iframe id="caspio-update-frame" name="caspio-update-frame" style="position:absolute;left:-9999px;top:-9999px;" width="0" height="0" frameborder="0"></iframe>
 
@@ -412,42 +413,59 @@
         checkExistingSession(0);
     }
 
-    // Fetch the Active session row via HTTP. Tries both param spellings and logs diagnostics.
-    function fetchActiveSession() {
-        return fetchSessionReport('match_id').then(found => {
-            if (found) return found;
-            return fetchSessionReport('Match_ID');
-        });
-    }
+    // Read the Active session row by injecting the report EMBED script into a hidden div.
+    // NOTE: plain fetch() does NOT work — Caspio rejects cookieless cross-origin requests
+    // ("This app requires cookies"). Script embeds DO carry cookies, so this is the only
+    // reliable read path (same mechanism that successfully loads the insert form).
+    let reportBusy = false;
 
-    function fetchSessionReport(paramName) {
-        const url = SESSION_REPORT_URL + '?' + paramName + '=' + encodeURIComponent(matchId) + '&cbCache=' + Date.now();
-        return fetch(url)
-            .then(response => response.text())
-            .then(html => {
-                const parser = new DOMParser();
-                const doc = parser.parseFromString(html, 'text/html');
-                const tables = doc.querySelectorAll('table');
-                let result = null;
-                tables.forEach(table => {
+    function fetchActiveSession() {
+        return new Promise((resolve, reject) => {
+            if (reportBusy) { reject(new Error('report busy')); return; }
+            reportBusy = true;
+            const container = document.getElementById('caspio-report');
+            container.innerHTML = '';
+            const s = document.createElement('script');
+            s.src = SESSION_REPORT_URL + '/emb?match_id=' + encodeURIComponent(matchId) + '&cbCache=' + Date.now();
+            container.appendChild(s);
+
+            let tries = 0;
+            (function poll() {
+                const table = container.querySelector('table');
+                const rawText = container.textContent || '';
+                const text = rawText.toLowerCase();
+
+                if (table) {
+                    let result = null;
                     table.querySelectorAll('tr').forEach(row => {
                         const cells = row.querySelectorAll('td');
                         if (!result && cells.length >= 3) {
                             result = {
                                 sessionId: getCellText(cells[0]),
-                                agendaRaw: getCellText(cells[2])
+                                agendaRaw: getCellText(cells[2]),
+                                timerStartVal: cells.length >= 4 ? getCellText(cells[3]) : ''
                             };
                         }
                     });
-                });
-                // ── Diagnostics: check DevTools console to see what the report actually returns
-                const bodyText = (doc.body ? doc.body.textContent : '').replace(/\s+/g, ' ').trim();
-                console.log('[session-report]', paramName, '| tables:', tables.length,
-                    '| hasForm:', !!doc.querySelector('form'),
-                    '| result:', result,
-                    '| text:', bodyText.slice(0, 300));
-                return result;
-            });
+                    console.log('[session-report:emb] table rendered | result:', result, '| text:', rawText.replace(/\s+/g, ' ').slice(0, 200));
+                    reportBusy = false;
+                    resolve(result);
+                } else if (text.includes('no record') || text.includes('no data')) {
+                    console.log('[session-report:emb] no records');
+                    reportBusy = false;
+                    resolve(null);
+                } else if (text.includes('requires cookies')) {
+                    reportBusy = false;
+                    reject(new Error('cookies blocked'));
+                } else if (tries++ < 40) {
+                    setTimeout(poll, 300);
+                } else {
+                    console.warn('[session-report:emb] timeout | text:', rawText.replace(/\s+/g, ' ').slice(0, 300));
+                    reportBusy = false;
+                    reject(new Error('report render timeout'));
+                }
+            })();
+        });
     }
 
     function adoptSession(sid, agendaRaw) {
@@ -481,7 +499,10 @@
             }
         }).catch(err => {
             console.warn('Session check failed:', err);
-            if (tries < 10) {
+            if (err && err.message === 'cookies blocked') {
+                document.getElementById('sync-status').textContent = 'Error';
+                console.error('[session] Caspio says cookies are blocked even for the embed. Check browser third-party cookie settings.');
+            } else if (tries < 10) {
                 setTimeout(() => checkExistingSession(tries + 1), 1000);
             } else {
                 document.getElementById('sync-status').textContent = 'Offline';
@@ -644,64 +665,50 @@
     renderProjectContext({});
     initSession();
 
-    // ── Silent Polling: refresh agenda every 5 seconds (No loading spinner) ───────────────
+    // ── Silent Polling: refresh agenda every 5 seconds via embed (fetch() is rejected by Caspio — no cookies) ───
     setInterval(() => {
         if (!currentSessionId) return;
 
-        const fetchUrl = 'https://c0abr823.caspio.com/dp/1c9f50008d6578f1dda0494d85a7?match_id=' + encodeURIComponent(matchId) + '&cbCache=' + Date.now();
+        fetchActiveSession()
+            .then(found => {
+                if (!found) return;
 
-        fetch(fetchUrl)
-            .then(response => response.text())
-            .then(html => {
-                const parser = new DOMParser();
-                const doc = parser.parseFromString(html, 'text/html');
-                const table = doc.querySelector('table');
+                try {
+                    const loaded = JSON.parse(found.agendaRaw);
+                    const unchecked = loaded.filter(item => !item.done);
+                    if (JSON.stringify(unchecked) !== JSON.stringify(agendaItems)) {
+                        agendaItems = unchecked;
+                        renderAgenda();
+                    }
+                } catch(e) {}
 
-                if (table) {
-                    const rows = table.querySelectorAll('tr');
-                    rows.forEach(row => {
-                        const cells = row.querySelectorAll('td');
-                        if (cells.length >= 4) {
-                            const agendaRaw = getCellText(cells[2]);
-                            try {
-                                const loaded = JSON.parse(agendaRaw);
-                                const unchecked = loaded.filter(item => !item.done);
-                                if (JSON.stringify(unchecked) !== JSON.stringify(agendaItems)) {
-                                    agendaItems = unchecked;
-                                    renderAgenda();
-                                }
-                            } catch(e) {}
-
-                            const timerStartVal = getCellText(cells[3]);
-                            if (timerStartVal && !timerRunning) {
-                                const startMs = new Date(timerStartVal).getTime();
-                                if (!isNaN(startMs)) {
-                                    timerRunning = true;
-                                    timerStartMs = startMs;
-                                    document.getElementById('timer-display').classList.replace('timer-idle', 'timer-active');
-                                    document.getElementById('timer-status-label').textContent = 'In progress';
-                                    document.getElementById('start-btn').style.display = 'none';
-                                    document.getElementById('stop-btn').style.display = 'flex';
-                                    clearInterval(timerInterval);
-                                    timerInterval = setInterval(() => {
-                                        updateTimerDisplay(Math.floor((Date.now() - timerStartMs) / 1000));
-                                    }, 1000);
-                                }
-                            } else if (!timerStartVal && timerRunning) {
-                                clearInterval(timerInterval);
-                                timerRunning = false;
-                                timerStartMs = null;
-                                updateTimerDisplay(0);
-                                document.getElementById('timer-display').classList.replace('timer-active', 'timer-idle');
-                                document.getElementById('timer-status-label').textContent = 'Stopped';
-                                document.getElementById('start-btn').style.display = 'flex';
-                                document.getElementById('stop-btn').style.display = 'none';
-                            }
-                        }
-                    });
+                const timerStartVal = found.timerStartVal;
+                if (timerStartVal && !timerRunning) {
+                    const startMs = new Date(timerStartVal).getTime();
+                    if (!isNaN(startMs)) {
+                        timerRunning = true;
+                        timerStartMs = startMs;
+                        document.getElementById('timer-display').classList.replace('timer-idle', 'timer-active');
+                        document.getElementById('timer-status-label').textContent = 'In progress';
+                        document.getElementById('start-btn').style.display = 'none';
+                        document.getElementById('stop-btn').style.display = 'flex';
+                        clearInterval(timerInterval);
+                        timerInterval = setInterval(() => {
+                            updateTimerDisplay(Math.floor((Date.now() - timerStartMs) / 1000));
+                        }, 1000);
+                    }
+                } else if (!timerStartVal && timerRunning) {
+                    clearInterval(timerInterval);
+                    timerRunning = false;
+                    timerStartMs = null;
+                    updateTimerDisplay(0);
+                    document.getElementById('timer-display').classList.replace('timer-active', 'timer-idle');
+                    document.getElementById('timer-status-label').textContent = 'Stopped';
+                    document.getElementById('start-btn').style.display = 'flex';
+                    document.getElementById('stop-btn').style.display = 'none';
                 }
             })
-            .catch(err => console.warn('Polling silent sync failed:', err));
+            .catch(err => { /* busy or transient — skip this cycle */ });
     }, 5000);
 
 </script>
