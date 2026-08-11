@@ -635,6 +635,11 @@
 
     const _origAdd = addAgendaItem;
     addAgendaItem = function() {
+        if (!currentSessionId) {
+            alert("세션 연결(Live) 후 아젠다를 작성할 수 있습니다.");
+            return;
+        }
+        
         const input = document.getElementById('agenda-input');
         const text = input.value.trim();
         if (!text) return;
@@ -646,6 +651,11 @@
 
     const _origStart = startTimer;
     startTimer = function() {
+        if (!currentSessionId) {
+            alert("세션이 아직 연결 중입니다. 상단의 상태가 'Live'로 바뀐 후 타이머를 시작해 주세요.");
+            return;
+        }
+
         if (timerRunning) return;
         timerRunning = true;
         timerStartMs = Date.now();
@@ -653,7 +663,9 @@
         document.getElementById('timer-status-label').textContent = 'In progress';
         document.getElementById('start-btn').style.display = 'none';
         document.getElementById('stop-btn').style.display = 'flex';
+        
         saveSession({ timerStart: new Date().toISOString() });
+        
         timerInterval = setInterval(() => {
             updateTimerDisplay(Math.floor((Date.now() - timerStartMs) / 1000));
         }, 1000);
