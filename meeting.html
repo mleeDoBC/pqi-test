@@ -418,15 +418,25 @@
     // ("This app requires cookies"). Script embeds DO carry cookies, so this is the only
     // reliable read path (same mechanism that successfully loads the insert form).
     let reportBusy = false;
+    const REPORT_PARAM_NAMES = ['match_id', 'Match_ID'];
 
     function fetchActiveSession() {
+        return tryReportParam(0);
+    }
+
+    function tryReportParam(i) {
+        if (i >= REPORT_PARAM_NAMES.length) return Promise.resolve(null);
+        return loadReportEmb(REPORT_PARAM_NAMES[i]).then(found => found || tryReportParam(i + 1));
+    }
+
+    function loadReportEmb(paramName) {
         return new Promise((resolve, reject) => {
             if (reportBusy) { reject(new Error('report busy')); return; }
             reportBusy = true;
             const container = document.getElementById('caspio-report');
             container.innerHTML = '';
             const s = document.createElement('script');
-            s.src = SESSION_REPORT_URL + '/emb?match_id=' + encodeURIComponent(matchId) + '&cbCache=' + Date.now();
+            s.src = SESSION_REPORT_URL + '/emb?' + paramName + '=' + encodeURIComponent(matchId) + '&cbCache=' + Date.now();
             container.appendChild(s);
 
             let tries = 0;
@@ -447,11 +457,11 @@
                             };
                         }
                     });
-                    console.log('[session-report:emb] table rendered | result:', result, '| text:', rawText.replace(/\s+/g, ' ').slice(0, 200));
+                    console.log('[session-report:emb]', paramName, '| table rendered | result:', result, '| text:', rawText.replace(/\s+/g, ' ').slice(0, 200));
                     reportBusy = false;
                     resolve(result);
                 } else if (text.includes('no record') || text.includes('no data')) {
-                    console.log('[session-report:emb] no records');
+                    console.log('[session-report:emb]', paramName, '| no records');
                     reportBusy = false;
                     resolve(null);
                 } else if (text.includes('requires cookies')) {
@@ -460,7 +470,7 @@
                 } else if (tries++ < 40) {
                     setTimeout(poll, 300);
                 } else {
-                    console.warn('[session-report:emb] timeout | text:', rawText.replace(/\s+/g, ' ').slice(0, 300));
+                    console.warn('[session-report:emb]', paramName, '| timeout | text:', rawText.replace(/\s+/g, ' ').slice(0, 300));
                     reportBusy = false;
                     reject(new Error('report render timeout'));
                 }
