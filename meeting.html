@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
     <title>Coach Connect | Meeting</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
@@ -399,11 +399,14 @@
             const container = document.getElementById('caspio-insert');
             container.innerHTML = '';
             const s = document.createElement('script');
-            s.src = 'https://c0abr823.caspio.com/dp/1c9f50008d6578f1dda0494d85a7/emb?Match_ID=' + encodeURIComponent(matchId) + '&cbCache=' + Date.now();
+            s.src = 'https://c0abr823.caspio.com/dp/1c9f50008d6578f1dda0494d85a7/emb?match_id=' + encodeURIComponent(matchId) + '&cbCache=' + Date.now();
             container.appendChild(s);
         }
         
-        const table = document.querySelector('#caspio-insert table');
+        const container = document.getElementById('caspio-insert');
+        const table = container.querySelector('table');
+        const textContent = container.textContent || ""; 
+
         if (table) {
             const rows = table.querySelectorAll('tr');
             let found = false;
@@ -429,6 +432,8 @@
             } else {
                 document.getElementById('sync-status').textContent = 'Live';
             }
+        } else if (textContent.toLowerCase().includes('no record') || textContent.toLowerCase().includes('no data')) {
+            createNewSession();
         } else if (tries < 40) {
             setTimeout(() => checkExistingSession(tries + 1), 300);
         } else {
@@ -441,7 +446,7 @@
         const container = document.getElementById('caspio-insert');
         container.innerHTML = '';
         const s = document.createElement('script');
-        s.src = 'https://c0abr823.caspio.com/dp/1c9f500099edf2611dd64a8fa537/emb?Match_ID=' + encodeURIComponent(matchId);
+        s.src = 'https://c0abr823.caspio.com/dp/1c9f500099edf2611dd64a8fa537/emb?match_id=' + encodeURIComponent(matchId);
         container.appendChild(s);
         waitForInsertForm(0);
     }
@@ -459,7 +464,9 @@
             
             document.getElementById('caspio-update-frame').onload = function() {
                 document.getElementById('caspio-update-frame').onload = null; 
-                checkExistingSession(0); 
+                setTimeout(() => {
+                    checkExistingSession(0); 
+                }, 1000);
             };
             
             form.submit();
