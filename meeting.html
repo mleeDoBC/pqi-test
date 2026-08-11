@@ -28,6 +28,24 @@
 
         .pulse-dot { width: 6px; height: 6px; border-radius: 50%; background: #3b82f6; animation: pulse 2s infinite; }
         @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+        #session-log-container { overflow-x: hidden; }
+        #session-log-container * {
+            max-width: 100% !important; min-width: 0 !important; box-sizing: border-box !important;
+            white-space: normal !important; word-break: break-word !important;
+        }
+        #session-log-container [style*="width"], #session-log-container [width] { width: auto !important; }
+        #session-log-container table, #session-log-container tbody, #session-log-container tr, #session-log-container td, #session-log-container th {
+            display: block !important; width: auto !important; padding: 0 !important;
+        }
+        #session-log-container td { padding-bottom: 15px !important; }
+        #session-log-container .cbUpdateButton, #session-log-container .cbSubmitButton {
+            display: block !important; background-color: #2563eb !important; color: white !important;
+            padding: 16px 24px !important; border-radius: 12px !important; font-weight: 900 !important;
+            font-size: 14px !important; text-transform: uppercase !important; letter-spacing: 0.05em !important;
+            border: none !important; width: 100% !important; box-sizing: border-box !important;
+            margin-top: 24px !important; cursor: pointer !important;
+        }
     </style>
 </head>
 <body class="bg-slate-50">
@@ -241,15 +259,92 @@
     }
 
     function stopTimer() {
+        if (!timerRunning) return;
+
+        let elapsedMins = 1;
+        if (timerStartMs) {
+            elapsedMins = Math.max(1, Math.floor((Date.now() - timerStartMs) / 60000));
+        }
+
         clearInterval(timerInterval);
         timerRunning = false;
         timerStartMs = null;
+        updateTimerDisplay(0);
         document.getElementById('timer-display').classList.replace('timer-active', 'timer-idle');
         document.getElementById('timer-status-label').textContent = 'Stopped';
         document.getElementById('start-btn').style.display = 'flex';
         document.getElementById('stop-btn').style.display = 'none';
-        saveSession({ timerStart: '' });
+        
+        saveSession({ timerStart: '' }); 
+
+        openSessionLogModal(currentSessionId, elapsedMins);
     }
+
+    function openSessionLogModal(sessionId, elapsedMins) {
+        const modal = document.getElementById('session-log-modal');
+        const box = document.getElementById('session-log-box');
+        const container = document.getElementById('session-log-container');
+
+        container.innerHTML = '<div class="text-center py-10 text-slate-400 text-xs font-bold uppercase tracking-widest"><i class="fas fa-spinner fa-spin mr-2"></i>Loading Form...</div>';
+
+        const script = document.createElement('script');
+        script.type = 'text/javascript';
+        script.src = `https://c0abr823.caspio.com/dp/1c9f5000d4ac1ce784a8401d821b/emb?Session_ID=${encodeURIComponent(sessionId)}&Elapsed_Mins=${encodeURIComponent(elapsedMins)}`;
+        
+        setTimeout(() => {
+            container.innerHTML = ''; 
+            container.appendChild(script);
+        }, 100);
+
+        modal.classList.remove('hidden');
+        setTimeout(() => {
+            box.classList.remove('scale-95', 'opacity-0');
+            box.classList.add('scale-100', 'opacity-100');
+        }, 10);
+    }
+
+    function closeSessionLogModal() {
+        const modal = document.getElementById('session-log-modal');
+        const box = document.getElementById('session-log-box');
+        const container = document.getElementById('session-log-container');
+        
+        box.classList.remove('scale-100', 'opacity-100');
+        box.classList.add('scale-95', 'opacity-0');
+        setTimeout(() => {
+            modal.classList.add('hidden');
+            container.innerHTML = '';
+        }, 300);
+    }
+
+    document.addEventListener('DataPageReady', function () {
+        const c = document.getElementById('session-log-container');
+        if (!c || !c.children.length) return;
+
+        const fix = el => {
+            el.removeAttribute('width');
+            el.style.setProperty('max-width', '100%', 'important');
+            el.style.setProperty('min-width', '0', 'important');
+            el.style.setProperty('box-sizing', 'border-box', 'important');
+        };
+
+        [...c.children].forEach(el => fix(el));
+        c.querySelectorAll('*').forEach(el => {
+            fix(el);
+            if (/^(TABLE|TBODY|TR|TD|TH)$/.test(el.tagName)) {
+                el.style.setProperty('display', 'block', 'important');
+                el.style.setProperty('width', 'auto', 'important');
+            }
+        });
+    });
+
+    document.addEventListener('FormSubmitted', function(event) {
+        const currentRole = params.get('role') || sessionStorage.getItem('role');
+        const page = currentRole === 'Coachee' ? 'coachee.html' : 'coach.html';
+        
+        setTimeout(() => {
+            window.location.href = page + '?uid=' + encodeURIComponent(myUid) + '&name=' + encodeURIComponent(myName);
+        }, 1000);
+    });
 
     function resetTimer() {
         clearInterval(timerInterval);
@@ -527,5 +622,23 @@
 
 </script>
 
+    <div id="session-log-modal" class="hidden fixed inset-0 z-[9999] bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4 transition-opacity">
+        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-2xl overflow-hidden transform scale-95 opacity-0 transition-all duration-300 flex flex-col max-h-[90vh]" id="session-log-box">
+            
+            <div class="px-8 py-6 border-b border-slate-100 flex justify-between items-center bg-slate-50 shrink-0">
+                <div>
+                    <h3 class="text-lg font-black text-slate-800 tracking-tight">Log Session & Schedule</h3>
+                    <p class="text-xs text-slate-500 mt-1">Review your session time and schedule the next meeting.</p>
+                </div>
+                <button onclick="closeSessionLogModal()" class="text-slate-400 hover:text-slate-600 transition-colors">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            
+            <div class="p-8 overflow-y-auto bg-white min-h-[300px]" id="session-log-container"></div>
+            
+        </div>
+    </div>
+    
 </body>
 </html>
