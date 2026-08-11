@@ -335,12 +335,15 @@
     });
 
     document.addEventListener('FormSubmitted', function(event) {
-        const currentRole = params.get('role') || sessionStorage.getItem('role');
-        const page = currentRole === 'Coachee' ? 'coachee.html' : 'coach.html';
-        
-        setTimeout(() => {
-            window.location.href = page + '?uid=' + encodeURIComponent(myUid) + '&name=' + encodeURIComponent(myName);
-        }, 1000);
+        const modal = document.getElementById('session-log-modal');
+        if (!modal.classList.contains('hidden')) {
+            const currentRole = params.get('role') || sessionStorage.getItem('role');
+            const page = currentRole === 'Coachee' ? 'coachee.html' : 'coach.html';
+            
+            setTimeout(() => {
+                window.location.href = page + '?uid=' + encodeURIComponent(myUid) + '&name=' + encodeURIComponent(myName);
+            }, 1000);
+        }
     });
 
     function resetTimer() {
