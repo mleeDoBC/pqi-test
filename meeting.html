@@ -730,10 +730,14 @@
                 } else if (!timerStartVal && timerRunning) {
                     clearInterval(timerInterval);
                     timerRunning = false;
+                    
+                    if (timerStartMs) {
+                        accumulatedMs = Date.now() - timerStartMs;
+                    }
                     timerStartMs = null;
-                    updateTimerDisplay(0);
+                    
                     document.getElementById('timer-display').classList.replace('timer-active', 'timer-idle');
-                    document.getElementById('timer-status-label').textContent = 'Stopped';
+                    document.getElementById('timer-status-label').textContent = 'Paused';
                     document.getElementById('start-btn').style.display = 'flex';
                     document.getElementById('stop-btn').style.display = 'none';
                 }
