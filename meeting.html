@@ -248,50 +248,6 @@
         document.getElementById('timer-display').textContent = h > 0 ? h + ':' + m + ':' + s : m + ':' + s;
     }
 
-    startTimer = function() {
-        if (!currentSessionId) {
-            alert("Session is connecting. Please wait until the status is 'Live' to start the timer.");
-            return;
-        }
-        if (timerRunning) return;
-        timerRunning = true;
-        
-        timerStartMs = Date.now() - accumulatedMs;
-        
-        document.getElementById('timer-display').classList.replace('timer-idle', 'timer-active');
-        document.getElementById('timer-status-label').textContent = 'In progress';
-        document.getElementById('start-btn').style.display = 'none';
-        document.getElementById('stop-btn').style.display = 'flex';
-        
-        saveSession({ timerStart: new Date(timerStartMs).toISOString() });
-        
-        timerInterval = setInterval(() => {
-            updateTimerDisplay(Math.floor((Date.now() - timerStartMs) / 1000));
-        }, 1000);
-    };
-
-    function stopTimer() {
-        if (!timerRunning) return;
-
-        let currentActiveSecs = Math.floor((Date.now() - timerStartMs) / 1000);
-        accumulatedSeconds += currentActiveSecs;
-        
-        let elapsedMins = Math.max(1, Math.floor(accumulatedSeconds / 60));
-
-        clearInterval(timerInterval);
-        timerRunning = false;
-        timerStartMs = null;
-        
-        document.getElementById('timer-display').classList.replace('timer-active', 'timer-idle');
-        document.getElementById('timer-status-label').textContent = 'Paused / Logging';
-        document.getElementById('start-btn').style.display = 'flex';
-        document.getElementById('stop-btn').style.display = 'none';
-        
-        saveSession({ timerStart: '', accumulatedSeconds: accumulatedSeconds }); 
-
-        openSessionLogModal(currentSessionId, elapsedMins);
-    }
-
     function openSessionLogModal(sessionId, elapsedMins) {
         const modal = document.getElementById('session-log-modal');
         const box = document.getElementById('session-log-box');
