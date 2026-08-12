@@ -269,8 +269,10 @@
     function stopTimer() {
         if (!timerRunning) return;
 
-        accumulatedMs = Date.now() - timerStartMs;
-        let elapsedMins = Math.max(1, Math.floor(accumulatedMs / 60000));
+        let currentActiveSecs = Math.floor((Date.now() - timerStartMs) / 1000);
+        accumulatedSeconds += currentActiveSecs;
+        
+        let elapsedMins = Math.max(1, Math.floor(accumulatedSeconds / 60));
 
         clearInterval(timerInterval);
         timerRunning = false;
@@ -281,7 +283,7 @@
         document.getElementById('start-btn').style.display = 'flex';
         document.getElementById('stop-btn').style.display = 'none';
         
-        saveSession({ timerStart: '' }); 
+        saveSession({ timerStart: '', accumulatedSeconds: accumulatedSeconds }); 
 
         openSessionLogModal(currentSessionId, elapsedMins);
     }
@@ -461,7 +463,8 @@
                             result = {
                                 sessionId: getCellText(cells[0]),
                                 agendaRaw: getCellText(cells[2]),
-                                timerStartVal: cells.length >= 4 ? getCellText(cells[3]) : ''
+                                timerStartVal: cells.length >= 4 ? getCellText(cells[3]) : '',
+                                accumulatedSeconds: cells.length >= 5 ? parseInt(getCellText(cells[4])) || 0 : 0
                             };
                         }
                     });
