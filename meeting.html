@@ -368,15 +368,7 @@
             document.getElementById('sync-status').textContent = 'Live';
             
             fetchActiveSession().then(found => {
-                if (found) {
-                    if (found.agendaRaw) {
-                        try {
-                            const loaded = JSON.parse(found.agendaRaw);
-                            agendaItems = loaded.filter(item => !item.done);
-                            renderAgenda();
-                        } catch(e) {}
-                    }
-                    
+                if (found) {        
                     accumulatedSeconds = found.accumulatedSeconds || 0;
                     const timerStartVal = found.timerStartVal;
 
@@ -537,9 +529,6 @@
             let matchField = document.getElementById('InsertRecordMatch_ID') || document.querySelector('#caspio-insert input[name*="Match_ID"]');
             if (matchField) matchField.value = matchId;
 
-            let agendaField = document.getElementById('InsertRecordAgenda') || document.querySelector('#caspio-insert input[name*="Agenda"]');
-            if (agendaField) agendaField.value = '[]';
-
             let statusField = document.getElementById('InsertRecordStatus') || document.querySelector('#caspio-insert select[name*="Status"], #caspio-insert input[name*="Status"]');
             if (statusField) statusField.value = 'Active';
 
@@ -606,10 +595,6 @@
             const form = document.querySelector('#caspio-update form');
             if (!form) return;
 
-            if (data.agenda !== undefined) {
-                const f = document.getElementById('EditRecordAgenda');
-                if (f) f.value = data.agenda;
-            }
             if (data.timerStart !== undefined) {
                 const f = document.getElementById('EditRecordTimer_Start');
                 if (f) f.value = data.timerStart;
