@@ -235,6 +235,7 @@
     let timerInterval = null;
     let timerStartMs = null;
     let timerRunning = false;
+    let accumulatedMs = 0; 
 
     function updateTimerDisplay(seconds) {
         const h = Math.floor(seconds / 3600);
@@ -243,33 +244,40 @@
         document.getElementById('timer-display').textContent = h > 0 ? h + ':' + m + ':' + s : m + ':' + s;
     }
 
-    function startTimer() {
+    startTimer = function() {
+        if (!currentSessionId) {
+            alert("세션이 아직 연결 중입니다. 상단의 상태가 'Live'로 바뀐 후 타이머를 시작해 주세요.");
+            return;
+        }
         if (timerRunning) return;
         timerRunning = true;
-        timerStartMs = Date.now();
+        
+        timerStartMs = Date.now() - accumulatedMs;
+        
         document.getElementById('timer-display').classList.replace('timer-idle', 'timer-active');
         document.getElementById('timer-status-label').textContent = 'In progress';
         document.getElementById('start-btn').style.display = 'none';
         document.getElementById('stop-btn').style.display = 'flex';
+        
+        saveSession({ timerStart: new Date(timerStartMs).toISOString() });
+        
         timerInterval = setInterval(() => {
             updateTimerDisplay(Math.floor((Date.now() - timerStartMs) / 1000));
         }, 1000);
-    }
+    };
 
     function stopTimer() {
         if (!timerRunning) return;
 
-        let elapsedMins = 1;
-        if (timerStartMs) {
-            elapsedMins = Math.max(1, Math.floor((Date.now() - timerStartMs) / 60000));
-        }
+        accumulatedMs = Date.now() - timerStartMs;
+        let elapsedMins = Math.max(1, Math.floor(accumulatedMs / 60000));
 
         clearInterval(timerInterval);
         timerRunning = false;
         timerStartMs = null;
-        updateTimerDisplay(0);
+        
         document.getElementById('timer-display').classList.replace('timer-active', 'timer-idle');
-        document.getElementById('timer-status-label').textContent = 'Stopped';
+        document.getElementById('timer-status-label').textContent = 'Paused / Logging';
         document.getElementById('start-btn').style.display = 'flex';
         document.getElementById('stop-btn').style.display = 'none';
         
