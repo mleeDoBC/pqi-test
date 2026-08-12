@@ -50,11 +50,15 @@
 </head>
 <body class="bg-slate-50">
 
-    <!-- Hidden Caspio DataPages -->
+   <!-- Hidden Caspio DataPages (Session & Agenda) -->
     <div id="caspio-insert" style="position:absolute;left:-9999px;top:-9999px;visibility:hidden;"></div>
     <div id="caspio-report" style="position:absolute;left:-9999px;top:-9999px;visibility:hidden;"></div>
     <div id="caspio-update" style="position:absolute;left:-9999px;top:-9999px;visibility:hidden;"></div>
     <iframe id="caspio-update-frame" name="caspio-update-frame" style="position:absolute;left:-9999px;top:-9999px;" width="0" height="0" frameborder="0"></iframe>
+    
+    <div id="caspio-agenda-update" style="position:absolute;left:-9999px;top:-9999px;visibility:hidden;"></div>
+    <div id="caspio-agenda-report" style="position:absolute;left:-9999px;top:-9999px;visibility:hidden;"></div>
+    <iframe id="caspio-agenda-update-frame" name="caspio-agenda-update-frame" style="position:absolute;left:-9999px;top:-9999px;" width="0" height="0" frameborder="0"></iframe>
 
     <div class="flex flex-col min-h-screen lg:h-screen lg:overflow-hidden">
 
@@ -668,28 +672,51 @@
         });
     }
 
-    // Hook save into agenda and timer
+    // ── Global Agenda ────────────────────────────────
+    let agendaUpdateLoaded = false;
+
+    function saveGlobalAgenda(agendaStr) {
+        if (!matchId) return;
+        const container = document.getElementById('caspio-agenda-update');
+        
+        if (!agendaUpdateLoaded) {
+            container.innerHTML = '';
+            const s = document.createElement('script');
+            s.src = 'https://c0abr823.caspio.com/dp/1c9f50006501962c2ebb4f17a322/emb?match_id=' + encodeURIComponent(matchId);
+            container.appendChild(s);
+        }
+
+        let tries = 0;
+        (function poll() {
+            const form = document.querySelector('#caspio-agenda-update form');
+            if (form) {
+                agendaUpdateLoaded = true;
+                const f = document.getElementById('EditRecordAgenda') || document.querySelector('#caspio-agenda-update input[name*="Agenda"], #caspio-agenda-update textarea[name*="Agenda"]');
+                if (f) f.value = agendaStr;
+                form.target = 'caspio-agenda-update-frame';
+                form.submit();
+            } else if (tries++ < 30) {
+                setTimeout(poll, 300);
+            }
+        })();
+    }
+
     const _origToggle = toggleAgenda;
     toggleAgenda = function(index) {
         agendaItems[index].done = !agendaItems[index].done;
         renderAgenda();
-        saveSession({ agenda: JSON.stringify(agendaItems) });
+        saveGlobalAgenda(JSON.stringify(agendaItems)); 
     };
 
     const _origAdd = addAgendaItem;
     addAgendaItem = function() {
-        if (!currentSessionId) {
-            alert("Please wait for the session to connect (Live) before adding an agenda item.");
-            return;
-        }
-        
         const input = document.getElementById('agenda-input');
         const text = input.value.trim();
         if (!text) return;
         agendaItems.push({ text, done: false });
         input.value = '';
         renderAgenda();
-        saveSession({ agenda: JSON.stringify(agendaItems) });
+        saveGlobalAgenda(JSON.stringify(agendaItems)); 
     };
 
     const _origStart = startTimer;
@@ -755,22 +782,56 @@
     renderProjectContext({});
     initSession();
 
-    // ── Silent Polling: refresh agenda every 5 seconds via embed (fetch() is rejected by Caspio — no cookies) ───
-    setInterval(() => {
-        if (!currentSessionId) return;
+    // ── Global Agenda 불러오기 함수 ─────────────────────────────────
+    let agendaReportBusy = false;
+    function loadGlobalAgenda() {
+        if (agendaReportBusy || !matchId) return;
+        agendaReportBusy = true;
+        const container = document.getElementById('caspio-agenda-report');
+        container.innerHTML = '';
+        const s = document.createElement('script');
+        // 💡 만들어주신 Report DataPage URL 적용
+        s.src = 'https://c0abr823.caspio.com/dp/1c9f5000b0cbf57780ab431a8560/emb?match_id=' + encodeURIComponent(matchId) + '&cbCache=' + Date.now();
+        container.appendChild(s);
 
-        fetchActiveSession()
-            .then(found => {
-                if (!found) return;
-
+        let tries = 0;
+        (function poll() {
+            const table = container.querySelector('table');
+            if (table) {
+                let agendaRaw = '[]';
+                table.querySelectorAll('tr').forEach(row => {
+                    const cells = row.querySelectorAll('td');
+                    if (cells.length > 0) agendaRaw = getCellText(cells[0]); // 첫 번째 컬럼(Agenda)을 읽음
+                });
+                
                 try {
-                    const loaded = JSON.parse(found.agendaRaw);
+                    const loaded = JSON.parse(agendaRaw);
                     const unchecked = loaded.filter(item => !item.done);
                     if (JSON.stringify(unchecked) !== JSON.stringify(agendaItems)) {
                         agendaItems = unchecked;
                         renderAgenda();
                     }
                 } catch(e) {}
+                agendaReportBusy = false;
+            } else if (tries++ < 40) {
+                setTimeout(poll, 300);
+            } else {
+                agendaReportBusy = false;
+            }
+        })();
+    }
+
+    loadGlobalAgenda();
+
+    // ── Silent Polling: Session(Timer) & Global Agenda (Every 5s) ───
+    setInterval(() => {
+        loadGlobalAgenda();
+
+        if (!currentSessionId) return;
+
+        fetchActiveSession()
+            .then(found => {
+                if (!found) return;
 
                 accumulatedSeconds = found.accumulatedSeconds || 0;
                 const timerStartVal = found.timerStartVal;
