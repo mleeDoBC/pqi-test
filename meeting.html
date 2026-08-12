@@ -739,7 +739,8 @@
     }
 
     function openCoacheeProfile() {
-        const url = 'coachee_profile_detail.html?match_id=' + encodeURIComponent(matchId)
+        const url = 'coachee_profile_detail.html?uid=' + encodeURIComponent(coacheeUid)
+            + '&match_id=' + encodeURIComponent(matchId)
             + '&coachee_uid=' + encodeURIComponent(coacheeUid)
             + '&coach_uid=' + encodeURIComponent(myUid)
             + '&name=' + encodeURIComponent(myName)
