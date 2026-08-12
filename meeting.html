@@ -235,7 +235,7 @@
     let timerInterval = null;
     let timerStartMs = null;
     let timerRunning = false;
-    let accumulatedMs = 0; 
+    let accumulatedSeconds = 0;
 
     function updateTimerDisplay(seconds) {
         const h = Math.floor(seconds / 3600);
@@ -626,8 +626,11 @@
                 const f = document.getElementById('EditRecordStatus') || document.querySelector('#caspio-update select[name*="Status"], #caspio-update input[name*="Status"]');
                 if (f) f.value = data.status;
             }
+            if (data.accumulatedSeconds !== undefined) {
+                const f = document.getElementById('EditRecordAccumulated_Seconds') || document.querySelector('#caspio-update input[name*="Accumulated_Seconds"]');
+                if (f) f.value = data.accumulatedSeconds;
+            }
 
-            // Target hidden iframe so main page doesn't reload
             form.target = 'caspio-update-frame';
             form.submit();
         });
