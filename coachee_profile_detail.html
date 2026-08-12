@@ -102,20 +102,20 @@
             let profile = null;
             rows.forEach(row => {
                 const cells = row.querySelectorAll('td');
-                if (cells.length >= 12) {
+                if (cells.length >= 1) { 
                     profile = {
-                        projectTitle:  getCellText(cells[0]),
-                        startDate:     getCellText(cells[1]),
-                        endDate:       getCellText(cells[2]),
-                        physicianLead: getCellText(cells[3]),
-                        site:          getCellText(cells[4]),
-                        about:         getCellText(cells[5]),
-                        problem:       getCellText(cells[6]),
-                        situation:     getCellText(cells[7]),
-                        funding:       getCellText(cells[8]),
-                        projectRegion: getCellText(cells[9]),
-                        supportNeeded: getCellText(cells[10]),
-                        qiLevel:       getCellText(cells[11]),
+                        projectTitle:  cells[0] ? getCellText(cells[0]) : '',
+                        startDate:     cells[1] ? getCellText(cells[1]) : '',
+                        endDate:       cells[2] ? getCellText(cells[2]) : '',
+                        physicianLead: cells[3] ? getCellText(cells[3]) : '',
+                        site:          cells[4] ? getCellText(cells[4]) : '',
+                        about:         cells[5] ? getCellText(cells[5]) : '',
+                        problem:       cells[6] ? getCellText(cells[6]) : '',
+                        situation:     cells[7] ? getCellText(cells[7]) : '',
+                        funding:       cells[8] ? getCellText(cells[8]) : '',
+                        projectRegion: cells[9] ? getCellText(cells[9]) : '',
+                        supportNeeded: cells[10] ? getCellText(cells[10]) : '',
+                        qiLevel:       cells[11] ? getCellText(cells[11]) : '',
                         additionalInfo: cells[12] ? getCellText(cells[12]) : '',
                         email:         cells[13] ? getCellText(cells[13]) : '',
                         phone:         cells[14] ? getCellText(cells[14]) : ''
@@ -200,7 +200,7 @@
         const container = document.getElementById('caspio-container');
         const s = document.createElement('script');
         s.type = 'text/javascript';
-        s.src = 'https://c0abr823.caspio.com/dp/1c9f5000cb22b560cddb480fb149/emb?uid=' + encodeURIComponent(coacheeUid);
+        s.src = 'https://c0abr823.caspio.com/dp/1c9f5000cb22b560cddb480fb149/emb?uid=' + encodeURIComponent(coacheeUid) + '&cbCache=' + Date.now();
         container.appendChild(s);
     }
     waitForProfile(0);
