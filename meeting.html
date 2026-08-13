@@ -596,15 +596,15 @@
             if (!form) return;
 
             if (data.timerStart !== undefined) {
-                const f = document.getElementById('EditRecordTimer_Start');
+                const f = form.querySelector('[id*="EditRecordTimer_Start"], input[name*="Timer_Start"]');
                 if (f) f.value = data.timerStart;
             }
             if (data.status !== undefined) {
-                const f = document.getElementById('EditRecordStatus') || document.querySelector('#caspio-update select[name*="Status"], #caspio-update input[name*="Status"]');
+                const f = form.querySelector('[id*="EditRecordStatus"], select[name*="Status"], input[name*="Status"]');
                 if (f) f.value = data.status;
             }
             if (data.accumulatedSeconds !== undefined) {
-                const f = document.getElementById('EditRecordAccumulated_Seconds') || document.querySelector('#caspio-update input[name*="Accumulated_Seconds"]');
+                const f = form.querySelector('[id*="EditRecordAccumulated_Seconds"], input[name*="Accumulated_Seconds"]');
                 if (f) f.value = data.accumulatedSeconds;
             }
 
@@ -632,9 +632,9 @@
 
         let tries = 0;
         (function poll() {
-            const form = container.querySelector('#caspio-agenda-update form');
+            const form = container.querySelector('form');
             if (form) {
-                const f = document.getElementById('EditRecordAgenda') || container.querySelector('input[name*="Agenda"], textarea[name*="Agenda"]');
+                const f = form.querySelector('[id*="EditRecordAgenda"], input[name*="Agenda"], textarea[name*="Agenda"]');
                 if (f) f.value = agendaStr;
                 form.target = 'caspio-agenda-update-frame';
                 
