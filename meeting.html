@@ -735,18 +735,21 @@
 
         let tries = 0;
         (function poll() {
-            const table = container.querySelector('table');
-            if (table) {
+            const isLoaded = container.querySelector('form, .cbResultSetRecord, table, .cb-datapage, [class*="cbResultSet"]');
+            const noRecords = (container.textContent || '').includes('No records');
+
+            if (isLoaded || noRecords) {
                 let agendaRaw = '[]';
-                table.querySelectorAll('tr').forEach(row => {
-                    const cells = row.querySelectorAll('td');
-                    if (cells.length > 0) {
-                        let text = cells[0].textContent.trim();
-                        if (text && text !== 'No records found.') {
-                            agendaRaw = text;
-                        }
-                    }
-                });
+                const rawText = container.textContent || '';
+                
+                const startIdx = rawText.indexOf('[');
+                const endIdx = rawText.lastIndexOf(']');
+                
+                if (startIdx !== -1 && endIdx !== -1) {
+                    agendaRaw = rawText.substring(startIdx, endIdx + 1);
+                }
+                
+                console.log('[디버깅] DB에서 빼낸 아젠다 원본:', agendaRaw);
                 
                 try {
                     const loaded = JSON.parse(agendaRaw);
@@ -755,11 +758,14 @@
                         agendaItems = unchecked;
                         renderAgenda();
                     }
-                } catch(e) {}
+                } catch(e) {
+                    console.error('[디버깅] 파싱 에러:', e);
+                }
                 agendaReportBusy = false;
             } else if (tries++ < 40) {
                 setTimeout(poll, 300);
             } else {
+                console.log('[디버깅] 아젠다 폼 로딩 시간 초과');
                 agendaReportBusy = false;
             }
         })();
