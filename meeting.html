@@ -613,31 +613,41 @@
         });
     }
 
-    // ── Global Agenda ────────────────────────────────
     let agendaUpdateLoaded = false;
+
+    // ── Global Agenda ────────────────────────────────
+    let isSavingAgenda = false; 
 
     function saveGlobalAgenda(agendaStr) {
         if (!matchId) return;
-        const container = document.getElementById('caspio-agenda-update');
         
-        if (!agendaUpdateLoaded) {
-            container.innerHTML = '';
-            const s = document.createElement('script');
-            s.src = 'https://c0abr823.caspio.com/dp/1c9f50006501962c2ebb4f17a322/emb?match_id=' + encodeURIComponent(matchId);
-            container.appendChild(s);
-        }
+        isSavingAgenda = true; 
+        
+        const container = document.getElementById('caspio-agenda-update');
+        container.innerHTML = ''; 
+        
+        const s = document.createElement('script');
+        s.src = 'https://c0abr823.caspio.com/dp/1c9f50006501962c2ebb4f17a322/emb?match_id=' + encodeURIComponent(matchId) + '&cbCache=' + Date.now();
+        container.appendChild(s);
 
         let tries = 0;
         (function poll() {
-            const form = document.querySelector('#caspio-agenda-update form');
+            const form = container.querySelector('#caspio-agenda-update form');
             if (form) {
-                agendaUpdateLoaded = true;
-                const f = document.getElementById('EditRecordAgenda') || document.querySelector('#caspio-agenda-update input[name*="Agenda"], #caspio-agenda-update textarea[name*="Agenda"]');
+                const f = document.getElementById('EditRecordAgenda') || container.querySelector('input[name*="Agenda"], textarea[name*="Agenda"]');
                 if (f) f.value = agendaStr;
                 form.target = 'caspio-agenda-update-frame';
+                
+                document.getElementById('caspio-agenda-update-frame').onload = function() {
+                    document.getElementById('caspio-agenda-update-frame').onload = null;
+                    setTimeout(() => { isSavingAgenda = false; }, 2000); 
+                };
+                
                 form.submit();
             } else if (tries++ < 30) {
                 setTimeout(poll, 300);
+            } else {
+                isSavingAgenda = false; 
             }
         })();
     }
@@ -725,7 +735,7 @@
     // ── Global Agenda  ─────────────────────────────────
     let agendaReportBusy = false;
     function loadGlobalAgenda() {
-        if (agendaReportBusy || !matchId) return;
+        if (agendaReportBusy || !matchId || isSavingAgenda) return; 
         agendaReportBusy = true;
         const container = document.getElementById('caspio-agenda-report');
         container.innerHTML = '';
