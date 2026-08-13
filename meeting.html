@@ -729,6 +729,7 @@
         const container = document.getElementById('caspio-agenda-report');
         container.innerHTML = '';
         const s = document.createElement('script');
+        // 💡 만들어주신 Report DataPage URL 적용
         s.src = 'https://c0abr823.caspio.com/dp/1c9f5000b0cbf57780ab431a8560/emb?match_id=' + encodeURIComponent(matchId) + '&cbCache=' + Date.now();
         container.appendChild(s);
 
@@ -739,6 +740,7 @@
                 let agendaRaw = '[]';
                 table.querySelectorAll('tr').forEach(row => {
                     const cells = row.querySelectorAll('td');
+                    // 💡 getCellText 대신, 텍스트만 안전하게 순수 추출
                     if (cells.length > 0) {
                         let text = cells[0].textContent.trim();
                         if (text && text !== 'No records found.') {
@@ -747,7 +749,7 @@
                     }
                 });
                 
-                console.log('[디버깅] DB에서 읽어온 아젠다 원본:', agendaRaw); 
+                console.log('[디버깅] DB에서 읽어온 아젠다 원본:', agendaRaw); // 🔍 F12 콘솔창 확인용
                 
                 try {
                     const loaded = JSON.parse(agendaRaw);
@@ -767,6 +769,7 @@
             }
         })();
     }
+    
     loadGlobalAgenda();
 
     // ── Silent Polling: Session(Timer) & Global Agenda (Every 5s) ───
