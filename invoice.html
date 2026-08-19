@@ -13,72 +13,19 @@
         .accent-text { font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; font-size: 0.6rem; }
         .fade-in { animation: fadeIn 0.4s ease-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
-        .form-input {
-            width: 100%;
-            border: 1.5px solid #e2e8f0;
-            border-radius: 12px;
-            padding: 10px 14px;
-            font-size: 13px;
-            font-family: 'Inter', sans-serif;
-            font-weight: 600;
-            outline: none;
-            transition: all 0.2s;
-            color: #1e293b;
-            background: white;
-        }
-        .form-input:focus { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59,130,246,0.1); }
-        .form-input::placeholder { color: #94a3b8; font-weight: 400; }
-
-        .line-row { 
-            display: grid; 
-            grid-template-columns: 1fr 100px 28px; 
-            gap: 10px; 
-            align-items: center;
-        }
-
-        .remove-btn {
-            width: 28px; height: 28px;
-            border-radius: 8px;
-            border: none;
-            background: #f1f5f9;
-            color: #94a3b8;
-            cursor: pointer;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 11px;
-            transition: all 0.15s;
-            flex-shrink: 0;
-        }
-        .remove-btn:hover { background: #fee2e2; color: #ef4444; }
-
-        .add-row-btn {
-            border: 1.5px dashed #e2e8f0;
-            border-radius: 12px;
-            padding: 10px;
-            width: 100%;
-            background: transparent;
-            color: #94a3b8;
-            font-size: 11px;
-            font-weight: 800;
-            font-family: 'Inter', sans-serif;
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        .add-row-btn:hover { border-color: #3b82f6; color: #3b82f6; background: #eff6ff; }
-
-        select.form-input { cursor: pointer; }
     </style>
 </head>
 <body class="bg-slate-50 min-h-screen">
 
+    <div id="caspio-sessions" style="position:absolute;left:-9999px;top:-9999px;visibility:hidden;"></div>
+    <div id="caspio-invoice" style="position:absolute;left:-9999px;top:-9999px;visibility:hidden;"></div>
+    <iframe id="caspio-invoice-frame" name="caspio-invoice-frame" style="position:absolute;left:-9999px;top:-9999px;" width="0" height="0" frameborder="0"></iframe>
+
     <div class="max-w-2xl mx-auto px-4 py-10 fade-in">
 
-        <!-- Header -->
         <div class="mb-8 flex items-center justify-between">
             <button onclick="goBack()" class="flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-widest hover:text-blue-600 transition">
-                <i class="fas fa-arrow-left"></i> Back
+                <i class="fas fa-arrow-left"></i> Back to Dashboard
             </button>
             <div class="flex items-center gap-3 italic font-black text-lg uppercase tracking-tighter text-slate-800">
                 <i class="fas fa-handshake-angle text-blue-500"></i>
@@ -86,13 +33,16 @@
             </div>
         </div>
 
-        <!-- Card -->
-        <section class="glass-card p-8 lg:p-10">
+        <section class="glass-card p-8 lg:p-10 relative overflow-hidden">
+            
+            <div id="loading-overlay" class="absolute inset-0 bg-white/80 backdrop-blur-sm z-10 flex flex-col items-center justify-center transition-opacity duration-300">
+                <i class="fas fa-spinner fa-spin text-3xl text-blue-600 mb-4"></i>
+                <p class="text-[10px] font-black text-slate-500 uppercase tracking-widest">Calculating Sessions...</p>
+            </div>
 
-            <!-- Title -->
             <div class="mb-10 flex justify-between items-start">
                 <div>
-                    <span class="accent-text text-blue-600 block mb-2">Billing Submission</span>
+                    <span class="accent-text text-blue-600 block mb-2">Automated Billing</span>
                     <h2 class="text-2xl font-black italic text-slate-900 uppercase leading-none">Create Invoice</h2>
                 </div>
                 <div class="text-right">
@@ -103,57 +53,45 @@
 
             <div class="space-y-8">
 
-                <!-- Select Project -->
                 <div>
-                    <label class="text-[10px] font-black text-slate-400 uppercase mb-2 block tracking-widest">Select Project</label>
-                    <select class="form-input" id="project-select" onchange="updateProject()">
-                        <option value="">— Choose a project —</option>
-                        <option value="Dr. Mike Trouse — Reducing ER Wait Times">Dr. Mike Trouse — Reducing ER Wait Times</option>
-                        <option value="Dr. Sarah Chen — Diabetes Care Protocol">Dr. Sarah Chen — Diabetes Care Protocol</option>
-                        <option value="Dr. James Park — Post-Op Recovery Flow">Dr. James Park — Post-Op Recovery Flow</option>
-                    </select>
-                </div>
-
-                <!-- Line Items -->
-                <div>
-                    <div class="flex items-center justify-between mb-3">
-                        <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Line Items</label>
-                        <div class="grid text-[9px] font-black text-slate-300 uppercase tracking-widest" style="grid-template-columns: 1fr 100px 28px; gap: 10px; width: calc(100% - 0px);">
-                            <span>Description</span>
-                            <span>Hours</span>
-                            <span></span>
+                    <label class="text-[10px] font-black text-slate-400 uppercase mb-2 block tracking-widest">Project</label>
+                    <div class="bg-slate-50 border border-slate-100 rounded-xl p-4 flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center flex-shrink-0">
+                            <i class="fas fa-briefcase text-xs"></i>
                         </div>
+                        <p class="text-sm font-bold text-slate-800 italic truncate" id="project-name">Loading project...</p>
                     </div>
-
-                    <div class="space-y-2" id="line-items">
-                        <!-- rows injected here -->
-                    </div>
-
-                    <button class="add-row-btn mt-3" onclick="addRow()">
-                        <i class="fas fa-plus mr-2"></i> Add Line Item
-                    </button>
                 </div>
 
-                <!-- Summary -->
+                <div>
+                    <div class="flex justify-between text-[10px] font-black uppercase tracking-widest mb-2">
+                        <span class="text-blue-600">Billed Hours</span>
+                        <span class="text-slate-400">Max 10 Hrs Limit</span>
+                    </div>
+                    <div class="w-full bg-slate-100 rounded-full h-3 overflow-hidden">
+                        <div id="progress-bar" class="bg-blue-600 h-3 rounded-full transition-all duration-1000 w-0"></div>
+                    </div>
+                    <p class="text-right text-[9px] font-bold text-slate-400 mt-2 italic" id="hours-detail">0.0 / 10.0 hrs logged</p>
+                </div>
+
                 <div class="pt-6 border-t border-slate-100">
-                    <div class="bg-slate-50 rounded-2xl p-6 space-y-3">
-                        <div class="flex justify-between items-center">
-                            <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Total Hours</span>
-                            <span class="text-sm font-black italic text-slate-700" id="total-hours">0.0 hrs</span>
+                    <div class="bg-slate-900 rounded-2xl p-6 space-y-4 shadow-xl">
+                        <div class="flex justify-between items-center border-b border-white/10 pb-4">
+                            <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Approved Hours</span>
+                            <span class="text-sm font-black italic text-white" id="total-hours">0.0 hrs</span>
                         </div>
-                        <div class="flex justify-between items-center">
+                        <div class="flex justify-between items-center border-b border-white/10 pb-4">
                             <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Rate per Hour</span>
-                            <span class="text-sm font-black italic text-slate-700">$176.00</span>
+                            <span class="text-sm font-black italic text-white">$192.35</span>
                         </div>
-                        <div class="border-t border-slate-200 pt-3 flex justify-between items-center">
-                            <span class="text-sm font-black italic text-slate-400 uppercase">Total Amount</span>
-                            <span class="text-3xl font-black italic text-blue-600" id="total-amount">$0.00</span>
+                        <div class="pt-2 flex justify-between items-center">
+                            <span class="text-sm font-black italic text-blue-400 uppercase">Total Amount</span>
+                            <span class="text-3xl font-black italic text-white" id="total-amount">$0.00</span>
                         </div>
                     </div>
                 </div>
 
-                <!-- Submit -->
-                <button onclick="submitInvoice()" class="w-full bg-slate-900 text-white py-5 rounded-2xl font-black text-[11px] uppercase tracking-[0.3em] shadow-xl hover:bg-blue-600 transition">
+                <button id="submit-btn" onclick="submitInvoice()" class="w-full bg-blue-600 text-white py-5 rounded-2xl font-black text-[11px] uppercase tracking-[0.3em] shadow-xl hover:bg-blue-500 transition disabled:opacity-50 disabled:cursor-not-allowed">
                     Submit Invoice
                 </button>
             </div>
@@ -161,11 +99,23 @@
     </div>
 
 <script>
-    const RATE = 176;
-    let rowCount = 0;
+    const RATE = 192.35;
+    const MAX_HOURS = 10;
+    const MAX_SECONDS = MAX_HOURS * 3600;
 
-    // Generate invoice number
+    let totalSeconds = 0; 
+    let billedSeconds = 0; 
+    let billedAmount = 0;
+
     document.getElementById('invoice-number').textContent = 'INV-' + Date.now().toString().slice(-6);
+
+    const params       = new URLSearchParams(window.location.search);
+    const matchId      = params.get('match_id') || sessionStorage.getItem('match_id') || '';
+    const coachUid     = params.get('coach_uid') || sessionStorage.getItem('uid') || '';
+    const coacheeUid   = params.get('coachee_uid') || sessionStorage.getItem('coachee_uid') || '';
+    const projectTitle = params.get('project_title') || sessionStorage.getItem('project_title') || 'Project ID: ' + (matchId || 'Unknown');
+
+    document.getElementById('project-name').textContent = projectTitle;
 
     function goBack() {
         const uid = sessionStorage.getItem('uid') || '';
@@ -173,64 +123,125 @@
         window.location.href = 'coach.html?uid=' + encodeURIComponent(uid) + '&name=' + encodeURIComponent(name);
     }
 
-    function addRow(desc = '', hrs = '') {
-        rowCount++;
-        const id = rowCount;
-        const row = document.createElement('div');
-        row.className = 'line-row';
-        row.id = 'row-' + id;
-        row.innerHTML = `
-            <input type="text" class="form-input" placeholder="e.g. Initial assessment session" 
-                value="${desc}" oninput="recalculate()">
-            <input type="number" class="form-input" placeholder="0.0" min="0" step="0.5"
-                value="${hrs}" oninput="recalculate()" style="text-align:right;">
-            <button class="remove-btn" onclick="removeRow(${id})">
-                <i class="fas fa-times"></i>
-            </button>
-        `;
-        document.getElementById('line-items').appendChild(row);
-        recalculate();
+    function loadSessionTime() {
+        if (!matchId) {
+            alert('No project selected.');
+            return;
+        }
+
+        const container = document.getElementById('caspio-sessions');
+        container.innerHTML = '';
+        const s = document.createElement('script');
+        
+        s.src = 'https://c0abr823.caspio.com/dp/1c9f50005c639e4534ab444793af/emb?match_id=' + encodeURIComponent(matchId) + '&cbCache=' + Date.now();
+        container.appendChild(s);
+
+        let tries = 0;
+        (function poll() {
+            const table = container.querySelector('table');
+            const noRecords = (container.textContent || '').includes('No records');
+            
+            if (table || noRecords) {
+                totalSeconds = 0;
+                if (table) {
+                    table.querySelectorAll('tr').forEach(row => {
+                        const cells = row.querySelectorAll('td');
+                        if (cells.length > 0) {
+                            const sec = parseInt(cells[0].textContent.replace(/[^0-9]/g, ''), 10) || 0;
+                            totalSeconds += sec;
+                        }
+                    });
+                }
+                updateInvoiceUI();
+            } else if (tries++ < 40) {
+                setTimeout(poll, 300);
+            } else {
+                alert('Failed to load session data. Please refresh.');
+            }
+        })();
     }
 
-    function removeRow(id) {
-        const row = document.getElementById('row-' + id);
-        if (row) row.remove();
-        recalculate();
-    }
+    function updateInvoiceUI() {
+        billedSeconds = Math.min(totalSeconds, MAX_SECONDS);
+        billedAmount = (billedSeconds / 3600) * RATE;
+        
+        const totalHrsRaw = (totalSeconds / 3600).toFixed(1);
+        const billedHrs = (billedSeconds / 3600).toFixed(1);
+        
+        let progressPct = (billedSeconds / MAX_SECONDS) * 100;
+        setTimeout(() => {
+            document.getElementById('progress-bar').style.width = progressPct + '%';
+        }, 100);
 
-    function recalculate() {
-        const rows = document.querySelectorAll('#line-items .line-row');
-        let total = 0;
-        rows.forEach(row => {
-            const hrs = parseFloat(row.querySelectorAll('input')[1].value) || 0;
-            total += hrs;
-        });
-        document.getElementById('total-hours').textContent = total.toFixed(1) + ' hrs';
-        document.getElementById('total-amount').textContent = '$' + (total * RATE).toLocaleString('en-CA', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-    }
+        let detailText = `${totalHrsRaw} hrs logged`;
+        if (totalSeconds > MAX_SECONDS) {
+            detailText += ` (Capped at 10.0 hrs)`;
+            document.getElementById('hours-detail').classList.replace('text-slate-400', 'text-red-500');
+        }
+        document.getElementById('hours-detail').textContent = detailText;
+        
+        document.getElementById('total-hours').textContent = billedHrs + ' hrs';
+        document.getElementById('total-amount').textContent = '$' + billedAmount.toLocaleString('en-CA', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
-    function updateProject() {
-        // Could load unbilled hours from Caspio later
+        const overlay = document.getElementById('loading-overlay');
+        overlay.style.opacity = '0';
+        setTimeout(() => overlay.style.display = 'none', 300);
     }
 
     function submitInvoice() {
-        const project = document.getElementById('project-select').value;
-        if (!project) {
-            alert('Please select a project.');
+        if (billedSeconds <= 0) {
+            alert('No completed sessions to bill for this project yet.');
             return;
         }
-        const rows = document.querySelectorAll('#line-items .line-row');
-        if (rows.length === 0) {
-            alert('Please add at least one line item.');
-            return;
-        }
-        // TODO: Caspio insert
-        alert('Invoice submitted successfully!');
-        goBack();
+
+        const btn = document.getElementById('submit-btn');
+        btn.textContent = 'Submitting...';
+        btn.disabled = true;
+
+        const container = document.getElementById('caspio-invoice');
+        container.innerHTML = '';
+        const s = document.createElement('script');
+        s.src = 'https://c0abr823.caspio.com/dp/1c9f5000a748797f30914d2e8e19/emb';
+        container.appendChild(s);
+
+        let tries = 0;
+        (function poll() {
+            const form = container.querySelector('form');
+            if (form) {
+                const fMatch   = form.querySelector('input[name*="Match_ID"]');
+                const fCoach   = form.querySelector('input[name*="Coach_UID"]');
+                const fCoachee = form.querySelector('input[name*="Coachee_UID"]');
+                const fBilledSec = form.querySelector('input[name*="Billed_Seconds"]');
+                const fBilledAmt = form.querySelector('input[name*="Billed_Amount"]');
+                const fStatus  = form.querySelector('input[name*="Status"]');
+
+                if (fMatch) fMatch.value = matchId;
+                if (fCoach) fCoach.value = coachUid;
+                if (fCoachee) fCoachee.value = coacheeUid;
+                if (fBilledSec) fBilledSec.value = Math.floor(billedSeconds);
+                if (fBilledAmt) fBilledAmt.value = billedAmount.toFixed(2);
+                if (fStatus) fStatus.value = 'Pending'; 
+
+                form.target = 'caspio-invoice-frame';
+                
+                document.getElementById('caspio-invoice-frame').onload = function() {
+                    document.getElementById('caspio-invoice-frame').onload = null;
+                    alert('Invoice successfully submitted for $' + billedAmount.toFixed(2));
+                    goBack();
+                };
+                
+                form.submit();
+            } else if (tries++ < 30) {
+                setTimeout(poll, 300);
+            } else {
+                alert('Submission failed. Please try again.');
+                btn.textContent = 'Submit Invoice';
+                btn.disabled = false;
+            }
+        })();
     }
 
-    // Start with one empty row
-    addRow();
+    loadSessionTime();
 </script>
 
 </body>
