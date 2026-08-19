@@ -124,19 +124,31 @@
                 </header>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8 mb-10 lg:mb-12">
-                    <div class="glass-card p-6 lg:p-8 group hover:border-blue-500 transition-all cursor-pointer">
-                        <span class="accent-text text-blue-600 block mb-2">Logged Hours</span>
-                        <div class="flex items-end gap-2"><span class="text-3xl lg:text-4xl font-black italic text-slate-900 leading-none">12.5</span><span class="text-sm font-bold text-slate-300 mb-1">/ 20.0</span></div>
-                        <div class="w-full bg-slate-100 h-1.5 rounded-full mt-6 overflow-hidden"><div class="bg-blue-600 h-full w-[62%]"></div></div>
+                    <div id="notification-card" class="glass-card p-8 group hover:border-blue-500 transition-all cursor-pointer">
+                        <span class="accent-text text-blue-600 block mb-4">Upcoming Session</span>
+                        <div class="flex items-center gap-4">
+                            <div class="text-center bg-slate-50 px-3 py-2 rounded-xl border border-slate-100">
+                                <p class="text-[8px] font-bold uppercase leading-none mb-1 text-slate-400">Loading</p>
+                                <p class="text-xl font-black italic leading-none text-slate-900">...</p>
+                            </div>
+                            <div>
+                                <p class="text-xs font-black italic text-slate-900 uppercase">Checking schedule</p>
+                            </div>
+                        </div>
                     </div>
-                    <div class="glass-card p-6 lg:p-8 group hover:border-emerald-500 transition-all cursor-pointer" onclick="showInvoiceList()">
-                        <span class="accent-text text-emerald-600 block mb-2">Pending Invoices</span>
-                        <div class="flex items-center justify-between"><span class="text-3xl lg:text-4xl font-black italic text-slate-900 leading-none">$1,875</span></div>
-                    </div>
-                    <div class="glass-card p-6 lg:p-8 bg-slate-900 border-none cursor-pointer hover:ring-2 hover:ring-blue-500 transition-all" onclick="window.location.href='mailto:support@coachconnect.com'">
-                        <span class="accent-text text-blue-400 block mb-2 tracking-[0.2em]">Support</span>
-                        <p class="text-white text-sm font-black italic mb-4 uppercase leading-tight">Need Admin Help?</p>
-                        <button class="w-full bg-blue-600 text-white py-3 rounded-xl font-black text-[9px] uppercase tracking-widest shadow-lg">Contact Staff</button>
+
+                    <a href="https://doctorsofbc.box.com/s/ratt13yxtqxie510jl6s6um83gxrwxji" target="_blank" class="glass-card p-8 group hover:border-blue-500 transition-all cursor-pointer block">
+                        <span class="accent-text text-blue-600 block mb-4">Coach Resources</span>
+                        <div class="flex items-center justify-between">
+                            <p class="text-sm font-black italic text-slate-900 uppercase leading-tight">Access Toolkit<br>& Documents</p>
+                            <i class="fas fa-chevron-right text-slate-200 group-hover:text-blue-600 transition-all"></i>
+                        </div>
+                    </a>
+
+                    <div class="glass-card p-8 bg-slate-900 border-none">
+                        <span class="accent-text text-blue-400 block mb-2 tracking-[0.2em]">Program Support</span>
+                        <p class="text-white text-sm font-black italic mb-4 uppercase leading-tight">Administrative Help</p>
+                        <a href="mailto:JCCTraining@doctorsofbc.ca" class="block w-full text-center bg-blue-600 text-white py-3 rounded-xl font-black text-[9px] uppercase tracking-widest shadow-lg hover:bg-blue-500 transition">Message Admin</a>
                     </div>
                 </div>
 
@@ -641,6 +653,116 @@
             </div>
         `;
     }
+
+    function updateNotificationCard(matches) {
+        const card = document.getElementById('notification-card');
+        if (!card) return;
+
+        if (!matches || matches.length === 0) {
+            card.onclick = null;
+            card.innerHTML = `
+                <span class="accent-text text-blue-600 block mb-2"><i class="fas fa-clock mr-1"></i> Standby</span>
+                <h4 class="text-sm font-black italic text-slate-900 uppercase mb-1">No Active Projects</h4>
+                <p class="text-[10px] text-slate-500 font-medium">You will be notified when a new coachee is assigned.</p>
+            `;
+            return;
+        }
+
+        const latest = matches.find(m => {
+            const s = (m.status || '').trim();
+            return s !== 'Completed' && s !== 'Cancelled' && s !== 'Archived';
+        }) || matches[0];
+
+        const status = (latest.status || '').trim();
+        const coacheeName = latest.coacheeFirst ? `Dr. ${latest.coacheeFirst} ${latest.coacheeLast}` : 'Coachee';
+
+        if (status === 'Pending' || status === 'Applied') {
+            card.onclick = () => showCoacheeDetail(latest.coacheeId, latest.matchId);
+            card.innerHTML = `
+                <span class="accent-text text-amber-500 block mb-2"><i class="fas fa-bell mr-1"></i> New Match Request</span>
+                <h4 class="text-sm font-black italic text-slate-900 uppercase mb-1">Application Review</h4>
+                <p class="text-[10px] text-slate-500 font-medium">${coacheeName} has requested you as a coach.</p>
+            `;
+        } 
+        else if (status === 'Accepted') {
+            if (!latest.introDate && !latest.coachSignedDate) {
+                card.onclick = () => showCoacheeDetail(latest.coacheeId, latest.matchId);
+                card.innerHTML = `
+                    <span class="accent-text text-blue-600 block mb-2"><i class="fas fa-calendar mr-1"></i> Pending Schedule</span>
+                    <h4 class="text-sm font-black italic text-slate-900 uppercase mb-1">Intro Call Setup</h4>
+                    <p class="text-[10px] text-slate-500 font-medium">Waiting for ${coacheeName} to schedule the intro meeting.</p>
+                `;
+            } 
+            else if (latest.introDate && !latest.coachSignedDate) {
+                card.onclick = () => showCoacheeDetail(latest.coacheeId, latest.matchId);
+                let month = "TBD";
+                let day = "-";
+                if(latest.introDate.includes('/')) {
+                    const parts = latest.introDate.split('/');
+                    const dateObj = new Date(parts[2], parts[0]-1, parts[1]);
+                    month = dateObj.toLocaleString('en-US', { month: 'short' });
+                    day = dateObj.getDate();
+                }
+                card.innerHTML = `
+                    <span class="accent-text text-blue-600 block mb-4">Upcoming Intro Call</span>
+                    <div class="flex items-center gap-4">
+                        <div class="text-center bg-blue-50 px-3 py-2 rounded-xl border border-blue-100">
+                            <p class="text-[8px] font-bold uppercase leading-none mb-1 text-blue-400">${month}</p>
+                            <p class="text-xl font-black italic leading-none text-blue-600">${day}</p>
+                        </div>
+                        <div>
+                            <p class="text-xs font-black italic text-slate-900 uppercase">${coacheeName}</p>
+                            <p class="text-[9px] font-bold text-slate-500 mt-1 uppercase tracking-tight italic">${latest.introTime ? latest.introTime : 'Time TBD'}</p>
+                        </div>
+                    </div>
+                `;
+            }
+            else if (latest.coachSignedDate && !latest.coacheeSignedDate) {
+                card.onclick = () => showCoacheeDetail(latest.coacheeId, latest.matchId);
+                card.innerHTML = `
+                    <span class="accent-text text-slate-500 block mb-2"><i class="fas fa-clock mr-1"></i> Waiting for Coachee</span>
+                    <h4 class="text-sm font-black italic text-slate-900 uppercase mb-1">Agreement Signed</h4>
+                    <p class="text-[10px] text-slate-500 font-medium">Waiting for ${coacheeName} to complete final sign-off.</p>
+                `;
+            }
+            else if (latest.coachSignedDate && latest.coacheeSignedDate) {
+                const meetingUrl = 'meeting.html?match_id=' + encodeURIComponent(latest.matchId)
+                    + '&role=Coach&uid=' + encodeURIComponent(uid || sessionStorage.getItem('uid') || '')
+                    + '&coachee_uid=' + encodeURIComponent(latest.coacheeId)
+                    + '&coach_uid=' + encodeURIComponent(latest.coachId)
+                    + '&name=' + encodeURIComponent(coachName || sessionStorage.getItem('name') || '')
+                    + '&coachee_name=' + encodeURIComponent(latest.coacheeFirst + ' ' + latest.coacheeLast)
+                    + '&project_title=' + encodeURIComponent(latest.projectTitle || '')
+                    + '&problem=' + encodeURIComponent(latest.problem || '')
+                    + '&about=' + encodeURIComponent(latest.about || '');
+
+                card.onclick = () => window.location.href = meetingUrl;
+                card.innerHTML = `
+                    <span class="accent-text text-emerald-500 block mb-2"><i class="fas fa-check-circle mr-1"></i> Workspace Active</span>
+                    <h4 class="text-sm font-black italic text-slate-900 uppercase mb-1">Enter Live Workspace</h4>
+                    <p class="text-[10px] text-slate-500 font-medium">Click to enter collaborative meeting workspace with ${coacheeName}.</p>
+                `;
+            }
+        }
+        else if (status === 'Active') {
+            const meetingUrl = 'meeting.html?match_id=' + encodeURIComponent(latest.matchId)
+                + '&role=Coach&uid=' + encodeURIComponent(uid || sessionStorage.getItem('uid') || '')
+                + '&coachee_uid=' + encodeURIComponent(latest.coacheeId)
+                + '&coach_uid=' + encodeURIComponent(latest.coachId)
+                + '&name=' + encodeURIComponent(coachName || sessionStorage.getItem('name') || '')
+                + '&coachee_name=' + encodeURIComponent(latest.coacheeFirst + ' ' + latest.coacheeLast)
+                + '&project_title=' + encodeURIComponent(latest.projectTitle || '')
+                + '&problem=' + encodeURIComponent(latest.problem || '')
+                + '&about=' + encodeURIComponent(latest.about || '');
+
+            card.onclick = () => window.location.href = meetingUrl;
+            card.innerHTML = `
+                <span class="accent-text text-emerald-500 block mb-2"><i class="fas fa-play-circle mr-1"></i> Active Session</span>
+                <h4 class="text-sm font-black italic text-slate-900 uppercase mb-1">Resume Coaching</h4>
+                <p class="text-[10px] text-slate-500 font-medium">Enter active workspace for ${coacheeName}.</p>
+            `;
+        }
+    }
     
     const urlParams = new URLSearchParams(window.location.search);
     const coachName = urlParams.get('name');
@@ -802,6 +924,7 @@
         pastMatches = rawMatches.filter(m => m.status === 'Completed' || m.status === 'Archived' || m.status === 'Inactive');
 
         renderMatchCards();
+        updateNotificationCard(rawMatches);
     }
 
     function renderMatchCards() {
