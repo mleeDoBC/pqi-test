@@ -513,7 +513,9 @@
                                 </div>
                                 <div>
                                     <div class="flex items-center gap-2">
-                                        <h4 class="text-sm font-black italic text-slate-900 uppercase">${invId}</h4>
+                                        <h4 class="text-sm font-black italic text-slate-900 uppercase">
+                                            <span class="text-[10px] text-slate-400 font-bold tracking-widest not-italic mr-1">INVOICE ID:</span>${invId}
+                                        </h4>                                
                                         ${dateSub ? `<span class="text-[8px] font-bold text-slate-400 border border-slate-200 bg-white px-1.5 py-0.5 rounded uppercase">${dateSub}</span>` : ''}
                                     </div>
                                     <p class="text-[10px] font-bold text-slate-400 italic mt-1 uppercase tracking-tight">${coacheeName} <span class="opacity-50 mx-1">|</span> ${projectTitle}</p>
