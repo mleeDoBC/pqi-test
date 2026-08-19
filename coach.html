@@ -80,7 +80,6 @@
             color: #64748b !important;
             cursor: not-allowed !important;
         }
-        
     </style>
 </head>
 <body class="antialiased text-slate-800">
@@ -201,6 +200,11 @@
             + '&project_title=' + encodeURIComponent(project.projectTitle || '')
             + '&problem=' + encodeURIComponent(project.problem || '')
             + '&about=' + encodeURIComponent(project.about || '');
+
+        const invoiceUrl = 'invoice.html?match_id=' + encodeURIComponent(project.matchId)
+            + '&coach_uid=' + encodeURIComponent(currentUid || '')
+            + '&coachee_uid=' + encodeURIComponent(project.coacheeId)
+            + '&project_title=' + encodeURIComponent(project.projectTitle || '');
         
         const detailView = `
             <div class="fade-in">
@@ -367,8 +371,11 @@
                                    </div>`
                               )    
                                 : `
-                                   <button onclick="window.location.href='${meetingUrl}'" class="w-full bg-blue-600 text-white py-4 rounded-xl font-black text-[10px] uppercase tracking-widest shadow-lg hover:bg-blue-500 transition mb-4">
+                                   <button onclick="window.location.href='${meetingUrl}'" class="w-full bg-blue-600 text-white py-4 rounded-xl font-black text-[10px] uppercase tracking-widest shadow-lg hover:bg-blue-500 transition mb-3">
                                        <i class="fas fa-video mr-1.5"></i> Enter Workspace
+                                   </button>
+                                   <button onclick="window.location.href='${invoiceUrl}'" class="w-full bg-slate-900 text-white py-4 rounded-xl font-black text-[10px] uppercase tracking-widest shadow-lg hover:bg-slate-800 transition mb-4">
+                                       <i class="fas fa-file-invoice-dollar mr-1.5"></i> Create Invoice
                                    </button>`
                             }
                         </div>
@@ -395,9 +402,6 @@
                         <h1 class="text-3xl font-black italic text-slate-900 tracking-tighter uppercase leading-tight">Invoice Management</h1>
                         <div class="h-1 w-12 bg-emerald-500 mt-2"></div>
                     </div>
-                    <button onclick="showNewInvoiceForm()" class="bg-slate-900 text-white px-6 py-3 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] shadow-xl hover:bg-blue-600 transition">
-                        + New Invoice
-                    </button>
                 </header>
                 
                 <section class="glass-card p-8">
@@ -420,12 +424,6 @@
                 </section>
             </div>
         `;
-    }
-
-    function showNewInvoiceForm() {
-        const currentUid = uid || sessionStorage.getItem('uid') || '';
-        const currentName = coachName || sessionStorage.getItem('name') || '';
-        window.location.href = 'invoice.html?uid=' + encodeURIComponent(currentUid) + '&name=' + encodeURIComponent(currentName);
     }
 
     function showPortfolioList() {
@@ -633,7 +631,6 @@
             'coacheeapplicationmeetingmethod': 'appMethod',
             'coacheeapplicationadditionalinfo': 'appAdditional',
             'coacheeapplicationreferral': 'appReferral',
-            'coacheeapplicationreferral': 'appReferral', 
             'coachcontractsigneddate': 'coachSignedDate',   
             'coacheecontractsigneddate': 'coacheeSignedDate',
             'intromeetingdate': 'introDate',
