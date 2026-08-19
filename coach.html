@@ -111,6 +111,7 @@
                     </a>
                 </div>
                 <div id="hidden-status-update" style="display:none;"></div>
+                <iframe name="caspio-status-frame" id="caspio-status-frame" style="display:none;"></iframe>
             </div>
         </aside>
 
@@ -1065,10 +1066,36 @@
     }
 
     let isMatchingAvailable = true;
+    let statusFormLoaded = false;
+    let isSavingStatus = false; 
 
-    function toggleMatchingStatus() {
-        isMatchingAvailable = !isMatchingAvailable;
-        
+    function loadMatchingStatusForm() {
+        const container = document.getElementById('hidden-status-update');
+        container.innerHTML = '';
+        const script = document.createElement('script');
+        script.src = 'https://c0abr823.caspio.com/dp/1c9f50005eb99a41a605463e992f/emb';
+        container.appendChild(script);
+
+        let tries = 0;
+        const poll = setInterval(() => {
+            const form = container.querySelector('form');
+            if (form) {
+                clearInterval(poll);
+                form.target = 'caspio-status-frame'; 
+                
+                const checkbox = form.querySelector('input[type="checkbox"]');
+                if (checkbox && !isSavingStatus) {
+                    isMatchingAvailable = checkbox.checked; 
+                    updateToggleUI(); 
+                }
+                statusFormLoaded = true;
+            } else if (tries++ > 40) {
+                clearInterval(poll);
+            }
+        }, 300);
+    }
+
+    function updateToggleUI() {
         const btn = document.getElementById('matching-toggle-btn');
         const dot = document.getElementById('matching-toggle-dot');
         const text = document.getElementById('matching-status-text');
@@ -1085,6 +1112,33 @@
             dot.className = 'absolute left-1 top-1 w-2.5 h-2.5 bg-slate-400 rounded-full transition-all duration-300';
         }
     }
+
+    function toggleMatchingStatus() {
+        if (!statusFormLoaded || isSavingStatus) return; 
+
+        isSavingStatus = true;
+        isMatchingAvailable = !isMatchingAvailable;
+        updateToggleUI(); 
+
+        const form = document.querySelector('#hidden-status-update form');
+        const checkbox = form.querySelector('input[type="checkbox"]');
+        if (checkbox) checkbox.checked = isMatchingAvailable;
+
+        document.getElementById('caspio-status-frame').onload = function() {
+            document.getElementById('caspio-status-frame').onload = null;
+            statusFormLoaded = false;
+            setTimeout(() => {
+                isSavingStatus = false;
+                loadMatchingStatusForm(); 
+            }, 1000);
+        };
+
+        const submitBtn = form.querySelector('.cbUpdateButton, input[type="submit"]');
+        if (submitBtn) submitBtn.click();
+        else form.submit();
+    }
+    
+    loadMatchingStatusForm();
         
     loadMatches();
     loadCoachProfile(); 
