@@ -441,24 +441,97 @@
                 
                 <section class="glass-card p-6 lg:p-8">
                     <h3 class="text-sm font-black italic uppercase tracking-widest text-slate-900 mb-6">Billing History</h3>
-                    <div id="invoice-caspio-container" class="w-full overflow-x-auto">
+                    
+                    <div id="invoice-cards-container" class="space-y-4">
                         <div class="text-center py-10 text-slate-400 text-xs font-bold uppercase tracking-widest">
                             <i class="fas fa-spinner fa-spin mr-2"></i>Loading Invoices...
                         </div>
                     </div>
                 </section>
+                
+                <div id="hidden-invoice-caspio" style="display:none;"></div>
             </div>
         `;
 
         const currentUid = uid || sessionStorage.getItem('uid');
         if (!currentUid) return;
 
-        const container = document.getElementById('invoice-caspio-container');
-        container.innerHTML = '';
+        const container = document.getElementById('hidden-invoice-caspio');
         const script = document.createElement('script');
         script.type = 'text/javascript';
         script.src = 'https://c0abr823.caspio.com/dp/1c9f5000359dce82ea1545659447/emb?uid=' + encodeURIComponent(currentUid);
         container.appendChild(script);
+
+        let tries = 0;
+        const poll = setInterval(() => {
+            const table = container.querySelector('table');
+            const noRecords = (container.textContent || '').includes('No records');
+
+            if (table || noRecords) {
+                clearInterval(poll);
+                const target = document.getElementById('invoice-cards-container');
+                
+                if (noRecords) {
+                    target.innerHTML = '<p class="text-center py-8 text-slate-400 text-xs font-bold uppercase tracking-widest">No invoices found.</p>';
+                    return;
+                }
+                
+                let html = '';
+                
+                table.querySelectorAll('tr[class*="cbResultSet"], tr').forEach((row, i) => {
+                    const cells = row.querySelectorAll('td');
+                    if (cells.length >= 4) { 
+                        const invId = getCellText(cells[0]) || 'INV-UNKNOWN';
+                        const matchIdVal = getCellText(cells[1]) || '';
+                        let amount = getCellText(cells[2]) || '$0.00';
+                        const status = getCellText(cells[3]) || 'Pending';
+                        const dateSub = cells.length > 4 ? getCellText(cells[4]) : '';
+
+                        if (!amount.includes('$')) amount = '$' + amount; 
+
+                        let coacheeName = "Unknown Coachee";
+                        let projectTitle = "";
+                        
+                        const project = window.cachedMatches.find(m => m.matchId === matchIdVal);
+                        if (project) {
+                            coacheeName = project.coacheeFirst ? 'Dr. ' + project.coacheeFirst + ' ' + project.coacheeLast : project.coacheeId;
+                            projectTitle = project.projectTitle || '';
+                        }
+
+                        let statusBadge = '';
+                        if(status.toLowerCase().includes('paid')) {
+                            statusBadge = `<span class="bg-emerald-100 text-emerald-700 text-[8px] font-black px-2 py-0.5 rounded uppercase mt-1">Paid</span>`;
+                        } else {
+                            statusBadge = `<span class="bg-amber-100 text-amber-700 text-[8px] font-black px-2 py-0.5 rounded uppercase mt-1">${status}</span>`;
+                        }
+
+                        html += `
+                        <div class="flex items-center justify-between p-5 lg:p-6 rounded-[24px] bg-slate-50 border border-slate-100 hover:border-emerald-200 transition-all cursor-pointer group">
+                            <div class="flex items-center gap-5 lg:gap-6">
+                                <div class="w-10 h-10 lg:w-12 lg:h-12 rounded-2xl bg-white shadow-sm flex items-center justify-center text-slate-300 group-hover:text-emerald-500 transition-colors">
+                                    <i class="fas fa-file-invoice-dollar"></i>
+                                </div>
+                                <div>
+                                    <div class="flex items-center gap-2">
+                                        <h4 class="text-sm font-black italic text-slate-900 uppercase">${invId}</h4>
+                                        ${dateSub ? `<span class="text-[8px] font-bold text-slate-400 border border-slate-200 bg-white px-1.5 py-0.5 rounded uppercase">${dateSub}</span>` : ''}
+                                    </div>
+                                    <p class="text-[10px] font-bold text-slate-400 italic mt-1 uppercase tracking-tight">${coacheeName} <span class="opacity-50 mx-1">|</span> ${projectTitle}</p>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-md lg:text-lg font-black italic text-slate-900 mb-1">${amount}</p>
+                                ${statusBadge}
+                            </div>
+                        </div>`;
+                    }
+                });
+                target.innerHTML = html || '<p class="text-center py-8 text-slate-400 text-xs font-bold uppercase tracking-widest">No invoices found.</p>';
+            } else if (tries++ > 40) {
+                clearInterval(poll);
+                document.getElementById('invoice-cards-container').innerHTML = '<p class="text-center py-8 text-red-400 text-xs font-bold uppercase tracking-widest">Error loading invoices.</p>';
+            }
+        }, 300);
     }
         
     function showPortfolioList() {
