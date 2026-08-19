@@ -694,9 +694,19 @@
                     if (document.getElementById('InsertRecordBooking_Link')) {
                         document.getElementById('InsertRecordBooking_Link').value = document.getElementById('booking-link').value.trim();
                     }
+                    
                     const currentUid = uid || sessionStorage.getItem('uid');
                     if (currentUid && document.getElementById('InsertRecordUser_ID')) {
                         document.getElementById('InsertRecordUser_ID').value = currentUid;
+                    }
+
+                    const currentName = coachName || sessionStorage.getItem('name') || '';
+                    const nameParts = currentName.trim().split(' ');
+                    if (document.getElementById('InsertRecordFirst_Name')) {
+                        document.getElementById('InsertRecordFirst_Name').value = nameParts[0] || '';
+                    }
+                    if (document.getElementById('InsertRecordLast_Name')) {
+                        document.getElementById('InsertRecordLast_Name').value = nameParts.slice(1).join(' ') || '';
                     }
 
                     const avatarInput = document.getElementById('avatar-input');
@@ -711,7 +721,10 @@
                     if (form) {
                         document.getElementById('progress-bar').style.width = '100%';
                         document.getElementById('progress-label').textContent = '100%';
-                        form.submit();
+                        
+                        const submitBtn = form.querySelector('.cbSubmitButton');
+                        if (submitBtn) submitBtn.click();
+                        else form.submit();
                     }
                 } else if (tries < 30) {
                     setTimeout(() => trySubmit(tries + 1), 300);
@@ -720,6 +733,12 @@
             trySubmit(0);
         }
     }
+
+    document.addEventListener('FormSubmitted', function(event) {
+        const currentUid = uid || sessionStorage.getItem('uid') || '';
+        const currentName = coachName || sessionStorage.getItem('name') || '';
+        window.location.href = 'coach.html?uid=' + encodeURIComponent(currentUid) + '&name=' + encodeURIComponent(currentName);
+    });
 </script>
 
 <div id="caspio-container" style="position:absolute;left:-9999px;top:-9999px;">
