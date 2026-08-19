@@ -46,7 +46,6 @@
     const myUid  = params.get('uid') || sessionStorage.getItem('uid') || '';
     const myName = params.get('name') || sessionStorage.getItem('name') || '';
     const appId  = params.get('App_ID') || params.get('app_id') || ''; 
-    const COACH_UIDS = ['D3NADD23', 'XWGQSF2D', 'UH7DQDXN'];
 
     function goBack() {
         window.location.href = 'coachee_setup.html?uid=' + encodeURIComponent(myUid) + '&name=' + encodeURIComponent(myName);
@@ -83,8 +82,7 @@
         const coaches = [];
         rows.forEach(row => {
             const cells = row.querySelectorAll('td');
-            if (cells.length >= 5) {
-                // Profile_Image is rendered as <img> tag by Caspio
+            if (cells.length >= 6) {
                 const imgEl = cells[0].querySelector('img');
                 const profileImage = imgEl ? imgEl.src : '';
                 const firstName    = getCellText(cells[1]);
@@ -92,7 +90,8 @@
                 const practice     = getCellText(cells[3]);
                 const qiStrengths  = getCellText(cells[4]);
                 const userId       = getCellText(cells[5]);
-                if (!COACH_UIDS.length || COACH_UIDS.includes(userId)) {
+                
+                if (userId && firstName) {
                     coaches.push({ profileImage, firstName, lastName, practice, qiStrengths, userId });
                 }
             }
