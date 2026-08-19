@@ -27,58 +27,22 @@
             .main-content-height { height: 100vh; }
         }
 
-        #tnc-caspio-container { 
-            overflow-x: hidden; 
-        }
-        
-        #tnc-caspio-container * {
-            max-width: 100% !important;
-            min-width: 0 !important;
-            box-sizing: border-box !important;
-            white-space: normal !important;
-            word-break: break-word !important;
-        }
-        
-        #tnc-caspio-container [style*="width"],
-        #tnc-caspio-container [width] { 
-            width: auto !important; 
-        }
-        
-        #tnc-caspio-container table,
-        #tnc-caspio-container tbody,
-        #tnc-caspio-container tr,
-        #tnc-caspio-container td,
-        #tnc-caspio-container th {
-            display: block !important;
-            width: auto !important;
-            padding: 0 !important;
-        }
-        
-        #tnc-caspio-container td {
-            padding-bottom: 15px !important;
-        }
+        #tnc-caspio-container { overflow-x: hidden; }
+        #tnc-caspio-container * { max-width: 100% !important; min-width: 0 !important; box-sizing: border-box !important; white-space: normal !important; word-break: break-word !important; }
+        #tnc-caspio-container [style*="width"], #tnc-caspio-container [width] { width: auto !important; }
+        #tnc-caspio-container table, #tnc-caspio-container tbody, #tnc-caspio-container tr, #tnc-caspio-container td, #tnc-caspio-container th { display: block !important; width: auto !important; padding: 0 !important; }
+        #tnc-caspio-container td { padding-bottom: 15px !important; }
 
         .cbUpdateButton, .cbSubmitButton {
-            display: block !important;
-            background-color: #2563eb !important; 
-            color: white !important;
-            padding: 16px 24px !important;
-            border-radius: 12px !important;
-            font-weight: 900 !important;
-            font-size: 14px !important;
-            text-transform: uppercase !important;
-            letter-spacing: 0.05em !important;
-            border: none !important;
-            width: 100% !important; 
-            box-sizing: border-box !important; 
-            margin-top: 24px !important;
-            cursor: pointer !important;
+            display: block !important; background-color: #2563eb !important; color: white !important;
+            padding: 16px 24px !important; border-radius: 12px !important; font-weight: 900 !important;
+            font-size: 14px !important; text-transform: uppercase !important; letter-spacing: 0.05em !important;
+            border: none !important; width: 100% !important; box-sizing: border-box !important; 
+            margin-top: 24px !important; cursor: pointer !important;
         }
         
         .cbUpdateButton:disabled, .cbSubmitButton:disabled {
-            background-color: #cbd5e1 !important;
-            color: #64748b !important;
-            cursor: not-allowed !important;
+            background-color: #cbd5e1 !important; color: #64748b !important; cursor: not-allowed !important;
         }
     </style>
 </head>
@@ -86,6 +50,7 @@
 
     <div id="caspio-matches" style="position:absolute;left:-9999px;top:-9999px;visibility:hidden;"></div>
     <div id="hidden-caspio-profile" class="hidden"></div>
+    <div id="hidden-caspio-hours" style="display:none;"></div>
     <div class="flex flex-col lg:flex-row min-h-screen">
         <aside class="w-full lg:w-80 sidebar-gradient text-slate-400 flex flex-col shadow-2xl z-50 lg:h-screen">
             <div class="p-6 lg:p-8 lg:pb-12 flex justify-between items-center lg:block">
@@ -175,6 +140,56 @@
     </div>
 
     <script>
+    function loadProjectHours(targetMatchId) {
+        const container = document.getElementById('hidden-caspio-hours');
+        container.innerHTML = '';
+        
+        const s = document.createElement('script');
+        s.src = 'https://c0abr823.caspio.com/dp/1c9f50005c639e4534ab444793af/emb?match_id=' + encodeURIComponent(targetMatchId) + '&cbCache=' + Date.now();
+        container.appendChild(s);
+
+        let tries = 0;
+        (function poll() {
+            const table = container.querySelector('table');
+            const noRecords = (container.textContent || '').includes('No records');
+            
+            if (table || noRecords) {
+                let totalSec = 0;
+                if (table) {
+                    table.querySelectorAll('tr').forEach(row => {
+                        const cells = row.querySelectorAll('td');
+                        if (cells.length > 0) {
+                            totalSec += parseInt(cells[0].textContent.replace(/[^0-9]/g, ''), 10) || 0;
+                        }
+                    });
+                }
+                
+                const MAX_SECONDS = 10 * 3600;
+                const billedSec = Math.min(totalSec, MAX_SECONDS);
+                const progressPct = (billedSec / MAX_SECONDS) * 100;
+                const displayHrs = (totalSec / 3600).toFixed(1);
+                
+                const bar = document.getElementById('project-progress-bar');
+                const text = document.getElementById('project-hours-text');
+                
+                if (bar) bar.style.width = progressPct + '%';
+                if (text) {
+                    if (totalSec > MAX_SECONDS) {
+                        text.innerHTML = `<span class="text-red-500">${displayHrs} / 10.0 hrs (Capped)</span>`;
+                        if (bar) bar.classList.replace('bg-blue-600', 'bg-red-500');
+                    } else {
+                        text.innerHTML = `${displayHrs} / 10.0 hrs`;
+                    }
+                }
+            } else if (tries++ < 40) {
+                setTimeout(poll, 300);
+            } else {
+                const text = document.getElementById('project-hours-text');
+                if (text) text.innerHTML = 'Error loading hours';
+            }
+        })();
+    }
+
     function showCoacheeDetail(coacheeId, matchId) {
         const project = window.cachedMatches.find(m => m.matchId === matchId);
         if (!project) return;
@@ -371,6 +386,19 @@
                                    </div>`
                               )    
                                 : `
+                                   <div class="mb-6 pt-4 border-t border-slate-100">
+                                       <div class="flex justify-between text-[10px] font-black uppercase tracking-widest mb-2">
+                                           <span class="text-blue-600">Logged Hours</span>
+                                           <span class="text-slate-400">Max 10 Hrs</span>
+                                       </div>
+                                       <div class="w-full bg-slate-100 rounded-full h-2 overflow-hidden mb-2">
+                                           <div id="project-progress-bar" class="bg-blue-600 h-2 rounded-full transition-all duration-1000 w-0"></div>
+                                       </div>
+                                       <p class="text-right text-[9px] font-bold text-slate-400 italic" id="project-hours-text">
+                                           <i class="fas fa-spinner fa-spin mr-1"></i> Calculating...
+                                       </p>
+                                   </div>
+
                                    <button onclick="window.location.href='${meetingUrl}'" class="w-full bg-blue-600 text-white py-4 rounded-xl font-black text-[10px] uppercase tracking-widest shadow-lg hover:bg-blue-500 transition mb-3">
                                        <i class="fas fa-video mr-1.5"></i> Enter Workspace
                                    </button>
@@ -385,6 +413,10 @@
         `;
         
         mainContent.innerHTML = detailView;
+
+        if (!isPending && !isAccepted) {
+            loadProjectHours(project.matchId);
+        }
     }
 
     function showInvoiceList() {
@@ -726,21 +758,18 @@
 
     let currentMatchId = "";
     let currentCoacheeName = "";
-    
     let coachBookingLink = "";
     let coachAvailability = "";
     
     document.addEventListener('DataPageReady', function (event) {
         const linkElement = document.getElementById('realBookingLink');
         const availElement = document.getElementById('realAvailability');
-        
         if (linkElement) coachBookingLink = linkElement.innerText.trim();
         if (availElement) coachAvailability = availElement.innerText.trim();
     });
     
     function acceptProject(matchId) {
         currentMatchId = matchId;
-        
         const project = window.cachedMatches.find(m => m.matchId === matchId);
         currentCoacheeName = project && project.coacheeFirst ? project.coacheeFirst : 'Coachee';
         
@@ -803,9 +832,7 @@
             
             btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
             btn.disabled = true;
-            
             caspioSubmitBtn.click();
-            
             setTimeout(() => window.location.reload(), 2000);
         } else {
             alert("Please wait a moment while the system loads, then try again.");
@@ -827,11 +854,10 @@
         
     loadMatches();
     loadCoachProfile(); 
-
     </script>
+
     <div id="accept-modal-backdrop" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 hidden flex items-center justify-center transition-opacity">
         <div class="bg-white rounded-3xl shadow-2xl w-full max-w-lg overflow-hidden transform scale-95 opacity-0 transition-all duration-300" id="accept-modal-box">
-            
             <div class="px-8 py-6 border-b border-slate-100 flex justify-between items-center bg-slate-50">
                 <div>
                     <h3 class="text-lg font-black text-slate-800 tracking-tight">Accept Match</h3>
@@ -841,11 +867,9 @@
                     <i class="fas fa-times text-xl"></i>
                 </button>
             </div>
-    
             <div class="p-8 space-y-6">
                 <div class="space-y-3">
                     <label class="block text-xs font-black text-slate-700 uppercase tracking-wider mb-2">Choose Reply Type</label>
-                    
                     <div class="p-3 border rounded-xl cursor-pointer transition-all border-blue-500 bg-blue-50" id="opt-booking" onclick="setReplyTemplate('booking')">
                         <p class="font-black text-slate-800 text-sm">Send Booking Link</p>
                     </div>
@@ -853,24 +877,21 @@
                         <p class="font-black text-slate-800 text-sm">Send Availability Times</p>
                     </div>
                 </div>
-    
                 <div>
                     <label class="block text-xs font-black text-slate-700 uppercase tracking-wider mb-2">Message Preview</label>
                     <textarea id="coach-message-box" class="w-full p-4 border border-slate-200 rounded-xl text-sm leading-relaxed h-32 focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Select an option above to generate a message..."></textarea>
                 </div>
             </div>
-    
             <div class="px-8 py-5 border-t border-slate-100 bg-slate-50 flex justify-end gap-3">
                 <button onclick="closeAcceptModal()" class="px-5 py-2 rounded-xl text-sm font-bold text-slate-600 bg-slate-200 hover:bg-slate-300 transition-colors">Cancel</button>
                 <button onclick="submitAcceptMatch()" class="px-6 py-2 rounded-xl text-sm font-bold text-white bg-blue-600 hover:bg-blue-700 transition-colors" id="btn-send-accept">Send & Accept <i class="fas fa-paper-plane ml-2"></i></button>
             </div>
         </div>
     </div>
+
     <div id="hidden-caspio-update" class="hidden"></div>
-    <div id="hidden-caspio-profile" class="hidden"></div>
     <div id="tnc-modal-backdrop" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 hidden flex items-center justify-center transition-opacity">
         <div class="bg-white rounded-3xl shadow-2xl w-full max-w-2xl overflow-hidden transform scale-95 opacity-0 transition-all duration-300 flex flex-col max-h-[90vh]" id="tnc-modal-box">
-            
             <div class="px-8 py-6 border-b border-slate-100 flex justify-between items-center bg-slate-50 shrink-0">
                 <div>
                     <h3 class="text-lg font-black text-slate-800 tracking-tight">Coaching Agreement</h3>
@@ -880,9 +901,7 @@
                     <i class="fas fa-times text-xl"></i>
                 </button>
             </div>
-    
-            <div class="p-8 overflow-y-auto bg-white" id="tnc-caspio-container">
-            </div>
+            <div class="p-8 overflow-y-auto bg-white" id="tnc-caspio-container"></div>
         </div>
     </div>
 
@@ -948,8 +967,6 @@
             window.location.reload();
         }, 1500);
     });
-        
     </script>
-    
-    </body>
+</body>
 </html>
