@@ -83,6 +83,9 @@
         const coaches = [];
         const coacheePrefs = (sessionStorage.getItem('coachee_availability') || '').toLowerCase();
 
+        const hasDayPref = coacheePrefs.includes('weekdays') || coacheePrefs.includes('weekends');
+        const hasTimePref = coacheePrefs.includes('mornings') || coacheePrefs.includes('afternoons') || coacheePrefs.includes('evenings');
+
         rows.forEach(row => {
             const cells = row.querySelectorAll('td');
             if (cells.length >= 6) {
@@ -104,11 +107,24 @@
                         const cDays = (availDays || '').toLowerCase();
                         const cTimes = (availTimes || '').toLowerCase();
 
-                        if (coacheePrefs.includes('weekdays') && (cDays.includes('monday') || cDays.includes('tuesday') || cDays.includes('wednesday') || cDays.includes('thursday') || cDays.includes('friday'))) matchScore += 10;
-                        if (coacheePrefs.includes('weekends') && (cDays.includes('saturday') || cDays.includes('sunday'))) matchScore += 10;
-                        
-                        if (coacheePrefs.includes('mornings') && cTimes.includes('am')) matchScore += 10;
-                        if ((coacheePrefs.includes('afternoons') || coacheePrefs.includes('evenings')) && cTimes.includes('pm')) matchScore += 10;
+                        let dayScore = 0;
+                        let timeScore = 0;
+
+                        if (!hasDayPref) {
+                            dayScore = 10; 
+                        } else {
+                            if (coacheePrefs.includes('weekdays') && (cDays.includes('monday') || cDays.includes('tuesday') || cDays.includes('wednesday') || cDays.includes('thursday') || cDays.includes('friday'))) dayScore = 10;
+                            if (coacheePrefs.includes('weekends') && (cDays.includes('saturday') || cDays.includes('sunday'))) dayScore = 10;
+                        }
+
+                        if (!hasTimePref) {
+                            timeScore = 10; 
+                        } else {
+                            if (coacheePrefs.includes('mornings') && cTimes.includes('am')) timeScore = 10;
+                            if ((coacheePrefs.includes('afternoons') || coacheePrefs.includes('evenings')) && cTimes.includes('pm')) timeScore = 10;
+                        }
+
+                        matchScore = dayScore + timeScore;
                     }
 
                     coaches.push({ profileImage, firstName, lastName, practice, qiStrengths, userId, availTimes, matchScore });
