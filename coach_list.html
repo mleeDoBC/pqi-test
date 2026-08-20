@@ -12,7 +12,7 @@
         .fade-in { animation: fadeIn 0.4s ease-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
         #caspio-container { position: absolute; left: -9999px; top: -9999px; visibility: hidden; }
-        .coach-card { background: white; border: 1.5px solid #e2e8f0; border-radius: 24px; padding: 28px; cursor: pointer; transition: all 0.25s ease; animation: fadeIn 0.4s ease-out both; }
+        .coach-card { background: white; border: 1.5px solid #e2e8f0; border-radius: 24px; padding: 28px; cursor: pointer; transition: all 0.25s ease; animation: fadeIn 0.4s ease-out both; position: relative; overflow: hidden; }
         .coach-card:hover { border-color: #3b82f6; box-shadow: 0 12px 40px rgba(59,130,246,0.12); transform: translateY(-2px); }
         .avatar-placeholder { width: 64px; height: 64px; border-radius: 20px; background: linear-gradient(135deg, #1e293b, #334155); display: flex; align-items: center; justify-content: center; font-weight: 900; font-style: italic; color: white; font-size: 18px; flex-shrink: 0; }
         .avatar-img { width: 64px; height: 64px; border-radius: 20px; object-fit: cover; flex-shrink: 0; }
@@ -35,7 +35,7 @@
         <div class="mb-8 fade-in">
             <p class="text-[10px] font-black text-blue-600 uppercase tracking-widest mb-1">Step 2 of 2</p>
             <h1 class="text-3xl font-black italic text-slate-900 uppercase tracking-tight leading-none">Find Your Coach</h1>
-            <p class="text-sm text-slate-400 font-medium mt-2">Select a coach whose expertise matches your project needs.</p>
+            <p class="text-sm text-slate-400 font-medium mt-2">Coaches are recommended based on your schedule preferences.</p>
         </div>
         <div class="space-y-4" id="coach-list">
             <div class="spinner"><i class="fas fa-spinner fa-spin"></i> Loading coaches...</div>
@@ -52,6 +52,7 @@
     }
 
     function getCellText(cell) {
+        if (!cell) return '';
         const span = cell.querySelector('span');
         if (span) span.remove();
         return cell.textContent.trim();
@@ -80,6 +81,8 @@
     function parseCoaches(table) {
         const rows = table.querySelectorAll('tr');
         const coaches = [];
+        const coacheePrefs = (sessionStorage.getItem('coachee_availability') || '').toLowerCase();
+
         rows.forEach(row => {
             const cells = row.querySelectorAll('td');
             if (cells.length >= 6) {
@@ -91,11 +94,30 @@
                 const qiStrengths  = getCellText(cells[4]);
                 const userId       = getCellText(cells[5]);
                 
+                const availDays    = cells.length >= 7 ? getCellText(cells[6]) : '';
+                const availTimes   = cells.length >= 8 ? getCellText(cells[7]) : '';
+                
+                let matchScore = 0;
+                
                 if (userId && firstName) {
-                    coaches.push({ profileImage, firstName, lastName, practice, qiStrengths, userId });
+                    if (coacheePrefs) {
+                        const cDays = (availDays || '').toLowerCase();
+                        const cTimes = (availTimes || '').toLowerCase();
+
+                        if (coacheePrefs.includes('weekdays') && (cDays.includes('monday') || cDays.includes('tuesday') || cDays.includes('wednesday') || cDays.includes('thursday') || cDays.includes('friday'))) matchScore += 10;
+                        if (coacheePrefs.includes('weekends') && (cDays.includes('saturday') || cDays.includes('sunday'))) matchScore += 10;
+                        
+                        if (coacheePrefs.includes('mornings') && cTimes.includes('am')) matchScore += 10;
+                        if ((coacheePrefs.includes('afternoons') || coacheePrefs.includes('evenings')) && cTimes.includes('pm')) matchScore += 10;
+                    }
+
+                    coaches.push({ profileImage, firstName, lastName, practice, qiStrengths, userId, availTimes, matchScore });
                 }
             }
         });
+        
+        coaches.sort((a, b) => b.matchScore - a.matchScore);
+        
         renderCoaches(coaches);
     }
 
@@ -105,13 +127,24 @@
             list.innerHTML = '<p class="text-center py-10 text-slate-400 text-xs italic">No coaches available.</p>';
             return;
         }
+        
         list.innerHTML = coaches.map((c, i) => {
             const initials = (((c.firstName||'')[0]||'') + ((c.lastName||'')[0]||'')).toUpperCase();
             const tags = c.qiStrengths ? c.qiStrengths.split(',').slice(0,3).map(t => '<span class="tag">'+t.trim()+'</span>').join('') : '';
+            
             const avatarHtml = c.profileImage
                 ? '<img src="'+c.profileImage+'" class="avatar-img" onerror="this.outerHTML=\'<div class=&quot;avatar-placeholder&quot;>'+initials+'</div>\'">'
                 : '<div class="avatar-placeholder">'+initials+'</div>';
-            return '<div class="coach-card" style="animation-delay:'+( i*0.1)+'s" onclick="openCoach(\''+c.userId+'\')"><div class="flex items-start gap-5">'+avatarHtml+'<div class="flex-1 min-w-0"><div class="flex items-start justify-between gap-2"><h3 class="text-base font-black italic text-slate-900 uppercase leading-none">Dr. '+c.firstName+' '+c.lastName+'</h3><i class="fas fa-chevron-right text-slate-300 text-xs mt-1 flex-shrink-0"></i></div>'+(c.practice ? '<p class="text-xs font-bold text-slate-400 italic mt-1">'+c.practice+'</p>' : '')+(tags ? '<div class="flex flex-wrap gap-1.5 mt-3">'+tags+'</div>' : '')+'</div></div></div>';
+            
+            const bestMatchBadge = (c.matchScore >= 20) 
+                ? `<div class="absolute top-0 right-0 bg-emerald-500 text-white text-[8px] font-black px-3 py-1.5 rounded-bl-[20px] uppercase tracking-widest shadow-sm"><i class="fas fa-star text-yellow-300 mr-1"></i> Best Match</div>` 
+                : '';
+                
+            const scheduleHtml = c.availTimes 
+                ? `<div class="mt-4 bg-slate-50 p-3 rounded-xl border border-slate-100"><p class="text-[9px] font-black text-slate-400 uppercase mb-1 flex items-center gap-1.5"><i class="far fa-clock"></i> Coach Availability</p><p class="text-[10px] font-semibold text-slate-700 leading-relaxed">${c.availTimes.replace(/ \| /g, '<br>')}</p></div>`
+                : '';
+
+            return `<div class="coach-card" style="animation-delay:${i*0.1}s" onclick="openCoach('${c.userId}')">${bestMatchBadge}<div class="flex items-start gap-5">${avatarHtml}<div class="flex-1 min-w-0"><div class="flex items-start justify-between gap-2"><h3 class="text-base font-black italic text-slate-900 uppercase leading-none">Dr. ${c.firstName} ${c.lastName}</h3><i class="fas fa-chevron-right text-slate-300 text-xs mt-1 flex-shrink-0"></i></div>${c.practice ? `<p class="text-xs font-bold text-slate-400 italic mt-1">${c.practice}</p>` : ''}${tags ? `<div class="flex flex-wrap gap-1.5 mt-3">${tags}</div>` : ''}${scheduleHtml}</div></div></div>`;
         }).join('');
     }
 
