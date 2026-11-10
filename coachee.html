@@ -154,6 +154,7 @@
     const urlParams = new URLSearchParams(window.location.search);
     const coacheeName = urlParams.get('name');
     const uid = urlParams.get('uid');
+    const isSubmitted = urlParams.get('submitted') === 'true';
     
     let lastActiveView = 'dashboard';
 
@@ -330,13 +331,16 @@
 
     function createMatchCardHTML(m) {
         const status = m.status ? m.status.trim() : '';
+        const hasCoach = !!(m.coachFirst || m.coachLast);
         const isPending = status === 'Pending';
         const isActive = status === 'Active';
-        const coachFullName = (m.coachFirst || m.coachLast) ? `Dr. ${m.coachFirst} ${m.coachLast}` : 'Assigning Coach...';
+        const coachFullName = hasCoach ? `Dr. ${m.coachFirst} ${m.coachLast}` : 'Matching in Progress...';
         const submissionDate = m.requestDate ? m.requestDate.split(' ')[0] : 'N/A';
         
         let statusBadge = '';
-        if (isPending) {
+        if (!hasCoach) {
+            statusBadge = '<span class="text-[8px] font-black text-indigo-600 border border-indigo-200 bg-indigo-50 px-2.5 py-1 rounded-full uppercase">In Review</span>';
+        } else if (isPending) {
             statusBadge = '<span class="text-[8px] font-black text-amber-500 border border-amber-200 bg-amber-50 px-2.5 py-1 rounded-full uppercase">Pending Review</span>';
         } else if (isActive) {
             statusBadge = '<span class="text-[8px] font-black text-emerald-500 border border-emerald-200 bg-emerald-50 px-2.5 py-1 rounded-full uppercase">Active Session</span>';
@@ -408,9 +412,17 @@
         }) || matches[0];
 
         const status = (latest.status || '').trim();
-        const coachName = (latest.coachFirst || latest.coachLast) ? `Dr. ${latest.coachFirst} ${latest.coachLast}` : 'Assigned Coach';
+        const hasCoach = !!(latest.coachFirst || latest.coachLast);
+        const coachName = hasCoach ? `Dr. ${latest.coachFirst} ${latest.coachLast}` : 'Assigned Coach';
 
-        if (status === 'Pending') {
+        if (!hasCoach) {
+            card.onclick = () => showProjectDetail(latest.matchId);
+            card.innerHTML = `
+                <span class="accent-text text-indigo-600 block mb-2"><i class="fas fa-magnifying-glass mr-1"></i> Review Phase</span>
+                <h4 class="text-sm font-black italic text-slate-900 uppercase mb-1">Coach Matching Underway</h4>
+                <p class="text-[10px] text-slate-500 font-medium">Our team is reviewing your project details. You will be notified within 3–5 business days once paired.</p>
+            `;
+        } else if (status === 'Pending') {
             card.onclick = () => showProjectDetail(latest.matchId);
             card.innerHTML = `
                 <span class="accent-text text-amber-500 block mb-2"><i class="fas fa-hourglass-half mr-1"></i> Review Phase</span>
@@ -504,6 +516,7 @@
         const detailContainer = document.getElementById('detail-view');
         detailContainer.classList.remove('hidden');
 
+        const hasCoach = !!(project.coachFirst || project.coachLast);
         const isPending = project.status === 'Pending';
         const coachInitials = (((project.coachFirst||'')[0]||'') + ((project.coachLast||'')[0]||'')).toUpperCase();
         
@@ -617,102 +630,156 @@
                     </div>
 
                     <div class="lg:col-span-4 space-y-6">
-                        <div class="glass-card p-6 border-2 ${isPending ? 'border-amber-300' : 'border-blue-600'}">
-                            <div class="flex justify-between items-center mb-6">
-                                <span class="accent-text text-slate-400 tracking-widest block">Assigned Coach</span>
-                                ${isPending 
-                                    ? '<span class="text-[8px] font-black text-amber-500 bg-amber-50 px-2 py-0.5 rounded uppercase border border-amber-200">Pending Approval</span>'
-                                    : '<span class="text-[8px] font-black text-blue-600 bg-blue-50 px-2 py-0.5 rounded uppercase border border-blue-200">Match Found</span>'
-                                }
-                            </div>
+                        ${!hasCoach ? `
+                            <div class="glass-card p-6 border-2 border-indigo-200 bg-white">
+                                <div class="flex justify-between items-center mb-6">
+                                    <span class="accent-text text-indigo-600 tracking-widest block">Matching Status</span>
+                                    <span class="text-[8px] font-black text-indigo-600 bg-indigo-50 border border-indigo-200 px-2.5 py-0.5 rounded-full uppercase">In Review</span>
+                                </div>
 
-                            <div class="flex items-center gap-4 mb-6">
-                                ${coachImageHtml}
-                                <div>
-                                    <h3 class="text-sm font-black italic text-slate-900 uppercase">${project.coachFirst ? `Dr. ${project.coachFirst} ${project.coachLast}` : 'Assigning Coach...'}</h3>
-                                    <p class="text-[9px] font-bold text-slate-400 uppercase mt-1 tracking-tight">${project.coachPractice || 'Clinical Practice'}</p>
+                                <div class="flex items-center gap-4 mb-6">
+                                    <div class="w-14 h-14 rounded-2xl bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-600 text-xl shadow-sm">
+                                        <i class="fas fa-user-gear"></i>
+                                    </div>
+                                    <div>
+                                        <h3 class="text-sm font-black italic text-slate-900 uppercase">Matching in Progress</h3>
+                                        <p class="text-[9px] font-bold text-slate-400 uppercase mt-0.5 tracking-tight">DoBC Program Team</p>
+                                    </div>
+                                </div>
+
+                                <div class="bg-indigo-50/60 border border-indigo-100 rounded-2xl p-4 mb-6">
+                                    <p class="text-[11px] text-slate-600 font-medium leading-relaxed mb-3">
+                                        Our provincial coaching team is currently reviewing your project details to pair you with the best-fit QI coach based on your setting, needs, and schedule.
+                                    </p>
+                                    <div class="border-t border-indigo-100 pt-2.5">
+                                        <span class="text-[8px] font-black text-slate-400 uppercase tracking-wider block mb-1">Top QI Support Needs:</span>
+                                        <p class="text-[11px] font-bold text-indigo-900">${project.appSupport || 'QI Coaching Support'}</p>
+                                    </div>
+                                </div>
+
+                                <div class="space-y-3.5 mb-6">
+                                    <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest block">Coaching Roadmap</span>
+                                    <div class="flex items-center gap-3 text-xs font-semibold text-slate-700">
+                                        <i class="fas fa-check-circle text-emerald-500 text-sm"></i>
+                                        <span class="line-through text-slate-400">1. Application Submitted</span>
+                                    </div>
+                                    <div class="flex items-center gap-3 text-xs font-bold text-indigo-600 bg-indigo-50/60 p-2.5 rounded-xl border border-indigo-100">
+                                        <i class="fas fa-spinner fa-spin text-indigo-600 text-sm"></i>
+                                        <span>2. Coach Matching (3–5 days)</span>
+                                    </div>
+                                    <div class="flex items-center gap-3 text-xs font-medium text-slate-400 pl-1">
+                                        <i class="far fa-circle text-xs"></i>
+                                        <span>3. Intro Meeting Setup</span>
+                                    </div>
+                                    <div class="flex items-center gap-3 text-xs font-medium text-slate-400 pl-1">
+                                        <i class="far fa-circle text-xs"></i>
+                                        <span>4. Coaching Agreement</span>
+                                    </div>
+                                </div>
+
+                                <div class="border-t border-slate-100 pt-5">
+                                    <a href="mailto:JCCTraining@doctorsofbc.ca?subject=Application Inquiry: ${encodeURIComponent(project.appTitle || '')}" 
+                                       class="block w-full text-center bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-600 py-3 rounded-xl font-black text-[9px] uppercase tracking-widest transition">
+                                        <i class="fas fa-envelope mr-1.5 text-indigo-500"></i> Contact Program Team
+                                    </a>
                                 </div>
                             </div>
+                        ` : `
+                            <div class="glass-card p-6 border-2 ${isPending ? 'border-amber-300' : 'border-blue-600'}">
+                                <div class="flex justify-between items-center mb-6">
+                                    <span class="accent-text text-slate-400 tracking-widest block">Assigned Coach</span>
+                                    ${isPending 
+                                        ? '<span class="text-[8px] font-black text-amber-500 bg-amber-50 px-2 py-0.5 rounded uppercase border border-amber-200">Pending Approval</span>'
+                                        : '<span class="text-[8px] font-black text-blue-600 bg-blue-50 px-2 py-0.5 rounded uppercase border border-blue-200">Match Found</span>'
+                                    }
+                                </div>
 
-                            ${isPending 
-                                ? `<div class="bg-amber-50 border border-amber-100 rounded-2xl p-4 text-center mt-4">
-                                       <p class="text-[10px] font-black text-amber-600 uppercase tracking-wide leading-relaxed">Waiting for Coach acceptance.<br>Review timeline up to 5 business days.</p>
-                                   </div>`
-                                : (!project.coacheeSignedDate ? `
-                                    <div class="bg-blue-50/50 border border-blue-100 rounded-2xl p-5 mb-4">
-                                        <span class="text-[9px] font-black text-blue-600 uppercase tracking-widest block mb-3"><i class="fas fa-handshake mr-1"></i> Step 1: Intro Setup</span>
-                                        ${project.coachMessage ? `<p class="text-[11px] text-slate-700 leading-relaxed whitespace-pre-wrap italic mb-4 border-l-2 border-blue-300 pl-3">"${project.coachMessage}"</p>` : ''}
-                                        
-                                        ${!project.introDate ? `
-                                            <div class="flex gap-2">
-                                                <a href="mailto:${project.coachEmail || ''}?subject=Intro Meeting Setup - Coaching Connect" 
-                                                   class="flex-1 bg-white border border-blue-200 text-blue-600 text-center py-3 rounded-xl font-black text-[9px] uppercase tracking-widest shadow-sm hover:bg-blue-500 hover:border-blue-500 hover:text-white transition-colors">
-                                                    <i class="fas fa-envelope mr-1.5"></i> 1. Email Coach
-                                                </a>
-                                                <button onclick="openLogMeetingModal('${project.matchId}')"
-                                                   class="flex-1 bg-blue-600 border border-blue-600 text-white text-center py-3 rounded-xl font-black text-[9px] uppercase tracking-widest shadow-sm hover:bg-blue-500 transition-colors">
-                                                    <i class="fas fa-calendar-check mr-1.5"></i> 2. Log Schedule
-                                                </button>
-                                            </div>
-                                        ` : `
-                                            <div class="bg-white border border-blue-100 rounded-xl p-3 mb-3 flex items-center justify-between shadow-sm">
-                                                <div>
-                                                    <span class="text-[8px] font-black text-slate-400 uppercase tracking-tight block mb-0.5">Scheduled For</span>
-                                                    <span class="text-xs font-black text-blue-600 italic">
-                                                        ${project.introDate} ${project.introTime ? '· ' + project.introTime : ''}
-                                                    </span>
+                                <div class="flex items-center gap-4 mb-6">
+                                    ${coachImageHtml}
+                                    <div>
+                                        <h3 class="text-sm font-black italic text-slate-900 uppercase">Dr. ${project.coachFirst} ${project.coachLast}</h3>
+                                        <p class="text-[9px] font-bold text-slate-400 uppercase mt-1 tracking-tight">${project.coachPractice || 'Clinical Practice'}</p>
+                                    </div>
+                                </div>
+
+                                ${isPending 
+                                    ? `<div class="bg-amber-50 border border-amber-100 rounded-2xl p-4 text-center mt-4">
+                                           <p class="text-[10px] font-black text-amber-600 uppercase tracking-wide leading-relaxed">Waiting for Coach acceptance.<br>Review timeline up to 5 business days.</p>
+                                       </div>`
+                                    : (!project.coacheeSignedDate ? `
+                                        <div class="bg-blue-50/50 border border-blue-100 rounded-2xl p-5 mb-4">
+                                            <span class="text-[9px] font-black text-blue-600 uppercase tracking-widest block mb-3"><i class="fas fa-handshake mr-1"></i> Step 1: Intro Setup</span>
+                                            ${project.coachMessage ? `<p class="text-[11px] text-slate-700 leading-relaxed whitespace-pre-wrap italic mb-4 border-l-2 border-blue-300 pl-3">"${project.coachMessage}"</p>` : ''}
+                                            
+                                            ${!project.introDate ? `
+                                                <div class="flex gap-2">
+                                                    <a href="mailto:${project.coachEmail || ''}?subject=Intro Meeting Setup - Coaching Connect" 
+                                                       class="flex-1 bg-white border border-blue-200 text-blue-600 text-center py-3 rounded-xl font-black text-[9px] uppercase tracking-widest shadow-sm hover:bg-blue-500 hover:border-blue-500 hover:text-white transition-colors">
+                                                        <i class="fas fa-envelope mr-1.5"></i> 1. Email Coach
+                                                    </a>
+                                                    <button onclick="openLogMeetingModal('${project.matchId}')"
+                                                       class="flex-1 bg-blue-600 border border-blue-600 text-white text-center py-3 rounded-xl font-black text-[9px] uppercase tracking-widest shadow-sm hover:bg-blue-500 transition-colors">
+                                                        <i class="fas fa-calendar-check mr-1.5"></i> 2. Log Schedule
+                                                    </button>
+                                                </div>
+                                            ` : `
+                                                <div class="bg-white border border-blue-100 rounded-xl p-3 mb-3 flex items-center justify-between shadow-sm">
+                                                    <div>
+                                                        <span class="text-[8px] font-black text-slate-400 uppercase tracking-tight block mb-0.5">Scheduled For</span>
+                                                        <span class="text-xs font-black text-blue-600 italic">
+                                                            ${project.introDate} ${project.introTime ? '· ' + project.introTime : ''}
+                                                        </span>
+                                                    </div>
+                                                    
+                                                    <div class="flex items-center gap-1.5">
+                                                        <button onclick="openLogMeetingModal('${project.matchId}')" class="w-8 h-8 flex items-center justify-center rounded-full bg-slate-50 border border-slate-100 text-slate-400 hover:text-blue-600 hover:bg-blue-50 hover:border-blue-200 transition-all" title="Reschedule Meeting">
+                                                            <i class="fas fa-pencil-alt text-xs"></i>
+                                                        </button>
+                                                        <button onclick="cancelMeeting('${project.matchId}')" class="w-8 h-8 flex items-center justify-center rounded-full bg-slate-50 border border-slate-100 text-slate-400 hover:text-red-500 hover:bg-red-50 hover:border-red-200 transition-all" title="Cancel Meeting">
+                                                            <i class="fas fa-times text-xs"></i>
+                                                        </button>
+                                                    </div>
                                                 </div>
                                                 
-                                                <div class="flex items-center gap-1.5">
-                                                    <button onclick="openLogMeetingModal('${project.matchId}')" class="w-8 h-8 flex items-center justify-center rounded-full bg-slate-50 border border-slate-100 text-slate-400 hover:text-blue-600 hover:bg-blue-50 hover:border-blue-200 transition-all" title="Reschedule Meeting">
-                                                        <i class="fas fa-pencil-alt text-xs"></i>
-                                                    </button>
-                                                    <button onclick="cancelMeeting('${project.matchId}')" class="w-8 h-8 flex items-center justify-center rounded-full bg-slate-50 border border-slate-100 text-slate-400 hover:text-red-500 hover:bg-red-50 hover:border-red-200 transition-all" title="Cancel Meeting">
-                                                        <i class="fas fa-times text-xs"></i>
-                                                    </button>
-                                                </div>
-                                            </div>
-                                            
-                                            <button onclick="window.location.href='${meetingUrl}'"
-                                               class="w-full bg-emerald-500 text-white text-center py-3 rounded-xl font-black text-[10px] uppercase tracking-widest shadow-sm hover:bg-emerald-400 transition-colors">
-                                                <i class="fas fa-video mr-1.5"></i> Join Intro Meeting
-                                            </button>
-                                        `}
-                                    </div>
+                                                <button onclick="window.location.href='${meetingUrl}'"
+                                                   class="w-full bg-emerald-500 text-white text-center py-3 rounded-xl font-black text-[10px] uppercase tracking-widest shadow-sm hover:bg-emerald-400 transition-colors">
+                                                    <i class="fas fa-video mr-1.5"></i> Join Intro Meeting
+                                                </button>
+                                            `}
+                                        </div>
 
-                                    <div class="bg-slate-50 border border-slate-200 rounded-2xl p-5">
-                                        <span class="text-[9px] font-black text-slate-500 uppercase tracking-widest block mb-2"><i class="fas fa-file-signature mr-1"></i> Step 2: Official Match</span>
-                                        <p class="text-[10px] text-slate-500 mb-4 leading-relaxed">If you'd like to proceed with Dr. ${project.coachLast}, please have your intro call first. Or, you can request a new coach anytime.</p>
-                                        
-                                        <div class="flex flex-col gap-2">
-                                            <button onclick="openCoacheeSignModal('${project.matchId}', 'Dr. ${project.coachFirst} ${project.coachLast}')"
-                                                    class="w-full bg-slate-800 text-white py-3.5 rounded-xl font-black text-[9px] uppercase tracking-widest shadow-sm hover:bg-slate-700 transition disabled:opacity-50 disabled:cursor-not-allowed" ${!project.introDate ? 'disabled' : ''}>
-                                                <i class="fas fa-check-circle mr-1"></i> I choose this Coach & Sign T&C
-                                            </button>
+                                        <div class="bg-slate-50 border border-slate-200 rounded-2xl p-5">
+                                            <span class="text-[9px] font-black text-slate-500 uppercase tracking-widest block mb-2"><i class="fas fa-file-signature mr-1"></i> Step 2: Official Match</span>
+                                            <p class="text-[10px] text-slate-500 mb-4 leading-relaxed">If you'd like to proceed with Dr. ${project.coachLast}, please have your intro call first. Or, you can request a new coach anytime.</p>
                                             
-                                            <button onclick="requestRematch('${project.matchId}')" 
-                                                    class="w-full bg-white border border-slate-300 text-slate-500 py-3 rounded-xl font-black text-[9px] uppercase tracking-widest hover:bg-slate-100 hover:text-slate-700 transition">
-                                                <i class="fas fa-sync-alt mr-1"></i> Request Different Coach
+                                            <div class="flex flex-col gap-2">
+                                                <button onclick="openCoacheeSignModal('${project.matchId}', 'Dr. ${project.coachFirst} ${project.coachLast}')"
+                                                        class="w-full bg-slate-800 text-white py-3.5 rounded-xl font-black text-[9px] uppercase tracking-widest shadow-sm hover:bg-slate-700 transition disabled:opacity-50 disabled:cursor-not-allowed" ${!project.introDate ? 'disabled' : ''}>
+                                                    <i class="fas fa-check-circle mr-1"></i> I choose this Coach & Sign T&C
+                                                </button>
+                                                
+                                                <button onclick="requestRematch('${project.matchId}')" 
+                                                        class="w-full bg-white border border-slate-300 text-slate-500 py-3 rounded-xl font-black text-[9px] uppercase tracking-widest hover:bg-slate-100 hover:text-slate-700 transition">
+                                                    <i class="fas fa-sync-alt mr-1"></i> Request Different Coach
+                                                </button>
+                                            </div>
+                                        </div>
+                                    ` : (!project.coachSignedDate ? `
+                                        <div class="mt-4 border-t border-slate-100 pt-5">
+                                            <button class="w-full bg-slate-300 text-white py-3.5 rounded-xl font-black text-[9px] uppercase tracking-widest cursor-not-allowed" disabled>
+                                                Waiting for Coach to sign...
                                             </button>
                                         </div>
-                                    </div>
-                                ` : (!project.coachSignedDate ? `
-                                    <div class="mt-4 border-t border-slate-100 pt-5">
-                                        <button class="w-full bg-slate-300 text-white py-3.5 rounded-xl font-black text-[9px] uppercase tracking-widest cursor-not-allowed" disabled>
-                                            Waiting for Coach to sign...
-                                        </button>
-                                    </div>
-                                ` : `
-                                    <div class="mt-4 border-t border-slate-100 pt-5">
-                                        <button onclick="window.location.href='${meetingUrl}'" 
-                                                class="w-full bg-emerald-500 text-white py-3.5 rounded-xl font-black text-[10px] uppercase tracking-widest shadow-lg hover:bg-emerald-400 transition">
-                                            <i class="fas fa-video mr-1.5"></i> Join Live Session Mode
-                                        </button>
-                                    </div>
-                                `))
-                            }
+                                    ` : `
+                                        <div class="mt-4 border-t border-slate-100 pt-5">
+                                            <button onclick="window.location.href='${meetingUrl}'" 
+                                                    class="w-full bg-emerald-500 text-white py-3.5 rounded-xl font-black text-[10px] uppercase tracking-widest shadow-lg hover:bg-emerald-400 transition">
+                                                <i class="fas fa-video mr-1.5"></i> Join Live Session Mode
+                                            </button>
+                                        </div>
+                                    `))
+                                }
 
-                            ${(project.coachFirst || project.coachLast) ? `
                                 <div class="border-t border-slate-100 pt-4 mt-5">
                                     <button onclick="toggleCoachProfileAccordion()" class="w-full flex justify-between items-center text-slate-600 hover:text-slate-900 transition">
                                         <span class="text-[9px] font-black uppercase tracking-widest">About Dr. ${project.coachLast}</span>
@@ -734,8 +801,8 @@
                                         </div>
                                     </div>
                                 </div>
-                            ` : ''}
-                        </div>
+                            </div>
+                        `}
                     </div>
                 </div>
             </div>
@@ -1018,6 +1085,16 @@
     });
     
     loadMatches();
+    
+    if (isSubmitted) {
+        setTimeout(() => {
+            const subModal = document.getElementById('submission-success-modal');
+            if (subModal) subModal.classList.remove('hidden');
+            // Clean URL without reload
+            const cleanUrl = window.location.pathname + window.location.search.replace(/([?&])submitted=true(&|$)/, '$1').replace(/[?&]$/, '');
+            window.history.replaceState({}, document.title, cleanUrl || window.location.pathname);
+        }, 500);
+    }
         
     </script>
 
@@ -1145,5 +1222,38 @@
 
         </div>
     </div>
+
+    <!-- Submission Success Modal -->
+    <div id="submission-success-modal" class="hidden fixed inset-0 z-[9999] bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 fade-in">
+        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-lg overflow-hidden flex flex-col p-8 text-center animate-fadeUp">
+            <div class="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-3xl flex items-center justify-center text-2xl mx-auto mb-6 shadow-sm">
+                <i class="fas fa-check"></i>
+            </div>
+            
+            <span class="accent-text text-indigo-600 tracking-widest block mb-2">Application Received</span>
+            <h3 class="text-2xl font-black italic text-slate-900 uppercase tracking-tight mb-3">Project Application Submitted</h3>
+            
+            <p class="text-xs text-slate-600 leading-relaxed mb-6 font-medium px-2">
+                Thank you for submitting your project application! Our provincial coaching team has received your information and is reviewing your project needs to pair you with the best-fit QI coach.
+            </p>
+
+            <div class="bg-slate-50 border border-slate-100 rounded-2xl p-4 mb-8 text-left space-y-2.5">
+                <div class="flex items-center gap-3 text-xs font-bold text-slate-800">
+                    <i class="fas fa-clock text-indigo-500"></i>
+                    <span>Review Timeline: 3–5 Business Days</span>
+                </div>
+                <div class="flex items-center gap-3 text-xs text-slate-600">
+                    <i class="fas fa-bell text-indigo-400"></i>
+                    <span>You will receive an email confirmation once a coach is assigned.</span>
+                </div>
+            </div>
+
+            <button onclick="document.getElementById('submission-success-modal').classList.add('hidden')"
+                    class="w-full bg-indigo-600 hover:bg-indigo-500 text-white py-3.5 rounded-xl font-black text-xs uppercase tracking-widest transition shadow-lg shadow-indigo-600/20">
+                Go to My Dashboard
+            </button>
+        </div>
+    </div>
+
 </body>
 </html>
