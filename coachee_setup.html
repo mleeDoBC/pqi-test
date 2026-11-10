@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>COACH Connect | Coachee Setup</title>
+    <title>Physician Coaching Program | Coachee Setup</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
         body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
         .sidebar-gradient { background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%); }
         .accent-text { font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; font-size: 0.6rem; }
@@ -17,87 +17,89 @@
         .step-dot.done { background: #6366f1; color: white; }
         .step-dot.active { background: white; color: #0f172a; box-shadow: 0 0 0 3px rgba(99,102,241,0.4); }
         .step-dot.pending { background: rgba(255,255,255,0.08); color: #475569; }
-        .check-tag { cursor: pointer; border: 1.5px solid #e2e8f0; border-radius: 99px; padding: 6px 14px; font-size: 11px; font-weight: 700; transition: all 0.2s ease; color: #64748b; background: white; user-select: none; }
+        .check-tag { cursor: pointer; border: 1.5px solid #e2e8f0; border-radius: 99px; padding: 7px 14px; font-size: 11px; font-weight: 700; transition: all 0.2s ease; color: #64748b; background: white; user-select: none; display: inline-flex; align-items: center; gap: 6px; }
         .check-tag:hover { border-color: #a5b4fc; color: #6366f1; }
-        .check-tag.selected { background: #eef2ff; border-color: #6366f1; color: #6366f1; }
-        .radio-card { border: 2px solid #e2e8f0; border-radius: 16px; padding: 14px 18px; cursor: pointer; transition: all 0.2s ease; }
+        .check-tag.selected { background: #eef2ff; border-color: #6366f1; color: #6366f1; box-shadow: 0 1px 2px rgba(99,102,241,0.1); }
+        .radio-card { border: 2px solid #e2e8f0; border-radius: 14px; padding: 14px 18px; cursor: pointer; transition: all 0.2s ease; background: white; }
         .radio-card:hover { border-color: #a5b4fc; }
-        .radio-card.selected { border-color: #6366f1; background: #eef2ff; }
+        .radio-card.selected { border-color: #6366f1; background: #f5f7ff; }
         .radio-dot { width: 16px; height: 16px; border-radius: 50%; border: 2px solid #cbd5e1; transition: all 0.2s ease; flex-shrink: 0; }
         .radio-card.selected .radio-dot { background: #6366f1; border-color: #6366f1; }
-        .form-input { width: 100%; border: 1.5px solid #e2e8f0; border-radius: 12px; padding: 12px 16px; font-size: 14px; font-family: 'Inter', sans-serif; outline: none; transition: border-color 0.2s; resize: none; color: #1e293b; background: white; }
-        .form-input:focus { border-color: #6366f1; box-shadow: 0 0 0 3px rgba(99,102,241,0.1); }
+        .form-input { width: 100%; border: 1.5px solid #e2e8f0; border-radius: 12px; padding: 11px 15px; font-size: 13.5px; font-family: 'Inter', sans-serif; outline: none; transition: border-color 0.2s; resize: none; color: #1e293b; background: white; }
+        .form-input:focus { border-color: #6366f1; box-shadow: 0 0 0 3px rgba(99,102,241,0.12); }
         .form-input::placeholder { color: #94a3b8; }
-        .form-input.error { border-color: #ef4444; }
         .step-panel { display: none; animation: fadeUp 0.35s ease-out; }
         .step-panel.active { display: block; }
-        @keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
-        .btn-primary { background: linear-gradient(135deg, #6366f1, #8b5cf6); color: white; border: none; border-radius: 12px; padding: 14px 32px; font-size: 12px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.15em; cursor: pointer; transition: all 0.2s ease; }
-        .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 8px 24px rgba(99,102,241,0.3); }
-        .btn-secondary { background: transparent; color: #64748b; border: 1.5px solid #e2e8f0; border-radius: 12px; padding: 14px 24px; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; cursor: pointer; transition: all 0.2s ease; }
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .btn-primary { background: linear-gradient(135deg, #6366f1, #8b5cf6); color: white; border: none; border-radius: 12px; padding: 13px 28px; font-size: 11.5px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.12em; cursor: pointer; transition: all 0.2s ease; }
+        .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(99,102,241,0.3); }
+        .btn-secondary { background: white; color: #64748b; border: 1.5px solid #e2e8f0; border-radius: 12px; padding: 13px 22px; font-size: 11.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; cursor: pointer; transition: all 0.2s ease; }
         .btn-secondary:hover { border-color: #94a3b8; color: #334155; }
         .char-count { font-size: 11px; color: #94a3b8; text-align: right; margin-top: 4px; }
+        .badge-limit { font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 99px; background: #e0e7ff; color: #4338ca; }
         @media (min-width: 1024px) { body { overflow: hidden; } }
     </style>
 </head>
 <body class="antialiased text-slate-800">
 <div class="flex flex-col lg:flex-row min-h-screen">
+    <!-- Sidebar -->
     <aside class="w-full lg:w-80 sidebar-gradient text-slate-400 flex flex-col shadow-2xl z-50 lg:h-screen lg:sticky lg:top-0">
         <div class="p-8 pb-6">
             <div class="flex items-center gap-3 italic font-black text-2xl uppercase tracking-tighter text-white">
                 <i class="fas fa-handshake-angle text-indigo-400"></i>
                 <span>COACH <span class="text-indigo-400">CONNECT</span></span>
             </div>
+            <p class="text-[9px] font-bold text-slate-400 mt-1 tracking-wider uppercase">Provincial Physician Coaching Program</p>
         </div>
-        <div class="px-6 mb-8">
-            <div class="bg-white/5 border border-white/10 rounded-3xl p-5">
-                <div class="flex items-center gap-4">
-                    <div class="h-12 w-12 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-black italic text-lg">
-                        <i class="fas fa-user-md"></i>
+        <div class="px-6 mb-6">
+            <div class="bg-white/5 border border-white/10 rounded-2xl p-4">
+                <div class="flex items-center gap-3.5">
+                    <div class="h-11 w-11 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-black italic text-lg shadow-md">
+                        <i class="fas fa-user-doctor"></i>
                     </div>
                     <div>
-                        <h4 class="text-sm font-black italic text-white leading-none uppercase" id="sidebar-name">New Coachee</h4>
-                        <p class="text-[8px] font-black text-indigo-400 mt-1.5 uppercase tracking-widest opacity-80">Setting up profile</p>
+                        <h4 class="text-xs font-black italic text-white uppercase tracking-tight" id="sidebar-name">Dr. Coachee</h4>
+                        <p class="text-[8px] font-black text-indigo-400 mt-1 uppercase tracking-widest opacity-80" id="sidebar-status">Application Setup</p>
                     </div>
                 </div>
             </div>
         </div>
         <div class="px-6 flex-1">
-            <span class="accent-text text-slate-600 block mb-5">Setup Progress</span>
+            <span class="accent-text text-slate-500 block mb-4">Application Progress</span>
             <div class="space-y-1" id="sidebar-steps">
-                <div class="flex items-center gap-4 px-2 py-3 rounded-2xl" id="step-nav-1">
+                <div class="flex items-center gap-3.5 px-2 py-2.5 rounded-xl" id="step-nav-1">
                     <div class="step-dot active" id="dot-1">1</div>
                     <div>
-                        <p class="text-xs font-black text-white uppercase tracking-wider">About You</p>
-                        <p class="text-[10px] text-slate-500 mt-0.5">Contact & background</p>
+                        <p class="text-xs font-black text-white uppercase tracking-wider" id="label-1">About You</p>
+                        <p class="text-[10px] text-slate-400 mt-0.5">Profile & background</p>
                     </div>
                 </div>
-                <div class="flex items-center gap-4 px-2 py-3 rounded-2xl" id="step-nav-2">
+                <div class="flex items-center gap-3.5 px-2 py-2.5 rounded-xl" id="step-nav-2">
                     <div class="step-dot pending" id="dot-2">2</div>
                     <div>
-                        <p class="text-xs font-black text-slate-500 uppercase tracking-wider" id="label-2">Your Project</p>
-                        <p class="text-[10px] text-slate-600 mt-0.5">Problem & funding</p>
+                        <p class="text-xs font-black text-slate-500 uppercase tracking-wider" id="label-2">The Project</p>
+                        <p class="text-[10px] text-slate-600 mt-0.5">Problem, setting & funding</p>
                     </div>
                 </div>
-                <div class="flex items-center gap-4 px-2 py-3 rounded-2xl" id="step-nav-3">
+                <div class="flex items-center gap-3.5 px-2 py-2.5 rounded-xl" id="step-nav-3">
                     <div class="step-dot pending" id="dot-3">3</div>
                     <div>
-                        <p class="text-xs font-black text-slate-500 uppercase tracking-wider" id="label-3">Support & Training</p>
-                        <p class="text-[10px] text-slate-600 mt-0.5">Needs & QI background</p>
+                        <p class="text-xs font-black text-slate-500 uppercase tracking-wider" id="label-3">Coaching Needs</p>
+                        <p class="text-[10px] text-slate-600 mt-0.5">QI goals & coach fit</p>
                     </div>
                 </div>
-                <div class="flex items-center gap-4 px-2 py-3 rounded-2xl" id="step-nav-4">
+                <div class="flex items-center gap-3.5 px-2 py-2.5 rounded-xl" id="step-nav-4">
                     <div class="step-dot pending" id="dot-4">4</div>
                     <div>
-                        <p class="text-xs font-black text-slate-500 uppercase tracking-wider" id="label-4">Availability</p>
-                        <p class="text-[10px] text-slate-600 mt-0.5">Schedule & preferences</p>
+                        <p class="text-xs font-black text-slate-500 uppercase tracking-wider" id="label-4">Style & Schedule</p>
+                        <p class="text-[10px] text-slate-600 mt-0.5">Structure & availability</p>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="p-8 border-t border-white/5">
+        <div class="p-6 border-t border-white/5">
             <div class="flex justify-between items-center mb-2">
-                <span class="text-[10px] font-black text-slate-500 uppercase tracking-wider">Profile Complete</span>
+                <span class="text-[10px] font-black text-slate-500 uppercase tracking-wider">Progress</span>
                 <span class="text-[10px] font-black text-indigo-400" id="progress-label">0%</span>
             </div>
             <div class="progress-track">
@@ -106,82 +108,196 @@
         </div>
     </aside>
 
+    <!-- Main Content Area -->
     <main class="flex-1 lg:h-screen lg:overflow-y-auto">
-        <div class="max-w-2xl mx-auto px-6 py-12">
-            <div class="mb-10">
-                <p class="text-[10px] font-black text-indigo-500 uppercase tracking-widest mb-2">Step <span id="step-num">1</span> of 4</p>
-                <h1 class="text-3xl font-black text-slate-900 leading-tight" id="step-title">Tell us about yourself</h1>
-                <p class="text-slate-500 text-sm mt-2" id="step-subtitle">Your information will remain confidential.</p>
+        <div class="max-w-2xl mx-auto px-6 py-10">
+            <div class="mb-8">
+                <p class="text-[10px] font-black text-indigo-500 uppercase tracking-widest mb-1">Step <span id="step-num">1</span> of 4</p>
+                <h1 class="text-2xl font-black text-slate-900 leading-tight" id="step-title">Tell us about yourself</h1>
+                <p class="text-slate-500 text-xs mt-1.5" id="step-subtitle">Your practice background and preferences will remain confidential.</p>
             </div>
 
+            <!-- STEP 1: About You (Coachee Profile - 1회성 등록) -->
             <div class="step-panel active" id="panel-1">
-                <div class="space-y-5">
-                    <div>
-                        <label class="block text-xs font-black text-slate-700 uppercase tracking-wider mb-2">Phone <span class="text-slate-400 font-normal normal-case tracking-normal">(optional)</span></label>
-                        <input type="tel" class="form-input" id="phone" placeholder="604-555-0000">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-black text-slate-700 uppercase tracking-wider mb-2">Site / Community <span class="text-indigo-500">*</span></label>
-                        <input type="text" class="form-input" id="site" placeholder="e.g. St. Paul's Hospital, Vancouver">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-black text-slate-700 uppercase tracking-wider mb-2">Role & Specialty <span class="text-indigo-500">*</span></label>
-                        <input type="text" class="form-input" id="role-specialty" placeholder="e.g. Family Physician, General Practice">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-black text-slate-700 uppercase tracking-wider mb-2">About You <span class="text-indigo-500">*</span></label>
-                        <p class="text-xs text-slate-400 mb-3">Where are you located? What is your role in the health system? What kind of work are you doing?</p>
-                        <textarea class="form-input" id="about" rows="5" maxlength="1000" placeholder="I'm a family physician based in Vancouver..." oninput="updateChar('about', 'count-about')"></textarea>
-                        <p class="char-count"><span id="count-about">0</span>/1000</p>
-                    </div>
-                </div>
-                <div class="flex justify-end mt-10">
-                    <button class="btn-primary" onclick="goToStep(2)">Continue <i class="fas fa-arrow-right ml-2"></i></button>
-                </div>
-            </div>
-
-            <div class="step-panel" id="panel-2">
-                <div class="space-y-7">
-                    <div>
-                        <label class="block text-xs font-black text-slate-700 uppercase tracking-wider mb-2">The Problem <span class="text-indigo-500">*</span></label>
-                        <p class="text-xs text-slate-400 mb-3">Tell us about the problem you are trying to solve and why it is important to you.</p>
-                        <textarea class="form-input" id="problem" rows="5" maxlength="1000" oninput="updateChar('problem', 'count-problem')"></textarea>
-                        <p class="char-count"><span id="count-problem">0</span>/1000</p>
+                <div class="space-y-6">
+                    <!-- Authenticated Identity Card (이름/이메일 재입력 불필요) -->
+                    <div class="bg-indigo-50/70 border border-indigo-100 rounded-2xl p-4 flex items-center justify-between">
+                        <div class="flex items-center gap-3.5">
+                            <div class="h-10 w-10 rounded-xl bg-indigo-600 flex items-center justify-center text-white text-sm font-bold shadow-sm">
+                                <i class="fas fa-id-card-clip"></i>
+                            </div>
+                            <div>
+                                <div class="flex items-center gap-2">
+                                    <span class="text-xs font-black text-slate-800" id="display-auth-name">Dr. Coachee</span>
+                                    <span class="text-[9px] font-extrabold uppercase bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full tracking-wider">Verified Account</span>
+                                </div>
+                                <p class="text-[11px] text-slate-500 mt-0.5" id="display-auth-email">doctor@example.com</p>
+                            </div>
+                        </div>
+                        <span class="text-[10px] font-bold text-indigo-500"><i class="fas fa-lock mr-1"></i> Linked</span>
                     </div>
 
                     <div>
-                        <label class="block text-xs font-black text-slate-700 uppercase tracking-wider mb-4">Your Situation <span class="text-indigo-500">*</span></label>
-                        <div class="space-y-3" id="situation-cards">
-                            <div class="radio-card" onclick="selectSingle('situation', 'idea')">
-                                <div class="flex items-center gap-4">
-                                    <div class="radio-dot" id="rdot-situation-idea"></div>
-                                    <p class="text-sm font-semibold text-slate-700">I have an idea for a QI project but I don't know where to go from here</p>
+                        <label class="block text-xs font-black text-slate-700 uppercase tracking-wider mb-2">Phone Number <span class="text-indigo-500">*</span></label>
+                        <p class="text-xs text-slate-400 mb-2">For direct communication and scheduling confirmation.</p>
+                        <input type="tel" class="form-input" id="phone" placeholder="604-555-0100">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-black text-slate-700 uppercase tracking-wider mb-3">What best describes you? <span class="text-indigo-500">*</span></label>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                            <div class="radio-card" onclick="selectSingle('physician-type', 'family')">
+                                <div class="flex items-center gap-3">
+                                    <div class="radio-dot" id="rdot-physician-type-family"></div>
+                                    <span class="text-xs font-bold text-slate-700">Family Physician</span>
                                 </div>
                             </div>
-                            <div class="radio-card" onclick="selectSingle('situation', 'starting')">
-                                <div class="flex items-center gap-4">
-                                    <div class="radio-dot" id="rdot-situation-starting"></div>
-                                    <p class="text-sm font-semibold text-slate-700">I have a QI project with funding in place and I'm just starting the work</p>
+                            <div class="radio-card" onclick="selectSingle('physician-type', 'specialist')">
+                                <div class="flex items-center gap-3">
+                                    <div class="radio-dot" id="rdot-physician-type-specialist"></div>
+                                    <span class="text-xs font-bold text-slate-700">Specialist Physician</span>
                                 </div>
                             </div>
-                            <div class="radio-card" onclick="selectSingle('situation', 'stuck')">
-                                <div class="flex items-center gap-4">
-                                    <div class="radio-dot" id="rdot-situation-stuck"></div>
-                                    <p class="text-sm font-semibold text-slate-700">I have a QI project with funding in place but I feel stuck</p>
-                                </div>
-                            </div>
-                            <div class="radio-card" onclick="selectSingle('situation', 'other')">
-                                <div class="flex items-center gap-4">
-                                    <div class="radio-dot" id="rdot-situation-other"></div>
-                                    <p class="text-sm font-semibold text-slate-700">Other</p>
+                            <div class="radio-card" onclick="selectSingle('physician-type', 'other')">
+                                <div class="flex items-center gap-3">
+                                    <div class="radio-dot" id="rdot-physician-type-other"></div>
+                                    <span class="text-xs font-bold text-slate-700">Other</span>
                                 </div>
                             </div>
                         </div>
                     </div>
 
                     <div>
-                        <label class="block text-xs font-black text-slate-700 uppercase tracking-wider mb-2">Funding Source <span class="text-slate-400 font-normal normal-case tracking-normal">(optional)</span></label>
-                        <p class="text-xs text-slate-400 mb-4">If you have funding, who is supporting your QI project?</p>
+                        <label class="block text-xs font-black text-slate-700 uppercase tracking-wider mb-2">Quality Improvement Training Completed <span class="text-indigo-500">*</span></label>
+                        <p class="text-xs text-slate-400 mb-3">Select all that apply.</p>
+                        <div class="flex flex-wrap gap-2" id="training-tags">
+                            <span class="check-tag" onclick="toggleTag(this, 'training')">PQI Level 1</span>
+                            <span class="check-tag" onclick="toggleTag(this, 'training')">PQI Level 2</span>
+                            <span class="check-tag" onclick="toggleTag(this, 'training')">PQI Level 3</span>
+                            <span class="check-tag" onclick="toggleTag(this, 'training')">Clinician Quality Academy</span>
+                            <span class="check-tag" onclick="toggleTag(this, 'training')">I have not completed any QI training</span>
+                            <span class="check-tag" onclick="toggleTag(this, 'training')">Other</span>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-black text-slate-700 uppercase tracking-wider mb-2">About Yourself <span class="text-indigo-500">*</span></label>
+                        <p class="text-xs text-slate-400 mb-2">Where are you located? What is your role in the health system? What kind of work are you doing?</p>
+                        <textarea class="form-input" id="about" rows="4" maxlength="1000" placeholder="e.g. I am a full-service family physician in Victoria working in primary care..." oninput="updateChar('about', 'count-about')"></textarea>
+                        <p class="char-count"><span id="count-about">0</span>/1000</p>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-black text-slate-700 uppercase tracking-wider mb-3">How did you hear about the program? <span class="text-indigo-500">*</span></label>
+                        <div class="space-y-2.5">
+                            <div class="radio-card" onclick="selectSingle('referral', 'dobc-website')">
+                                <div class="flex items-center gap-3">
+                                    <div class="radio-dot" id="rdot-referral-dobc-website"></div>
+                                    <span class="text-xs font-semibold text-slate-700">Doctors of BC Website</span>
+                                </div>
+                            </div>
+                            <div class="radio-card" onclick="selectSingle('referral', 'dobc-staff')">
+                                <div class="flex items-center gap-3">
+                                    <div class="radio-dot" id="rdot-referral-dobc-staff"></div>
+                                    <span class="text-xs font-semibold text-slate-700">DoBC Staff (Liaison, Engagement Partner, etc.)</span>
+                                </div>
+                            </div>
+                            <div class="radio-card" onclick="selectSingle('referral', 'program-peer')">
+                                <div class="flex items-center gap-3">
+                                    <div class="radio-dot" id="rdot-referral-program-peer"></div>
+                                    <span class="text-xs font-semibold text-slate-700">From a current coach or coachee in the program</span>
+                                </div>
+                            </div>
+                            <div class="radio-card" onclick="selectSingle('referral', 'physician-colleague')">
+                                <div class="flex items-center gap-3">
+                                    <div class="radio-dot" id="rdot-referral-physician-colleague"></div>
+                                    <span class="text-xs font-semibold text-slate-700">From another physician</span>
+                                </div>
+                            </div>
+                            <div class="radio-card" onclick="selectSingle('referral', 'other')">
+                                <div class="flex items-center gap-3">
+                                    <div class="radio-dot" id="rdot-referral-other"></div>
+                                    <span class="text-xs font-semibold text-slate-700">Other</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex justify-end mt-10">
+                    <button class="btn-primary" onclick="goToStep(2)">Continue to Project <i class="fas fa-arrow-right ml-2"></i></button>
+                </div>
+            </div>
+
+            <!-- STEP 2: The Project (Project Overview) -->
+            <div class="step-panel" id="panel-2">
+                <div class="space-y-6">
+                    <div>
+                        <label class="block text-xs font-black text-slate-700 uppercase tracking-wider mb-2">Project Title or Theme <span class="text-indigo-500">*</span></label>
+                        <input type="text" class="form-input" id="project-title" placeholder="e.g. Improving Post-Surgical Follow-up in Outpatient Clinics">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-black text-slate-700 uppercase tracking-wider mb-2">Are you the Physician Lead for this project? <span class="text-indigo-500">*</span></label>
+                        <p class="text-xs text-slate-400 mb-3">The primary coaching relationship is between the physician lead (coachee) and the QI Coach.</p>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div class="radio-card" onclick="selectLeadChoice('yes')">
+                                <div class="flex items-center gap-3">
+                                    <div class="radio-dot" id="rdot-is-lead-yes"></div>
+                                    <span class="text-xs font-bold text-slate-700">Yes, I am the lead</span>
+                                </div>
+                            </div>
+                            <div class="radio-card" onclick="selectLeadChoice('no')">
+                                <div class="flex items-center gap-3">
+                                    <div class="radio-dot" id="rdot-is-lead-no"></div>
+                                    <span class="text-xs font-bold text-slate-700">No, another physician leads</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Only shown if applicant is NOT the Physician Lead -->
+                    <div id="lead-details-section" class="bg-indigo-50/60 border border-indigo-100 rounded-xl p-4 space-y-3" style="display: none;">
+                        <p class="text-xs font-bold text-indigo-900"><i class="fas fa-info-circle mr-1"></i> Physician Lead Contact Details</p>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-[11px] font-bold text-slate-600 mb-1">Lead Physician Name <span class="text-indigo-500">*</span></label>
+                                <input type="text" class="form-input bg-white text-xs" id="physician-lead-name" placeholder="Dr. Full Name">
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-bold text-slate-600 mb-1">Lead Physician Email <span class="text-indigo-500">*</span></label>
+                                <input type="email" class="form-input bg-white text-xs" id="physician-lead-email" placeholder="lead.doctor@example.com">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-black text-slate-700 uppercase tracking-wider mb-2">Primary Setting of Your QI Project <span class="text-indigo-500">*</span></label>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                            <div class="radio-card" onclick="selectSingle('project-setting', 'community')">
+                                <div class="flex items-center gap-3">
+                                    <div class="radio-dot" id="rdot-project-setting-community"></div>
+                                    <span class="text-xs font-bold text-slate-700">Community</span>
+                                </div>
+                            </div>
+                            <div class="radio-card" onclick="selectSingle('project-setting', 'facility')">
+                                <div class="flex items-center gap-3">
+                                    <div class="radio-dot" id="rdot-project-setting-facility"></div>
+                                    <span class="text-xs font-bold text-slate-700">Facility / Hospital</span>
+                                </div>
+                            </div>
+                            <div class="radio-card" onclick="selectSingle('project-setting', 'other')">
+                                <div class="flex items-center gap-3">
+                                    <div class="radio-dot" id="rdot-project-setting-other"></div>
+                                    <span class="text-xs font-bold text-slate-700">Other</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-black text-slate-700 uppercase tracking-wider mb-2">Funding Support Source(s) <span class="text-indigo-500">*</span></label>
+                        <p class="text-xs text-slate-400 mb-3">Please indicate all funding streams supporting this project.</p>
                         <div class="flex flex-wrap gap-2" id="funding-tags">
                             <span class="check-tag" onclick="toggleTag(this, 'funding')">Shared Care</span>
                             <span class="check-tag" onclick="toggleTag(this, 'funding')">Perioperative Clinical Action Network</span>
@@ -189,133 +305,228 @@
                             <span class="check-tag" onclick="toggleTag(this, 'funding')">Health System Redesign</span>
                             <span class="check-tag" onclick="toggleTag(this, 'funding')">My Health Authority</span>
                             <span class="check-tag" onclick="toggleTag(this, 'funding')">Specialist Wellness (SWELL)</span>
+                            <span class="check-tag" onclick="toggleTag(this, 'funding')">PQI</span>
+                            <span class="check-tag" onclick="toggleTag(this, 'funding')">No current funding</span>
                             <span class="check-tag" onclick="toggleTag(this, 'funding')">Other</span>
                         </div>
                     </div>
 
-                    <div>
-                        <label class="block text-xs font-black text-slate-700 uppercase tracking-wider mb-2">Physician Lead <span class="text-slate-400 font-normal normal-case tracking-normal">(optional)</span></label>
-                        <p class="text-xs text-slate-400 mb-3">If you are not the physician lead, please indicate the name of the physician lead for this project.</p>
-                        <input type="text" class="form-input" id="physician-lead" placeholder="Dr. ...">
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-black text-slate-700 uppercase tracking-wider mb-2">Project Title <span class="text-indigo-500">*</span></label>
-                        <input type="text" class="form-input" id="project-title" placeholder="e.g. Reducing ER Wait Times for Elective Cases">
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-black text-slate-700 uppercase tracking-wider mb-2">Project Region / Community <span class="text-indigo-500">*</span></label>
-                        <input type="text" class="form-input" id="project-region" placeholder="e.g. Vancouver Coastal Health">
-                    </div>
-
-                    <div class="grid grid-cols-2 gap-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-xs font-black text-slate-700 uppercase tracking-wider mb-2">Anticipated Start Date</label>
+                            <label class="block text-xs font-black text-slate-700 uppercase tracking-wider mb-2">Anticipated Start Date <span class="text-slate-400 font-normal normal-case">(optional)</span></label>
                             <input type="date" class="form-input" id="start-date">
                         </div>
                         <div>
-                            <label class="block text-xs font-black text-slate-700 uppercase tracking-wider mb-2">Anticipated End Date</label>
+                            <label class="block text-xs font-black text-slate-700 uppercase tracking-wider mb-2">Anticipated End Date / Milestone <span class="text-slate-400 font-normal normal-case">(optional)</span></label>
                             <input type="date" class="form-input" id="end-date">
                         </div>
                     </div>
+
+                    <div>
+                        <label class="block text-xs font-black text-slate-700 uppercase tracking-wider mb-2">The Problem <span class="text-indigo-500">*</span></label>
+                        <p class="text-xs text-slate-400 mb-2">Tell us about the problem you are trying to solve and why it is important to you and your patients.</p>
+                        <textarea class="form-input" id="problem" rows="5" maxlength="1200" placeholder="Describe the current gap, challenge, or patient impact..." oninput="updateChar('problem', 'count-problem')"></textarea>
+                        <p class="char-count"><span id="count-problem">0</span>/1200</p>
+                    </div>
                 </div>
+
                 <div class="flex justify-between mt-10 pb-4">
                     <button class="btn-secondary" id="btn-back-1" onclick="goToStep(1)"><i class="fas fa-arrow-left mr-2"></i> Back</button>
-                    <button class="btn-primary" onclick="goToStep(3)">Continue <i class="fas fa-arrow-right ml-2"></i></button>
+                    <button class="btn-primary" onclick="goToStep(3)">Continue to Needs <i class="fas fa-arrow-right ml-2"></i></button>
                 </div>
             </div>
 
+            <!-- STEP 3: Coaching Needs (QI Topics & Fit) -->
             <div class="step-panel" id="panel-3">
-                <div class="space-y-7">
+                <div class="space-y-6">
+                    <div>
+                        <div class="flex items-center justify-between mb-2">
+                            <label class="block text-xs font-black text-slate-700 uppercase tracking-wider">What do you need the most support with? <span class="text-indigo-500">*</span></label>
+                            <span class="badge-limit" id="support-counter">0 / 3 Selected</span>
+                        </div>
+                        <p class="text-xs text-slate-400 mb-3">Select your <strong>top three (3)</strong> QI support needs.</p>
+                        <div class="flex flex-wrap gap-2" id="support-tags">
+                            <span class="check-tag" onclick="toggleTagWithLimit(this, 'support', 3)">Understanding the problem</span>
+                            <span class="check-tag" onclick="toggleTagWithLimit(this, 'support', 3)">Measurement and evaluation</span>
+                            <span class="check-tag" onclick="toggleTagWithLimit(this, 'support', 3)">Communication and team engagement</span>
+                            <span class="check-tag" onclick="toggleTagWithLimit(this, 'support', 3)">Human side of change</span>
+                            <span class="check-tag" onclick="toggleTagWithLimit(this, 'support', 3)">Leadership skills</span>
+                            <span class="check-tag" onclick="toggleTagWithLimit(this, 'support', 3)">Project ethics</span>
+                            <span class="check-tag" onclick="toggleTagWithLimit(this, 'support', 3)">Testing change ideas (PDSA)</span>
+                            <span class="check-tag" onclick="toggleTagWithLimit(this, 'support', 3)">Implementation and sustainability</span>
+                            <span class="check-tag" onclick="toggleTagWithLimit(this, 'support', 3)">Spread</span>
+                            <span class="check-tag" onclick="toggleTagWithLimit(this, 'support', 3)">Publishing</span>
+                            <span class="check-tag" onclick="toggleTagWithLimit(this, 'support', 3)">Patient partner engagement</span>
+                            <span class="check-tag" onclick="toggleTagWithLimit(this, 'support', 3)">Other</span>
+                        </div>
+                    </div>
+
                     <div>
                         <label class="block text-xs font-black text-slate-700 uppercase tracking-wider mb-2">What are you looking for in a coach? <span class="text-indigo-500">*</span></label>
-                        <p class="text-xs text-slate-400 mb-3">e.g. a technical expert, a friendly advisor/educator, someone to help take your project to the next level</p>
-                        <textarea class="form-input" id="coach-looking-for" rows="4" maxlength="500" oninput="updateChar('coach-looking-for', 'count-coach')"></textarea>
-                        <p class="char-count"><span id="count-coach">0</span>/500</p>
+                        <p class="text-xs text-slate-400 mb-2">Consider factors such as communication style, coaching approach, clinical background, familiarity with your practice setting, or specific QI expertise.</p>
+                        <textarea class="form-input" id="coach-looking-for" rows="4" maxlength="600" placeholder="e.g. Someone with experience in acute care and facility engagement, who can challenge our measurement methodology..." oninput="updateChar('coach-looking-for', 'count-coach')"></textarea>
+                        <p class="char-count"><span id="count-coach">0</span>/600</p>
                     </div>
 
                     <div>
-                        <label class="block text-xs font-black text-slate-700 uppercase tracking-wider mb-2">What do you need the most support with? <span class="text-indigo-500">*</span></label>
-                        <p class="text-xs text-slate-400 mb-4">Select all that apply.</p>
-                        <div class="flex flex-wrap gap-2" id="support-tags">
-                            <span class="check-tag" onclick="toggleTag(this, 'support')">Sourcing appropriate funding and support</span>
-                            <span class="check-tag" onclick="toggleTag(this, 'support')">Understanding the problem</span>
-                            <span class="check-tag" onclick="toggleTag(this, 'support')">Measurement and evaluation</span>
-                            <span class="check-tag" onclick="toggleTag(this, 'support')">Communication and team engagement</span>
-                            <span class="check-tag" onclick="toggleTag(this, 'support')">Patient partner engagement</span>
-                            <span class="check-tag" onclick="toggleTag(this, 'support')">Leadership skills</span>
-                            <span class="check-tag" onclick="toggleTag(this, 'support')">Project ethics</span>
-                            <span class="check-tag" onclick="toggleTag(this, 'support')">Testing change ideas (PDSA cycles)</span>
-                            <span class="check-tag" onclick="toggleTag(this, 'support')">Implementation and sustainability</span>
-                            <span class="check-tag" onclick="toggleTag(this, 'support')">Spread</span>
-                            <span class="check-tag" onclick="toggleTag(this, 'support')">Publishing</span>
-                            <span class="check-tag" onclick="toggleTag(this, 'support')">Other</span>
-                        </div>
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-black text-slate-700 uppercase tracking-wider mb-4">Previous QI Training? <span class="text-indigo-500">*</span></label>
-                        <div class="flex gap-3">
-                            <div class="radio-card flex-1" onclick="selectSingle('qi-training', 'yes')">
-                                <div class="flex items-center gap-4">
-                                    <div class="radio-dot" id="rdot-qi-training-yes"></div>
-                                    <p class="text-sm font-semibold text-slate-700">Yes</p>
+                        <label class="block text-xs font-black text-slate-700 uppercase tracking-wider mb-2">Do you have a coach in mind? <span class="text-indigo-500">*</span></label>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div class="radio-card" onclick="selectCoachInMindChoice('no')">
+                                <div class="flex items-center gap-3">
+                                    <div class="radio-dot" id="rdot-coach-in-mind-no"></div>
+                                    <span class="text-xs font-bold text-slate-700">No, open to being matched</span>
                                 </div>
                             </div>
-                            <div class="radio-card flex-1" onclick="selectSingle('qi-training', 'no')">
-                                <div class="flex items-center gap-4">
-                                    <div class="radio-dot" id="rdot-qi-training-no"></div>
-                                    <p class="text-sm font-semibold text-slate-700">No</p>
+                            <div class="radio-card" onclick="selectCoachInMindChoice('yes')">
+                                <div class="flex items-center gap-3">
+                                    <div class="radio-dot" id="rdot-coach-in-mind-yes"></div>
+                                    <span class="text-xs font-bold text-slate-700">Yes, I have a coach in mind</span>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <div id="qi-level-section" style="display:none">
-                        <label class="block text-xs font-black text-slate-700 uppercase tracking-wider mb-4">Highest Level of QI Training</label>
-                        <div class="space-y-3">
-                            <div class="radio-card" onclick="selectSingle('qi-level', 'level1')">
-                                <div class="flex items-center gap-4">
-                                    <div class="radio-dot" id="rdot-qi-level-level1"></div>
-                                    <p class="text-sm font-semibold text-slate-700">PQI Level 1</p>
-                                </div>
-                            </div>
-                            <div class="radio-card" onclick="selectSingle('qi-level', 'level2')">
-                                <div class="flex items-center gap-4">
-                                    <div class="radio-dot" id="rdot-qi-level-level2"></div>
-                                    <p class="text-sm font-semibold text-slate-700">PQI Level 2</p>
-                                </div>
-                            </div>
-                            <div class="radio-card" onclick="selectSingle('qi-level', 'level3')">
-                                <div class="flex items-center gap-4">
-                                    <div class="radio-dot" id="rdot-qi-level-level3"></div>
-                                    <p class="text-sm font-semibold text-slate-700">PQI Level 3</p>
-                                </div>
-                            </div>
-                            <div class="radio-card" onclick="selectSingle('qi-level', 'other')">
-                                <div class="flex items-center gap-4">
-                                    <div class="radio-dot" id="rdot-qi-level-other"></div>
-                                    <p class="text-sm font-semibold text-slate-700">Other</p>
-                                </div>
-                            </div>
-                        </div>
+                    <!-- Only shown if applicant has a coach in mind -->
+                    <div id="coach-preference-section" class="bg-indigo-50/60 border border-indigo-100 rounded-xl p-4 space-y-2" style="display: none;">
+                        <label class="block text-xs font-bold text-indigo-900">Preferred Coach(es)</label>
+                        <p class="text-[11px] text-slate-500 mb-2">Indicate up to two coaches (first name only). Preferences are considered alongside fit and capacity.</p>
+                        <input type="text" class="form-input bg-white text-xs" id="preferred-coaches" placeholder="e.g. Sarah, David">
                     </div>
                 </div>
 
                 <div class="flex justify-between mt-10 pb-4">
                     <button class="btn-secondary" onclick="goToStep(2)"><i class="fas fa-arrow-left mr-2"></i> Back</button>
-                    <button class="btn-primary" onclick="goToStep(4)">Continue <i class="fas fa-arrow-right ml-2"></i></button>
+                    <button class="btn-primary" onclick="goToStep(4)">Continue to Style <i class="fas fa-arrow-right ml-2"></i></button>
                 </div>
             </div>
 
+            <!-- STEP 4: Style & Availability (1:1 Matching Architecture) -->
             <div class="step-panel" id="panel-4">
-                <div class="space-y-7">
+                <div class="space-y-6">
                     <div>
-                        <label class="block text-xs font-black text-slate-700 uppercase tracking-wider mb-2">General Availability <span class="text-indigo-500">*</span></label>
-                        <p class="text-xs text-slate-400 mb-4">What is your general availability for the next 1-2 months?</p>
+                        <label class="block text-xs font-black text-slate-700 uppercase tracking-wider mb-2">Coaching Structure <span class="text-indigo-500">*</span></label>
+                        <p class="text-xs text-slate-400 mb-3">What kind of coaching structure would be most helpful to you?</p>
+                        <div class="space-y-2.5">
+                            <div class="radio-card" onclick="selectSingle('coaching-structure', 'structured')">
+                                <div class="flex items-center gap-3">
+                                    <div class="radio-dot" id="rdot-coaching-structure-structured"></div>
+                                    <div>
+                                        <p class="text-xs font-bold text-slate-800">Highly structured</p>
+                                        <p class="text-[11px] text-slate-500">Clear goals, actionable next steps, and consistent follow-ups</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="radio-card" onclick="selectSingle('coaching-structure', 'balanced')">
+                                <div class="flex items-center gap-3">
+                                    <div class="radio-dot" id="rdot-coaching-structure-balanced"></div>
+                                    <div>
+                                        <p class="text-xs font-bold text-slate-800">Some structure</p>
+                                        <p class="text-[11px] text-slate-500">Guided framework with flexibility as project needs evolve</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="radio-card" onclick="selectSingle('coaching-structure', 'flexible')">
+                                <div class="flex items-center gap-3">
+                                    <div class="radio-dot" id="rdot-coaching-structure-flexible"></div>
+                                    <div>
+                                        <p class="text-xs font-bold text-slate-800">Flexible and coachee-led</p>
+                                        <p class="text-[11px] text-slate-500">Informal, ad-hoc guidance driven by current priorities</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="radio-card" onclick="selectSingle('coaching-structure', 'none')">
+                                <div class="flex items-center gap-3">
+                                    <div class="radio-dot" id="rdot-coaching-structure-none"></div>
+                                    <span class="text-xs font-semibold text-slate-700">No preference</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-black text-slate-700 uppercase tracking-wider mb-2">Challenging Thinking & Assumptions <span class="text-indigo-500">*</span></label>
+                        <p class="text-xs text-slate-400 mb-3">How would you prefer your coach to respond when seeing an opportunity to challenge your thinking?</p>
+                        <div class="space-y-2.5">
+                            <div class="radio-card" onclick="selectSingle('coaching-challenge', 'direct')">
+                                <div class="flex items-center gap-3">
+                                    <div class="radio-dot" id="rdot-coaching-challenge-direct"></div>
+                                    <div>
+                                        <p class="text-xs font-bold text-slate-800">Be direct</p>
+                                        <p class="text-[11px] text-slate-500">I value having my thinking and assumptions openly challenged</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="radio-card" onclick="selectSingle('coaching-challenge', 'balanced')">
+                                <div class="flex items-center gap-3">
+                                    <div class="radio-dot" id="rdot-coaching-challenge-balanced"></div>
+                                    <div>
+                                        <p class="text-xs font-bold text-slate-800">Balance challenge with support</p>
+                                        <p class="text-[11px] text-slate-500">Constructive feedback paired with room to work through options</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="radio-card" onclick="selectSingle('coaching-challenge', 'reflective')">
+                                <div class="flex items-center gap-3">
+                                    <div class="radio-dot" id="rdot-coaching-challenge-reflective"></div>
+                                    <div>
+                                        <p class="text-xs font-bold text-slate-800">Reflective approach</p>
+                                        <p class="text-[11px] text-slate-500">Guiding questions that help me reach my own conclusions</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="radio-card" onclick="selectSingle('coaching-challenge', 'none')">
+                                <div class="flex items-center gap-3">
+                                    <div class="radio-dot" id="rdot-coaching-challenge-none"></div>
+                                    <span class="text-xs font-semibold text-slate-700">No preference</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-black text-slate-700 uppercase tracking-wider mb-2">Accountability & Follow-Through <span class="text-indigo-500">*</span></label>
+                        <p class="text-xs text-slate-400 mb-3">How much accountability would you like from your coach between sessions?</p>
+                        <div class="space-y-2.5">
+                            <div class="radio-card" onclick="selectSingle('coaching-accountability', 'structured')">
+                                <div class="flex items-center gap-3">
+                                    <div class="radio-dot" id="rdot-coaching-accountability-structured"></div>
+                                    <div>
+                                        <p class="text-xs font-bold text-slate-800">Structured accountability</p>
+                                        <p class="text-[11px] text-slate-500">Clear deliverables, action items, and milestone tracking</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="radio-card" onclick="selectSingle('coaching-accountability', 'some')">
+                                <div class="flex items-center gap-3">
+                                    <div class="radio-dot" id="rdot-coaching-accountability-some"></div>
+                                    <div>
+                                        <p class="text-xs font-bold text-slate-800">Some follow-up</p>
+                                        <p class="text-[11px] text-slate-500">Periodic touchpoints while remaining largely self-directed</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="radio-card" onclick="selectSingle('coaching-accountability', 'self')">
+                                <div class="flex items-center gap-3">
+                                    <div class="radio-dot" id="rdot-coaching-accountability-self"></div>
+                                    <div>
+                                        <p class="text-xs font-bold text-slate-800">Self-directed</p>
+                                        <p class="text-[11px] text-slate-500">I prefer to manage my own follow-through between sessions</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="radio-card" onclick="selectSingle('coaching-accountability', 'none')">
+                                <div class="flex items-center gap-3">
+                                    <div class="radio-dot" id="rdot-coaching-accountability-none"></div>
+                                    <span class="text-xs font-semibold text-slate-700">No preference</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-black text-slate-700 uppercase tracking-wider mb-2">General Availability for Coaching Sessions <span class="text-indigo-500">*</span></label>
+                        <p class="text-xs text-slate-400 mb-3">Select all typical times you are available (typically 1-hour sessions).</p>
                         <div class="flex flex-wrap gap-2" id="availability-tags">
-                            <span class="check-tag" onclick="toggleTag(this, 'availability')">Mornings</span>
                             <span class="check-tag" onclick="toggleTag(this, 'availability')">Afternoons</span>
                             <span class="check-tag" onclick="toggleTag(this, 'availability')">Evenings</span>
                             <span class="check-tag" onclick="toggleTag(this, 'availability')">Weekdays</span>
@@ -325,118 +536,15 @@
                     </div>
 
                     <div>
-                        <label class="block text-xs font-black text-slate-700 uppercase tracking-wider mb-4">Meeting Frequency <span class="text-indigo-500">*</span></label>
-                        <p class="text-xs text-slate-400 mb-4">How frequently are you hoping to meet with your coach?</p>
-                        <div class="space-y-3">
-                            <div class="radio-card" onclick="selectSingle('frequency', 'biweekly')">
-                                <div class="flex items-center gap-4">
-                                    <div class="radio-dot" id="rdot-frequency-biweekly"></div>
-                                    <p class="text-sm font-semibold text-slate-700">Every 2 weeks</p>
-                                </div>
-                            </div>
-                            <div class="radio-card" onclick="selectSingle('frequency', 'monthly')">
-                                <div class="flex items-center gap-4">
-                                    <div class="radio-dot" id="rdot-frequency-monthly"></div>
-                                    <p class="text-sm font-semibold text-slate-700">Once a month</p>
-                                </div>
-                            </div>
-                            <div class="radio-card" onclick="selectSingle('frequency', 'bimonthly')">
-                                <div class="flex items-center gap-4">
-                                    <div class="radio-dot" id="rdot-frequency-bimonthly"></div>
-                                    <p class="text-sm font-semibold text-slate-700">Every 2 months</p>
-                                </div>
-                            </div>
-                            <div class="radio-card" onclick="selectSingle('frequency', 'unsure')">
-                                <div class="flex items-center gap-4">
-                                    <div class="radio-dot" id="rdot-frequency-unsure"></div>
-                                    <p class="text-sm font-semibold text-slate-700">I'm not sure</p>
-                                </div>
-                            </div>
-                            <div class="radio-card" onclick="selectSingle('frequency', 'other')">
-                                <div class="flex items-center gap-4">
-                                    <div class="radio-dot" id="rdot-frequency-other"></div>
-                                    <p class="text-sm font-semibold text-slate-700">Other</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-black text-slate-700 uppercase tracking-wider mb-4">Preferred Meeting Method <span class="text-indigo-500">*</span></label>
-                        <div class="space-y-3">
-                            <div class="radio-card" onclick="selectSingle('method', 'inperson')">
-                                <div class="flex items-center gap-4">
-                                    <div class="radio-dot" id="rdot-method-inperson"></div>
-                                    <p class="text-sm font-semibold text-slate-700">In person</p>
-                                </div>
-                            </div>
-                            <div class="radio-card" onclick="selectSingle('method', 'virtual')">
-                                <div class="flex items-center gap-4">
-                                    <div class="radio-dot" id="rdot-method-virtual"></div>
-                                    <p class="text-sm font-semibold text-slate-700">Virtual (Zoom, Teams)</p>
-                                </div>
-                            </div>
-                            <div class="radio-card" onclick="selectSingle('method', 'phone')">
-                                <div class="flex items-center gap-4">
-                                    <div class="radio-dot" id="rdot-method-phone"></div>
-                                    <p class="text-sm font-semibold text-slate-700">By phone</p>
-                                </div>
-                            </div>
-                            <div class="radio-card" onclick="selectSingle('method', 'other')">
-                                <div class="flex items-center gap-4">
-                                    <div class="radio-dot" id="rdot-method-other"></div>
-                                    <p class="text-sm font-semibold text-slate-700">Other</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-black text-slate-700 uppercase tracking-wider mb-2">Anything else for your coach? <span class="text-slate-400 font-normal normal-case tracking-normal">(optional)</span></label>
-                        <textarea class="form-input" id="additional-info" rows="3" maxlength="500" oninput="updateChar('additional-info', 'count-additional')"></textarea>
+                        <label class="block text-xs font-black text-slate-700 uppercase tracking-wider mb-2">Additional Considerations for Coaching Fit <span class="text-slate-400 font-normal normal-case">(optional)</span></label>
+                        <textarea class="form-input" id="additional-info" rows="3" maxlength="500" placeholder="Any specific scheduling nuances, communication preferences, or background details..." oninput="updateChar('additional-info', 'count-additional')"></textarea>
                         <p class="char-count"><span id="count-additional">0</span>/500</p>
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-black text-slate-700 uppercase tracking-wider mb-4">How did you hear about us? <span class="text-indigo-500">*</span></label>
-                        <div class="space-y-3">
-                            <div class="radio-card" onclick="selectSingle('referral', 'website')">
-                                <div class="flex items-center gap-4">
-                                    <div class="radio-dot" id="rdot-referral-website"></div>
-                                    <p class="text-sm font-semibold text-slate-700">Website</p>
-                                </div>
-                            </div>
-                            <div class="radio-card" onclick="selectSingle('referral', 'staff')">
-                                <div class="flex items-center gap-4">
-                                    <div class="radio-dot" id="rdot-referral-staff"></div>
-                                    <p class="text-sm font-semibold text-slate-700">From a DoBC staff (Engagement Partner, Liaison etc.)</p>
-                                </div>
-                            </div>
-                            <div class="radio-card" onclick="selectSingle('referral', 'peer')">
-                                <div class="flex items-center gap-4">
-                                    <div class="radio-dot" id="rdot-referral-peer"></div>
-                                    <p class="text-sm font-semibold text-slate-700">From a current coach or coachee in the program</p>
-                                </div>
-                            </div>
-                            <div class="radio-card" onclick="selectSingle('referral', 'physician')">
-                                <div class="flex items-center gap-4">
-                                    <div class="radio-dot" id="rdot-referral-physician"></div>
-                                    <p class="text-sm font-semibold text-slate-700">From another physician</p>
-                                </div>
-                            </div>
-                            <div class="radio-card" onclick="selectSingle('referral', 'other')">
-                                <div class="flex items-center gap-4">
-                                    <div class="radio-dot" id="rdot-referral-other"></div>
-                                    <p class="text-sm font-semibold text-slate-700">Other</p>
-                                </div>
-                            </div>
-                        </div>
                     </div>
                 </div>
 
                 <div class="flex justify-between mt-10 pb-12">
                     <button class="btn-secondary" onclick="goToStep(3)"><i class="fas fa-arrow-left mr-2"></i> Back</button>
-                    <button class="btn-primary" onclick="submitSetup()">Submit <i class="fas fa-check ml-2"></i></button>
+                    <button class="btn-primary" onclick="submitSetup()">Submit Application <i class="fas fa-check ml-2"></i></button>
                 </div>
             </div>
 
@@ -444,6 +552,7 @@
     </main>
 </div>
 
+<!-- Hidden Caspio DataPages -->
 <div id="caspio-profile" style="position:absolute;left:-9999px;top:-9999px;">
     <script type="text/javascript" src="https://c0abr823.caspio.com/dp/1c9f5000c0aaafeea05b430bbe10/emb"></script>
 </div>
@@ -454,57 +563,70 @@
 
 <script>
     const urlParams = new URLSearchParams(window.location.search);
-    const coacheeName = urlParams.get('name');
-    const uid = urlParams.get('uid');
+    const coacheeName = urlParams.get('name') || sessionStorage.getItem('name') || 'Doctor';
+    const userEmail = urlParams.get('email') || sessionStorage.getItem('email') || '';
+    const uid = urlParams.get('uid') || sessionStorage.getItem('uid') || '';
     const isNewProject = urlParams.get('mode') === 'new';
 
     if (uid) sessionStorage.setItem('uid', uid);
     if (coacheeName) sessionStorage.setItem('name', coacheeName);
+    if (userEmail) sessionStorage.setItem('email', userEmail);
 
-    if (coacheeName) {
-        document.getElementById('sidebar-name').textContent = coacheeName;
+    // Populate Sidebar and Authenticated Identity Card
+    document.getElementById('sidebar-name').textContent = coacheeName.startsWith('Dr.') ? coacheeName : `Dr. ${coacheeName}`;
+    const displayAuthName = document.getElementById('display-auth-name');
+    if (displayAuthName) displayAuthName.textContent = coacheeName.startsWith('Dr.') ? coacheeName : `Dr. ${coacheeName}`;
+    const displayAuthEmail = document.getElementById('display-auth-email');
+    if (displayAuthEmail) {
+        displayAuthEmail.textContent = userEmail || 'Verified Coaching Account';
     }
 
     const selections = {
-        situation: null,
-        'qi-training': null,
-        'qi-level': null,
-        frequency: null,
-        method: null,
-        referral: null
+        'physician-type': null,
+        referral: null,
+        'is-lead': null,
+        'project-setting': null,
+        'coach-in-mind': null,
+        'coaching-structure': null,
+        'coaching-challenge': null,
+        'coaching-accountability': null
     };
 
     const tagSelections = {
+        training: new Set(),
         funding: new Set(),
         support: new Set(),
         availability: new Set()
     };
 
     let currentStep = 1;
-    let totalSteps = 4;
+    const totalSteps = 4;
 
     const stepMeta = {
-        1: { title: "Tell us about yourself", sub: "Your information will remain confidential." },
-        2: { title: "Your project", sub: "Tell us about the problem you're working on." },
-        3: { title: "Support & training", sub: "Help us understand what you need and your QI background." },
-        4: { title: "Availability & preferences", sub: "Help us find the right coach for your schedule." }
+        1: { title: "Tell us about yourself", sub: "Your practice background and preferences will remain confidential." },
+        2: { title: "Your project", sub: "Tell us about the problem you are working on, setting, and funding." },
+        3: { title: "Support & coaching needs", sub: "Help us understand your top QI focus areas and desired coach qualities." },
+        4: { title: "Style & availability", sub: "Help us match you with a coach whose style and schedule align with yours." }
     };
 
-     if (isNewProject) {
+    if (isNewProject) {
         document.getElementById('step-nav-1').style.display = 'none';
         document.getElementById('btn-back-1').style.display = 'none';
         
-        document.getElementById(`panel-1`).classList.remove('active');
-        document.getElementById(`panel-2`).classList.add('active');
+        document.getElementById('panel-1').classList.remove('active');
+        document.getElementById('panel-2').classList.add('active');
         
         document.getElementById('dot-2').className = 'step-dot active';
         document.getElementById('dot-2').textContent = '1'; 
         document.getElementById('label-2').className = 'text-xs font-black text-white uppercase tracking-wider';
-        document.getElementById('label-2').textContent = 'New Project';
+        document.getElementById('label-2').textContent = 'The Project';
+        document.getElementById('dot-3').textContent = '2';
+        document.getElementById('dot-4').textContent = '3';
         
         document.getElementById('step-num').textContent = '1';
         document.getElementById('step-title').textContent = "Tell us about your new project";
-        document.getElementById('step-subtitle').textContent = "Help us match you with the right coach.";
+        document.getElementById('step-subtitle').textContent = "Help us match you with the right coach for this project.";
+        document.getElementById('sidebar-status').textContent = "New Project";
         
         currentStep = 2; 
     }
@@ -514,14 +636,28 @@
         document.querySelectorAll(`[id^="rdot-${group}-"]`).forEach(dot => {
             dot.style.background = '';
             dot.style.borderColor = '';
-            dot.closest('.radio-card').classList.remove('selected');
+            const card = dot.closest('.radio-card');
+            if (card) card.classList.remove('selected');
         });
         const dot = document.getElementById(`rdot-${group}-${value}`);
         if (dot) {
             dot.closest('.radio-card').classList.add('selected');
         }
-        if (group === 'qi-training') {
-            document.getElementById('qi-level-section').style.display = value === 'yes' ? 'block' : 'none';
+    }
+
+    function selectLeadChoice(value) {
+        selectSingle('is-lead', value);
+        const details = document.getElementById('lead-details-section');
+        if (details) {
+            details.style.display = (value === 'no') ? 'block' : 'none';
+        }
+    }
+
+    function selectCoachInMindChoice(value) {
+        selectSingle('coach-in-mind', value);
+        const section = document.getElementById('coach-preference-section');
+        if (section) {
+            section.style.display = (value === 'yes') ? 'block' : 'none';
         }
     }
 
@@ -536,27 +672,68 @@
         }
     }
 
+    function toggleTagWithLimit(el, group, limit) {
+        const val = el.textContent.trim();
+        if (tagSelections[group].has(val)) {
+            tagSelections[group].delete(val);
+            el.classList.remove('selected');
+        } else {
+            if (tagSelections[group].size >= limit) {
+                alert(`You can select up to ${limit} items.`);
+                return;
+            }
+            tagSelections[group].add(val);
+            el.classList.add('selected');
+        }
+        if (group === 'support') {
+            const counter = document.getElementById('support-counter');
+            if (counter) counter.textContent = `${tagSelections['support'].size} / ${limit} Selected`;
+        }
+    }
+
+    function updateChar(fieldId, countId) {
+        const el = document.getElementById(fieldId);
+        const target = document.getElementById(countId);
+        if (el && target) target.textContent = el.value.length;
+    }
+
     function goToStep(step) {
         if (step > 1 && currentStep === 1 && !isNewProject) {
-            const site = document.getElementById('site').value.trim();
-            const rs = document.getElementById('role-specialty').value.trim();
-            const about = document.getElementById('about').value.trim();
-            if (!site || !rs || !about) {
-                alert('Please fill in all required fields.');
+            const ph = document.getElementById('phone').value.trim();
+            const ab = document.getElementById('about').value.trim();
+            if (!ph || !ab || !selections['physician-type'] || tagSelections['training'].size === 0 || !selections['referral']) {
+                alert('Please fill in all mandatory profile fields before continuing.');
                 return;
             }
         }
         if (step > 2 && currentStep === 2) {
-            if (!document.getElementById('problem').value.trim() || !selections['situation'] ||
-                !document.getElementById('project-title').value.trim() || !document.getElementById('project-region').value.trim()) {
-                alert('Please fill in all required fields.');
+            const title = document.getElementById('project-title').value.trim();
+            const prob = document.getElementById('problem').value.trim();
+            if (!title || !prob || !selections['is-lead'] || !selections['project-setting'] || tagSelections['funding'].size === 0) {
+                alert('Please fill in all mandatory project fields.');
                 return;
+            }
+            if (selections['is-lead'] === 'no') {
+                const leadName = document.getElementById('physician-lead-name').value.trim();
+                const leadEmail = document.getElementById('physician-lead-email').value.trim();
+                if (!leadName || !leadEmail) {
+                    alert('Please provide the Physician Lead name and contact email.');
+                    return;
+                }
             }
         }
         if (step > 3 && currentStep === 3) {
-            if (!document.getElementById('coach-looking-for').value.trim() || tagSelections['support'].size === 0 || !selections['qi-training']) {
-                alert('Please fill in all required fields.');
+            const lookingFor = document.getElementById('coach-looking-for').value.trim();
+            if (tagSelections['support'].size === 0 || !lookingFor || !selections['coach-in-mind']) {
+                alert('Please complete all required fields regarding your coaching needs.');
                 return;
+            }
+            if (selections['coach-in-mind'] === 'yes') {
+                const prefCoach = document.getElementById('preferred-coaches').value.trim();
+                if (!prefCoach) {
+                    alert('Please specify your preferred coach(es) or select "No".');
+                    return;
+                }
             }
         }
 
@@ -566,15 +743,16 @@
         const startStep = isNewProject ? 2 : 1;
         for (let i = startStep; i <= totalSteps; i++) {
             const dot = document.getElementById(`dot-${i}`);
+            const displayNum = isNewProject ? (i - 1) : i;
             if (i < step) {
                 dot.className = 'step-dot done';
                 dot.innerHTML = '<i class="fas fa-check" style="font-size:9px"></i>';
             } else if (i === step) {
                 dot.className = 'step-dot active';
-                dot.textContent = i;
+                dot.textContent = displayNum;
             } else {
                 dot.className = 'step-dot pending';
-                dot.textContent = i;
+                dot.textContent = displayNum;
             }
             if (i > startStep && document.getElementById(`label-${i}`)) {
                 document.getElementById(`label-${i}`).className = i <= step
@@ -583,14 +761,13 @@
             }
         }
 
-        document.getElementById('step-num').textContent = step;
-        document.getElementById('step-title').textContent = stepMeta[step].title;
-        document.getElementById('step-subtitle').textContent = stepMeta[step].sub;
-
         const effectiveTotal = isNewProject ? 3 : 4;
         const currentProgress = isNewProject ? (step - 1) : step;
         const pct = Math.round(((currentProgress - 1) / effectiveTotal) * 100);
-        
+
+        document.getElementById('step-num').textContent = isNewProject ? (step - 1) : step;
+        document.getElementById('step-title').textContent = stepMeta[step].title;
+        document.getElementById('step-subtitle').textContent = stepMeta[step].sub;
         document.getElementById('progress-bar').style.width = pct + '%';
         document.getElementById('progress-label').textContent = pct + '%';
 
@@ -600,85 +777,102 @@
         else window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
-    function updateChar(fieldId, countId) {
-        document.getElementById(countId).textContent = document.getElementById(fieldId).value.length;
-    }
+    const structureLabels = {
+        structured: 'Highly structured - clear goals, actions and follow ups',
+        balanced: 'Some structure, with flexibility as needed',
+        flexible: 'Flexible and largely coachee-led',
+        none: 'No preference'
+    };
 
-    const situationMap = {
-        idea: 'I have an idea for a QI project but I don\'t know where to go from here',
-        starting: 'I have a QI project with funding in place and I\'m just starting the work',
-        stuck: 'I have a QI project with funding in place but I feel stuck',
+    const challengeLabels = {
+        direct: 'Be direct - I value having my thinking challenged',
+        balanced: 'Balance challenge with support',
+        reflective: 'Reflective approach - guiding questions',
+        none: 'No preference'
+    };
+
+    const accountabilityLabels = {
+        structured: 'Structured accountability - regular goals and follow-up',
+        some: 'Some follow-up, while remaining self-directed',
+        self: 'Self-directed follow-through',
+        none: 'No preference'
+    };
+
+    const physicianTypeLabels = {
+        family: 'Family Physician',
+        specialist: 'Specialist Physician',
         other: 'Other'
     };
 
-    const frequencyMap = {
-        biweekly: 'Every 2 weeks', monthly: 'Once a month',
-        bimonthly: 'Every 2 months', unsure: 'I\'m not sure', other: 'Other'
+    const referralLabels = {
+        'dobc-website': 'Doctors of BC Website',
+        'dobc-staff': 'DoBC Staff (Liaison, Engagement Partner, etc.)',
+        'program-peer': 'From a current coach or coachee in the program',
+        'physician-colleague': 'From another physician',
+        'other': 'Other'
     };
 
-    const methodMap = {
-        inperson: 'In person', virtual: 'Virtual (Zoom, Teams)',
-        phone: 'By phone', other: 'Other'
-    };
-
-    const referralMap = {
-        website: 'Website', staff: 'From a DoBC staff',
-        peer: 'From a current coach or coachee', physician: 'From another physician', other: 'Other'
-    };
-
-    const qiLevelMap = {
-        level1: 'PQI Level 1', level2: 'PQI Level 2',
-        level3: 'PQI Level 3', other: 'Other'
-    };
+    function setFieldValue(formSelector, partialFieldId, value) {
+        const input = document.querySelector(`${formSelector} [id^="${partialFieldId}"]`);
+        if (input && value !== undefined && value !== null) {
+            input.value = value;
+        }
+    }
 
     function submitSetup() {
-        if (tagSelections['availability'].size === 0 || !selections['frequency'] || !selections['method'] || !selections['referral']) {
-            alert('Please fill in all required fields.');
+        if (!selections['coaching-structure'] || !selections['coaching-challenge'] || 
+            !selections['coaching-accountability'] || tagSelections['availability'].size === 0) {
+            alert('Please fill in all required working style and availability fields.');
             return;
         }
 
         const currentUid = uid || sessionStorage.getItem('uid') || '';
-        const currentName = coacheeName || sessionStorage.getItem('name') || '';
 
         function trySubmit(tries) {
             const profileBtn = document.querySelector('#caspio-profile input[type="submit"]');
             const appBtn = document.querySelector('#caspio-app input[type="submit"]');
 
             if (appBtn && (isNewProject || profileBtn)) {
-                
+                // 1. Coachee_Profile DataPage (온보딩 최초 1회만 제출)
                 if (!isNewProject) {
-                    if (currentUid && document.querySelector('#caspio-profile [id^="InsertRecordUser_ID"]')) {
-                        document.querySelector('#caspio-profile [id^="InsertRecordUser_ID"]').value = currentUid;
-                    }
-                    if(document.querySelector('#caspio-profile [id^="InsertRecordPhone"]')) document.querySelector('#caspio-profile [id^="InsertRecordPhone"]').value = document.getElementById('phone').value.trim();
-                    
-                    const siteInput = document.querySelector('#caspio-profile [id^="InsertRecordSite"]');
-                    if(siteInput) siteInput.value = document.getElementById('site').value.trim();
-
-                    if(document.querySelector('#caspio-profile [id^="InsertRecordRole_Specialty"]')) document.querySelector('#caspio-profile [id^="InsertRecordRole_Specialty"]').value = document.getElementById('role-specialty').value.trim();
-                    if(document.querySelector('#caspio-profile [id^="InsertRecordAbout"]')) document.querySelector('#caspio-profile [id^="InsertRecordAbout"]').value = document.getElementById('about').value.trim();
+                    if (currentUid) setFieldValue('#caspio-profile', 'InsertRecordUser_ID', currentUid);
+                    setFieldValue('#caspio-profile', 'InsertRecordPhone', document.getElementById('phone').value.trim());
+                    setFieldValue('#caspio-profile', 'InsertRecordPhysician_Type', physicianTypeLabels[selections['physician-type']] || '');
+                    setFieldValue('#caspio-profile', 'InsertRecordQI_Training', Array.from(tagSelections['training']).join(', '));
+                    setFieldValue('#caspio-profile', 'InsertRecordAbout', document.getElementById('about').value.trim());
+                    setFieldValue('#caspio-profile', 'InsertRecordReferral', referralLabels[selections['referral']] || '');
                 }
 
-                if (currentUid && document.querySelector('#caspio-app [id^="InsertRecordUser_ID"]')) {
-                    document.querySelector('#caspio-app [id^="InsertRecordUser_ID"]').value = currentUid;
+                // 2. Coachee_Application DataPage (신청서 매회 제출)
+                if (currentUid) setFieldValue('#caspio-app', 'InsertRecordUser_ID', currentUid);
+                setFieldValue('#caspio-app', 'InsertRecordProject_Title', document.getElementById('project-title').value.trim());
+                setFieldValue('#caspio-app', 'InsertRecordIs_Lead', selections['is-lead'] === 'yes' ? 'Yes' : 'No');
+                if (selections['is-lead'] === 'no') {
+                    setFieldValue('#caspio-app', 'InsertRecordPhysician_Lead', document.getElementById('physician-lead-name').value.trim());
+                    setFieldValue('#caspio-app', 'InsertRecordPhysician_Lead_Email', document.getElementById('physician-lead-email').value.trim());
+                } else {
+                    setFieldValue('#caspio-app', 'InsertRecordPhysician_Lead', 'Self');
                 }
-                if(document.querySelector('#caspio-app [id^="InsertRecordProblem"]')) document.querySelector('#caspio-app [id^="InsertRecordProblem"]').value = document.getElementById('problem').value.trim();
-                if(document.querySelector('#caspio-app [id^="InsertRecordSituation"]')) document.querySelector('#caspio-app [id^="InsertRecordSituation"]').value = situationMap[selections['situation']] || '';
-                if(document.querySelector('#caspio-app [id^="InsertRecordFunding"]')) document.querySelector('#caspio-app [id^="InsertRecordFunding"]').value = Array.from(tagSelections['funding']).join(', ');
-                if(document.querySelector('#caspio-app [id^="InsertRecordPhysician_Lead"]')) document.querySelector('#caspio-app [id^="InsertRecordPhysician_Lead"]').value = document.getElementById('physician-lead').value.trim();
-                if(document.querySelector('#caspio-app [id^="InsertRecordProject_Title"]')) document.querySelector('#caspio-app [id^="InsertRecordProject_Title"]').value = document.getElementById('project-title').value.trim();
-                if(document.querySelector('#caspio-app [id^="InsertRecordProject_Region"]')) document.querySelector('#caspio-app [id^="InsertRecordProject_Region"]').value = document.getElementById('project-region').value.trim();
-                if(document.querySelector('#caspio-app [id^="InsertRecordStart_Date"]')) document.querySelector('#caspio-app [id^="InsertRecordStart_Date"]').value = document.getElementById('start-date').value;
-                if(document.querySelector('#caspio-app [id^="InsertRecordEnd_Date"]')) document.querySelector('#caspio-app [id^="InsertRecordEnd_Date"]').value = document.getElementById('end-date').value;
-                if(document.querySelector('#caspio-app [id^="InsertRecordCoach_Looking_For"]')) document.querySelector('#caspio-app [id^="InsertRecordCoach_Looking_For"]').value = document.getElementById('coach-looking-for').value.trim();
-                if(document.querySelector('#caspio-app [id^="InsertRecordSupport_Needed"]')) document.querySelector('#caspio-app [id^="InsertRecordSupport_Needed"]').value = Array.from(tagSelections['support']).join(', ');
-                if(document.querySelector('#caspio-app [id^="InsertRecordQI_Training"]')) document.querySelector('#caspio-app [id^="InsertRecordQI_Training"]').value = selections['qi-training'] === 'yes' ? 'Yes' : 'No';
-                if(document.querySelector('#caspio-app [id^="InsertRecordQI_Level"]')) document.querySelector('#caspio-app [id^="InsertRecordQI_Level"]').value = selections['qi-level'] ? qiLevelMap[selections['qi-level']] : '';
-                if(document.querySelector('#caspio-app [id^="InsertRecordAvailability"]')) document.querySelector('#caspio-app [id^="InsertRecordAvailability"]').value = Array.from(tagSelections['availability']).join(', ');
-                if(document.querySelector('#caspio-app [id^="InsertRecordMeeting_Frequency"]')) document.querySelector('#caspio-app [id^="InsertRecordMeeting_Frequency"]').value = frequencyMap[selections['frequency']] || '';
-                if(document.querySelector('#caspio-app [id^="InsertRecordMeeting_Method"]')) document.querySelector('#caspio-app [id^="InsertRecordMeeting_Method"]').value = methodMap[selections['method']] || '';
-                if(document.querySelector('#caspio-app [id^="InsertRecordAdditional_Info"]')) document.querySelector('#caspio-app [id^="InsertRecordAdditional_Info"]').value = document.getElementById('additional-info').value.trim();
-                if(document.querySelector('#caspio-app [id^="InsertRecordReferral"]')) document.querySelector('#caspio-app [id^="InsertRecordReferral"]').value = referralMap[selections['referral']] || '';
+                setFieldValue('#caspio-app', 'InsertRecordPrimary_Setting', selections['project-setting'] || '');
+                setFieldValue('#caspio-app', 'InsertRecordFunding', Array.from(tagSelections['funding']).join(', '));
+                setFieldValue('#caspio-app', 'InsertRecordStart_Date', document.getElementById('start-date').value);
+                setFieldValue('#caspio-app', 'InsertRecordEnd_Date', document.getElementById('end-date').value);
+                setFieldValue('#caspio-app', 'InsertRecordProblem', document.getElementById('problem').value.trim());
+
+                // Support & Coach Needs
+                setFieldValue('#caspio-app', 'InsertRecordSupport_Needed', Array.from(tagSelections['support']).join(', '));
+                setFieldValue('#caspio-app', 'InsertRecordCoach_Looking_For', document.getElementById('coach-looking-for').value.trim());
+                setFieldValue('#caspio-app', 'InsertRecordCoach_In_Mind', selections['coach-in-mind'] === 'yes' ? 'Yes' : 'No');
+                if (selections['coach-in-mind'] === 'yes') {
+                    setFieldValue('#caspio-app', 'InsertRecordPreferred_Coaches', document.getElementById('preferred-coaches').value.trim());
+                }
+
+                // Matching Architecture Styles (1:1 with Coach questions)
+                setFieldValue('#caspio-app', 'InsertRecordCoaching_Structure', structureLabels[selections['coaching-structure']] || '');
+                setFieldValue('#caspio-app', 'InsertRecordCoaching_Challenge', challengeLabels[selections['coaching-challenge']] || '');
+                setFieldValue('#caspio-app', 'InsertRecordCoaching_Accountability', accountabilityLabels[selections['coaching-accountability']] || '');
+                setFieldValue('#caspio-app', 'InsertRecordAvailability', Array.from(tagSelections['availability']).join(', '));
+                setFieldValue('#caspio-app', 'InsertRecordAdditional_Info', document.getElementById('additional-info').value.trim());
 
                 sessionStorage.setItem('coachee_availability', Array.from(tagSelections['availability']).join(', '));
 
@@ -690,10 +884,10 @@
                 }
 
                 setTimeout(() => {
-                    if(appBtn) appBtn.click();
+                    if (appBtn) appBtn.click();
                 }, isNewProject ? 0 : 800);
 
-            } else if (tries < 40) { 
+            } else if (tries < 40) {
                 setTimeout(() => trySubmit(tries + 1), 300);
             }
         }
