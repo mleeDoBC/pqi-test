@@ -7,18 +7,27 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
         body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
         .sidebar-gradient { background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%); }
         .accent-text { font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; font-size: 0.6rem; }
 
-        .form-input { width: 100%; border: 1.5px solid #e2e8f0; border-radius: 12px; padding: 12px 16px; font-size: 14px; font-family: 'Inter', sans-serif; outline: none; transition: border-color 0.2s; resize: none; color: #1e293b; background: white; }
-        .form-input:focus { border-color: #6366f1; box-shadow: 0 0 0 3px rgba(99,102,241,0.1); }
-        .form-input.error { border-color: #ef4444; }
+        .check-tag { cursor: pointer; border: 1.5px solid #e2e8f0; border-radius: 99px; padding: 7px 14px; font-size: 11px; font-weight: 700; transition: all 0.2s ease; color: #64748b; background: white; user-select: none; display: inline-flex; align-items: center; gap: 6px; }
+        .check-tag:hover { border-color: #a5b4fc; color: #6366f1; }
+        .check-tag.selected { background: #eef2ff; border-color: #6366f1; color: #6366f1; box-shadow: 0 1px 2px rgba(99,102,241,0.1); }
 
-        .btn-primary { background: linear-gradient(135deg, #6366f1, #8b5cf6); color: white; border: none; border-radius: 12px; padding: 14px 32px; font-size: 12px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.15em; cursor: pointer; transition: all 0.2s ease; }
-        .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 8px 24px rgba(99,102,241,0.3); }
-        .btn-secondary { background: transparent; color: #64748b; border: 1.5px solid #e2e8f0; border-radius: 12px; padding: 14px 24px; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; cursor: pointer; transition: all 0.2s ease; }
+        .radio-card { border: 2px solid #e2e8f0; border-radius: 14px; padding: 14px 18px; cursor: pointer; transition: all 0.2s ease; background: white; }
+        .radio-card:hover { border-color: #a5b4fc; }
+        .radio-card.selected { border-color: #6366f1; background: #f5f7ff; }
+        .radio-dot { width: 16px; height: 16px; border-radius: 50%; border: 2px solid #cbd5e1; transition: all 0.2s ease; flex-shrink: 0; }
+        .radio-card.selected .radio-dot { background: #6366f1; border-color: #6366f1; }
+
+        .form-input { width: 100%; border: 1.5px solid #e2e8f0; border-radius: 12px; padding: 12px 16px; font-size: 13.5px; font-family: 'Inter', sans-serif; outline: none; transition: border-color 0.2s; resize: none; color: #1e293b; background: white; }
+        .form-input:focus { border-color: #6366f1; box-shadow: 0 0 0 3px rgba(99,102,241,0.12); }
+
+        .btn-primary { background: linear-gradient(135deg, #6366f1, #8b5cf6); color: white; border: none; border-radius: 12px; padding: 14px 32px; font-size: 11.5px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.12em; cursor: pointer; transition: all 0.2s ease; }
+        .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(99,102,241,0.3); }
+        .btn-secondary { background: white; color: #64748b; border: 1.5px solid #e2e8f0; border-radius: 12px; padding: 14px 24px; font-size: 11.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; cursor: pointer; transition: all 0.2s ease; }
         .btn-secondary:hover { border-color: #94a3b8; color: #334155; }
 
         .char-count { font-size: 11px; color: #94a3b8; text-align: right; margin-top: 4px; }
@@ -31,62 +40,118 @@
 <body class="antialiased text-slate-800">
 
 <div class="flex flex-col lg:flex-row min-h-screen">
+    <!-- Sidebar -->
     <aside class="w-full lg:w-80 sidebar-gradient text-slate-400 flex flex-col shadow-2xl z-50 lg:h-screen lg:sticky lg:top-0">
         <div class="p-8 pb-6">
             <div class="flex items-center gap-3 italic font-black text-2xl uppercase tracking-tighter text-white">
                 <i class="fas fa-handshake-angle text-indigo-400"></i>
                 <span>COACH <span class="text-indigo-400">CONNECT</span></span>
             </div>
+            <p class="text-[9px] font-bold text-slate-400 mt-1 tracking-wider uppercase">Provincial Physician Coaching Program</p>
         </div>
 
         <div class="px-6 mb-8 flex-1">
-            <div class="bg-white/5 border border-white/10 rounded-3xl p-5 mb-8">
-                <div class="flex items-center gap-4">
-                    <div class="h-12 w-12 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-black italic text-lg" id="sidebar-initials">CO</div>
+            <div class="bg-white/5 border border-white/10 rounded-2xl p-4 mb-6">
+                <div class="flex items-center gap-3.5">
+                    <div class="h-11 w-11 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-black italic text-lg shadow-md" id="sidebar-initials">DR</div>
                     <div>
-                        <h4 class="text-sm font-black italic text-white leading-none uppercase" id="sidebar-name">Coachee</h4>
-                        <p class="text-[8px] font-black text-indigo-400 mt-1.5 uppercase tracking-widest opacity-80">Physician Coachee</p>
+                        <h4 class="text-xs font-black italic text-white uppercase tracking-tight" id="sidebar-name">Dr. Coachee</h4>
+                        <p class="text-[8px] font-black text-indigo-400 mt-1 uppercase tracking-widest opacity-80">Physician Profile</p>
                     </div>
                 </div>
             </div>
             
-            <a href="#" id="back-to-dashboard" class="flex items-center gap-3 text-xs font-black text-slate-400 uppercase tracking-wider hover:text-white transition-colors group">
-                <div class="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center group-hover:bg-indigo-500 transition-colors">
-                    <i class="fas fa-arrow-left"></i>
+            <a href="#" id="back-to-dashboard" class="flex items-center gap-3 text-xs font-bold text-slate-400 uppercase tracking-wider hover:text-white transition-colors group px-2 py-3 rounded-xl hover:bg-white/5">
+                <div class="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center group-hover:bg-indigo-600 transition-colors">
+                    <i class="fas fa-arrow-left text-xs"></i>
                 </div>
                 Back to Dashboard
             </a>
         </div>
     </aside>
 
+    <!-- Main Content Area -->
     <main class="flex-1 bg-[#f8fafc] lg:h-screen lg:overflow-y-auto">
-        <div class="max-w-2xl mx-auto px-6 py-12 fade-in">
-            <div class="mb-10">
-                <p class="text-[10px] font-black text-indigo-500 uppercase tracking-widest mb-2">Profile Management</p>
-                <h1 class="text-3xl font-black text-slate-900 leading-tight">Edit Your Profile</h1>
-                <p class="text-slate-500 text-sm mt-2">Update your contact and background information.</p>
+        <div class="max-w-2xl mx-auto px-6 py-10 fade-in">
+            <div class="mb-8">
+                <p class="text-[10px] font-black text-indigo-500 uppercase tracking-widest mb-1">Profile Management</p>
+                <h1 class="text-2xl font-black text-slate-900 leading-tight">Edit Your Profile</h1>
+                <p class="text-slate-500 text-xs mt-1.5">Update your contact details, physician role, and quality improvement training history.</p>
             </div>
 
-            <div class="bg-white p-8 rounded-3xl shadow-sm border border-slate-100">
+            <div class="bg-white p-8 rounded-3xl shadow-sm border border-slate-200/80">
                 <div class="space-y-6">
-                    <div>
-                        <label class="block text-xs font-black text-slate-700 uppercase tracking-wider mb-2">Phone</label>
-                        <input type="tel" class="form-input" id="phone" placeholder="604-555-0000">
+                    <!-- Linked Account Info Card -->
+                    <div class="bg-indigo-50/70 border border-indigo-100 rounded-2xl p-4 flex items-center justify-between">
+                        <div class="flex items-center gap-3.5">
+                            <div class="h-10 w-10 rounded-xl bg-indigo-600 flex items-center justify-center text-white text-sm font-bold shadow-sm">
+                                <i class="fas fa-id-card-clip"></i>
+                            </div>
+                            <div>
+                                <div class="flex items-center gap-2">
+                                    <span class="text-xs font-black text-slate-800" id="display-auth-name">Dr. Coachee</span>
+                                    <span class="text-[9px] font-extrabold uppercase bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full tracking-wider">Verified Account</span>
+                                </div>
+                                <p class="text-[11px] text-slate-500 mt-0.5" id="display-auth-email">doctor@example.com</p>
+                            </div>
+                        </div>
+                        <span class="text-[10px] font-bold text-indigo-500"><i class="fas fa-lock mr-1"></i> Account Linked</span>
                     </div>
+
+                    <!-- Phone Number -->
                     <div>
-                        <label class="block text-xs font-black text-slate-700 uppercase tracking-wider mb-2">Site / Community</label>
-                        <input type="text" class="form-input" id="site" placeholder="e.g. St. Paul's Hospital, Vancouver">
+                        <label class="block text-xs font-black text-slate-700 uppercase tracking-wider mb-2">Phone Number <span class="text-indigo-500">*</span></label>
+                        <input type="tel" class="form-input" id="phone" placeholder="604-555-0100">
                     </div>
+
+                    <!-- Physician Type -->
                     <div>
-                        <label class="block text-xs font-black text-slate-700 uppercase tracking-wider mb-2">Role & Specialty</label>
-                        <input type="text" class="form-input" id="role-specialty" placeholder="e.g. Family Physician, General Practice">
+                        <label class="block text-xs font-black text-slate-700 uppercase tracking-wider mb-3">What best describes you? <span class="text-indigo-500">*</span></label>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                            <div class="radio-card" onclick="selectSingle('physician-type', 'family')">
+                                <div class="flex items-center gap-3">
+                                    <div class="radio-dot" id="rdot-physician-type-family"></div>
+                                    <span class="text-xs font-bold text-slate-700">Family Physician</span>
+                                </div>
+                            </div>
+                            <div class="radio-card" onclick="selectSingle('physician-type', 'specialist')">
+                                <div class="flex items-center gap-3">
+                                    <div class="radio-dot" id="rdot-physician-type-specialist"></div>
+                                    <span class="text-xs font-bold text-slate-700">Specialist Physician</span>
+                                </div>
+                            </div>
+                            <div class="radio-card" onclick="selectSingle('physician-type', 'other')">
+                                <div class="flex items-center gap-3">
+                                    <div class="radio-dot" id="rdot-physician-type-other"></div>
+                                    <span class="text-xs font-bold text-slate-700">Other</span>
+                                </div>
+                            </div>
+                        </div>
                     </div>
+
+                    <!-- Quality Improvement Training Completed -->
                     <div>
-                        <label class="block text-xs font-black text-slate-700 uppercase tracking-wider mb-2">About You</label>
-                        <textarea class="form-input" id="about" rows="6" maxlength="1000" oninput="updateChar('about', 'count-about')"></textarea>
+                        <label class="block text-xs font-black text-slate-700 uppercase tracking-wider mb-2">Quality Improvement Training Completed <span class="text-indigo-500">*</span></label>
+                        <p class="text-xs text-slate-400 mb-3">Select all that apply.</p>
+                        <div class="flex flex-wrap gap-2" id="training-tags">
+                            <span class="check-tag" onclick="toggleTag(this, 'training')">PQI Level 1</span>
+                            <span class="check-tag" onclick="toggleTag(this, 'training')">PQI Level 2</span>
+                            <span class="check-tag" onclick="toggleTag(this, 'training')">PQI Level 3</span>
+                            <span class="check-tag" onclick="toggleTag(this, 'training')">Clinician Quality Academy</span>
+                            <span class="check-tag" onclick="toggleTag(this, 'training')">I have not completed any QI training</span>
+                            <span class="check-tag" onclick="toggleTag(this, 'training')">Other</span>
+                        </div>
+                    </div>
+
+                    <!-- About Yourself -->
+                    <div>
+                        <label class="block text-xs font-black text-slate-700 uppercase tracking-wider mb-2">About Yourself <span class="text-indigo-500">*</span></label>
+                        <p class="text-xs text-slate-400 mb-2">Where are you located? What is your role in the health system? What kind of work are you doing?</p>
+                        <textarea class="form-input" id="about" rows="5" maxlength="1000" placeholder="e.g. I am a full-service family physician in Victoria working in primary care..." oninput="updateChar('about', 'count-about')"></textarea>
                         <p class="char-count"><span id="count-about">0</span>/1000</p>
                     </div>
                 </div>
+
                 <div class="flex justify-end gap-3 mt-10 pt-6 border-t border-slate-100">
                     <button class="btn-secondary" id="cancel-btn">Cancel</button>
                     <button class="btn-primary" onclick="saveProfile()" id="save-btn">Save Changes <i class="fas fa-save ml-2"></i></button>
@@ -103,81 +168,168 @@
 
 <script>
     const urlParams = new URLSearchParams(window.location.search);
-    const coacheeName = urlParams.get('name');
-    const uid = urlParams.get('uid');
+    const coacheeName = urlParams.get('name') || sessionStorage.getItem('name') || 'Doctor';
+    const userEmail = urlParams.get('email') || sessionStorage.getItem('email') || '';
+    const uid = urlParams.get('uid') || sessionStorage.getItem('uid') || '';
 
-    if (coacheeName) {
-        document.getElementById('sidebar-name').textContent = coacheeName;
-        const parts = coacheeName.trim().split(' ');
-        const initials = parts.map(p => p[0]).join('').toUpperCase().slice(0, 2);
-        document.getElementById('sidebar-initials').textContent = initials;
-    }
+    if (uid) sessionStorage.setItem('uid', uid);
+    if (coacheeName) sessionStorage.setItem('name', coacheeName);
+    if (userEmail) sessionStorage.setItem('email', userEmail);
+
+    const displayName = coacheeName.startsWith('Dr.') ? coacheeName : `Dr. ${coacheeName}`;
+    document.getElementById('sidebar-name').textContent = displayName;
+    const parts = coacheeName.replace(/^Dr\.\s*/i, '').trim().split(' ');
+    const initials = parts.map(p => p[0]).join('').toUpperCase().slice(0, 2) || 'DR';
+    document.getElementById('sidebar-initials').textContent = initials;
+
+    document.getElementById('display-auth-name').textContent = displayName;
+    document.getElementById('display-auth-email').textContent = userEmail || 'Verified Coaching Account';
 
     const dashboardUrl = `coachee.html?uid=${encodeURIComponent(uid || '')}&name=${encodeURIComponent(coacheeName || '')}`;
     document.getElementById('back-to-dashboard').href = dashboardUrl;
     document.getElementById('cancel-btn').onclick = () => window.location.href = dashboardUrl;
 
-    function updateChar(fieldId, countId) {
-        document.getElementById(countId).textContent = document.getElementById(fieldId).value.length;
+    const selections = {
+        'physician-type': null
+    };
+
+    const tagSelections = {
+        training: new Set()
+    };
+
+    const physicianTypeMap = {
+        'Family Physician': 'family',
+        'Specialist Physician': 'specialist',
+        'Other': 'other'
+    };
+
+    const physicianTypeLabels = {
+        family: 'Family Physician',
+        specialist: 'Specialist Physician',
+        other: 'Other'
+    };
+
+    function selectSingle(group, value) {
+        selections[group] = value;
+        document.querySelectorAll(`[id^="rdot-${group}-"]`).forEach(dot => {
+            dot.style.background = '';
+            dot.style.borderColor = '';
+            const card = dot.closest('.radio-card');
+            if (card) card.classList.remove('selected');
+        });
+        const dot = document.getElementById(`rdot-${group}-${value}`);
+        if (dot) {
+            dot.closest('.radio-card').classList.add('selected');
+        }
     }
 
-    // 1. 읽어오기 (완벽한 고정 ID 매핑)
+    function toggleTag(el, group) {
+        const val = el.textContent.trim();
+        if (tagSelections[group].has(val)) {
+            tagSelections[group].delete(val);
+            el.classList.remove('selected');
+        } else {
+            tagSelections[group].add(val);
+            el.classList.add('selected');
+        }
+    }
+
+    function updateChar(fieldId, countId) {
+        const el = document.getElementById(fieldId);
+        const countEl = document.getElementById(countId);
+        if (el && countEl) countEl.textContent = el.value.length;
+    }
+
+    function findCaspioElement(partialId) {
+        return document.querySelector(`#caspio-update-profile [id*="${partialId}"]`);
+    }
+
+    // 1. 읽어오기 (Caspio DataPage로부터 기존 데이터 로드)
     function loadExistingData(tries) {
-        // Caspio 폼이 완전히 렌더링되었는지 확인하는 가장 확실한 기준은 저장 버튼의 존재 여부입니다.
-        const caspioUpdateBtn = document.querySelector('.cbUpdateButton');
-        const caspioAbout = document.getElementById('EditRecordAbout');
-    
+        const caspioUpdateBtn = document.querySelector('#caspio-update-profile .cbUpdateButton, #caspio-update-profile input[type="submit"]');
+        const caspioAbout = findCaspioElement('About');
+
         if (caspioUpdateBtn && caspioAbout) {
-            const phoneField = document.getElementById('EditRecordPhone');
-            const siteField  = document.getElementById('EditRecordSite');
-            const roleField  = document.getElementById('EditRecordRole_Specialty');
-    
-            // 값 세팅 (Caspio에 해당 필드가 없더라도 에러가 나지 않도록 방어 코드 적용)
-            document.getElementById('phone').value = phoneField ? phoneField.value : '';
-            document.getElementById('site').value = siteField ? siteField.value : '';
-            document.getElementById('role-specialty').value = roleField ? roleField.value : '';
-            document.getElementById('about').value = caspioAbout.value;
-    
-            updateChar('about', 'count-about');
-            
-            // 기존 Caspio 버튼 숨기기
+            const phoneField = findCaspioElement('Phone');
+            const typeField = findCaspioElement('Physician_Type');
+            const trainingField = findCaspioElement('QI_Training');
+
+            // Phone
+            if (phoneField && phoneField.value) {
+                document.getElementById('phone').value = phoneField.value;
+            }
+
+            // Physician Type
+            if (typeField && typeField.value) {
+                const rawVal = typeField.value.trim();
+                const matchedKey = physicianTypeMap[rawVal] || (rawVal.toLowerCase().includes('specialist') ? 'specialist' : (rawVal.toLowerCase().includes('family') ? 'family' : 'other'));
+                selectSingle('physician-type', matchedKey);
+            }
+
+            // QI Training Tags
+            if (trainingField && trainingField.value) {
+                const trainingList = trainingField.value.split(',').map(s => s.trim());
+                document.querySelectorAll('#training-tags .check-tag').forEach(tag => {
+                    const tagText = tag.textContent.trim();
+                    if (trainingList.some(item => item.toLowerCase() === tagText.toLowerCase())) {
+                        tagSelections.training.add(tagText);
+                        tag.classList.add('selected');
+                    }
+                });
+            }
+
+            // About You
+            if (caspioAbout && caspioAbout.value) {
+                document.getElementById('about').value = caspioAbout.value;
+                updateChar('about', 'count-about');
+            }
+
+            // Caspio 원래 버튼 숨기기
             caspioUpdateBtn.style.display = 'none';
-        } else if (tries < 50) { // 재시도 횟수와 간격을 늘려 안정성 확보
+        } else if (tries < 50) {
             setTimeout(() => loadExistingData(tries + 1), 300);
         }
     }
     loadExistingData(0);
 
-    // 2. 안전한 값 덮어쓰기 헬퍼 함수 (Caspio 내부 로직 충돌 방지)
-    function setCaspioValue(id, value) {
-        const el = document.getElementById(id);
-        if (el) {
+    // 2. 값 주입 헬퍼 함수
+    function setCaspioValue(partialId, value) {
+        const el = findCaspioElement(partialId);
+        if (el && value !== undefined && value !== null) {
             el.value = value;
-            el.dispatchEvent(new Event('change', { bubbles: true })); // Caspio가 변경을 감지하도록 강제
+            el.dispatchEvent(new Event('input', { bubbles: true }));
+            el.dispatchEvent(new Event('change', { bubbles: true }));
         }
     }
 
-    // 3. 저장하기 (고정 ID 역매핑)
+    // 3. 프로필 저장
     function saveProfile() {
+        const phone = document.getElementById('phone').value.trim();
+        const about = document.getElementById('about').value.trim();
+
+        if (!phone || !selections['physician-type'] || tagSelections.training.size === 0 || !about) {
+            alert('Please complete all required fields before saving.');
+            return;
+        }
+
         const saveBtn = document.getElementById('save-btn');
         saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Saving...';
         saveBtn.disabled = true;
-    
-        const caspioUpdateBtn = document.querySelector('.cbUpdateButton');
-        if (caspioUpdateBtn) {
-            // 커스텀 폼의 값을 읽어와서 Caspio 숨김 폼으로 전송
-            setCaspioValue('EditRecordPhone', document.getElementById('phone').value.trim());
-            setCaspioValue('EditRecordSite', document.getElementById('site').value.trim());
-            setCaspioValue('EditRecordRole_Specialty', document.getElementById('role-specialty').value.trim());
-            setCaspioValue('EditRecordAbout', document.getElementById('about').value.trim());
 
-            // 전송 버튼 클릭
+        const caspioUpdateBtn = document.querySelector('#caspio-update-profile .cbUpdateButton, #caspio-update-profile input[type="submit"]');
+        if (caspioUpdateBtn) {
+            setCaspioValue('Phone', phone);
+            setCaspioValue('Physician_Type', physicianTypeLabels[selections['physician-type']] || '');
+            setCaspioValue('QI_Training', Array.from(tagSelections.training).join(', '));
+            setCaspioValue('About', about);
+
             caspioUpdateBtn.click();
-            
-            // 성공 후 돌아가기
-            setTimeout(() => { window.location.href = dashboardUrl; }, 1200);
+
+            setTimeout(() => {
+                window.location.href = dashboardUrl;
+            }, 1200);
         } else {
-            alert('오류: Caspio 폼을 찾을 수 없습니다.');
+            alert('Error: Could not locate Caspio update form.');
             saveBtn.innerHTML = 'Save Changes <i class="fas fa-save ml-2"></i>';
             saveBtn.disabled = false;
         }
