@@ -240,33 +240,34 @@
         if (el && countEl) countEl.textContent = el.value.length;
     }
 
-    function findCaspioElement(partialId) {
-        return document.querySelector(`#caspio-update-profile [id*="${partialId}"]`);
+    function getCaspioField(fieldName) {
+        let el = document.getElementById('EditRecord' + fieldName);
+        if (el) return el;
+        
+        el = document.querySelector(`input[id*="${fieldName}" i], textarea[id*="${fieldName}" i], select[id*="${fieldName}" i], input[name*="${fieldName}" i], textarea[name*="${fieldName}" i]`);
+        return el;
     }
 
-    // 1. 읽어오기 (Caspio DataPage로부터 기존 데이터 로드)
     function loadExistingData(tries) {
-        const caspioUpdateBtn = document.querySelector('#caspio-update-profile .cbUpdateButton, #caspio-update-profile input[type="submit"]');
-        const caspioAbout = findCaspioElement('About');
+        const caspioUpdateBtn = document.querySelector('.cbUpdateButton');
+        const caspioAbout = getCaspioField('About');
 
         if (caspioUpdateBtn && caspioAbout) {
-            const phoneField = findCaspioElement('Phone');
-            const typeField = findCaspioElement('Physician_Type');
-            const trainingField = findCaspioElement('QI_Training');
+            console.log('[Profile] Caspio form found, loading fields...');
+            const phoneField = getCaspioField('Phone');
+            const typeField = getCaspioField('Physician_Type') || getCaspioField('Role_Specialty');
+            const trainingField = getCaspioField('QI_Training');
 
-            // Phone
             if (phoneField && phoneField.value) {
                 document.getElementById('phone').value = phoneField.value;
             }
 
-            // Physician Type
             if (typeField && typeField.value) {
                 const rawVal = typeField.value.trim();
                 const matchedKey = physicianTypeMap[rawVal] || (rawVal.toLowerCase().includes('specialist') ? 'specialist' : (rawVal.toLowerCase().includes('family') ? 'family' : 'other'));
                 selectSingle('physician-type', matchedKey);
             }
 
-            // QI Training Tags
             if (trainingField && trainingField.value) {
                 const trainingList = trainingField.value.split(',').map(s => s.trim());
                 document.querySelectorAll('#training-tags .check-tag').forEach(tag => {
@@ -278,23 +279,22 @@
                 });
             }
 
-            // About You
             if (caspioAbout && caspioAbout.value) {
                 document.getElementById('about').value = caspioAbout.value;
                 updateChar('about', 'count-about');
             }
 
-            // Caspio 원래 버튼 숨기기
             caspioUpdateBtn.style.display = 'none';
         } else if (tries < 50) {
             setTimeout(() => loadExistingData(tries + 1), 300);
+        } else {
+            console.warn('[Profile] Failed to find Caspio update form after 50 tries.');
         }
     }
     loadExistingData(0);
 
-    // 2. 값 주입 헬퍼 함수
-    function setCaspioValue(partialId, value) {
-        const el = findCaspioElement(partialId);
+    function setCaspioValue(fieldName, value) {
+        const el = getCaspioField(fieldName);
         if (el && value !== undefined && value !== null) {
             el.value = value;
             el.dispatchEvent(new Event('input', { bubbles: true }));
@@ -302,7 +302,6 @@
         }
     }
 
-    // 3. 프로필 저장
     function saveProfile() {
         const phone = document.getElementById('phone').value.trim();
         const about = document.getElementById('about').value.trim();
@@ -316,10 +315,11 @@
         saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Saving...';
         saveBtn.disabled = true;
 
-        const caspioUpdateBtn = document.querySelector('#caspio-update-profile .cbUpdateButton, #caspio-update-profile input[type="submit"]');
+        const caspioUpdateBtn = document.querySelector('.cbUpdateButton');
         if (caspioUpdateBtn) {
             setCaspioValue('Phone', phone);
             setCaspioValue('Physician_Type', physicianTypeLabels[selections['physician-type']] || '');
+            setCaspioValue('Role_Specialty', physicianTypeLabels[selections['physician-type']] || '');
             setCaspioValue('QI_Training', Array.from(tagSelections.training).join(', '));
             setCaspioValue('About', about);
 
