@@ -243,17 +243,21 @@
     function getCaspioField(fieldName) {
         let el = document.getElementById('EditRecord' + fieldName);
         if (el) return el;
-        
         el = document.querySelector(`input[id*="${fieldName}" i], textarea[id*="${fieldName}" i], select[id*="${fieldName}" i], input[name*="${fieldName}" i], textarea[name*="${fieldName}" i]`);
         return el;
     }
 
-    function loadExistingData(tries) {
+    let isProfileLoaded = false;
+
+    function populateForm() {
+        if (isProfileLoaded) return;
+
         const caspioUpdateBtn = document.querySelector('.cbUpdateButton');
         const caspioAbout = getCaspioField('About');
 
         if (caspioUpdateBtn && caspioAbout) {
-            console.log('[Profile] Caspio form found, loading fields...');
+            isProfileLoaded = true;
+
             const phoneField = getCaspioField('Phone');
             const typeField = getCaspioField('Physician_Type') || getCaspioField('Role_Specialty');
             const trainingField = getCaspioField('QI_Training');
@@ -285,13 +289,21 @@
             }
 
             caspioUpdateBtn.style.display = 'none';
-        } else if (tries < 50) {
-            setTimeout(() => loadExistingData(tries + 1), 300);
-        } else {
-            console.warn('[Profile] Failed to find Caspio update form after 50 tries.');
         }
     }
-    loadExistingData(0);
+
+    document.addEventListener('DataPageReady', function () {
+        populateForm();
+    });
+
+    function fastPoll(tries) {
+        if (isProfileLoaded) return;
+        populateForm();
+        if (!isProfileLoaded && tries < 60) {
+            setTimeout(() => fastPoll(tries + 1), 50);
+        }
+    }
+    fastPoll(0);
 
     function setCaspioValue(fieldName, value) {
         const el = getCaspioField(fieldName);
