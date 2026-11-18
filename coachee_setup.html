@@ -688,7 +688,7 @@
     if (coacheeName) sessionStorage.setItem('name', coacheeName);
     if (userEmail) sessionStorage.setItem('email', userEmail);
 
-    const DRAFT_STORAGE_KEY = `pqi_coachee_draft_${uid || 'guest'}_${isNewProject ? 'new' : 'onboarding'}`;
+    const DRAFT_STORAGE_KEY = `pqi_coachee_draft_${isNewProject ? 'new' : 'onboarding'}`;
 
     // Populate Sidebar and Authenticated Identity Card (Q11, Q12, Q13)
     const cleanFullName = coacheeName.replace(/^Dr\.?\s*/i, '').trim();
