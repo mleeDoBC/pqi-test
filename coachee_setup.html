@@ -73,28 +73,28 @@
                     <div class="step-dot active" id="dot-1">1</div>
                     <div>
                         <p class="text-xs font-black text-white uppercase tracking-wider" id="label-1">Needs & Focus</p>
-                        <p class="text-[10px] text-slate-400 mt-0.5">Background, problem & QI goals</p>
+                        <p class="text-[10px] text-slate-400 mt-0.5" id="sublabel-1">Background, problem & QI goals</p>
                     </div>
                 </div>
                 <div class="flex items-center gap-3.5 px-2 py-2.5 rounded-xl" id="step-nav-2">
                     <div class="step-dot pending" id="dot-2">2</div>
                     <div>
                         <p class="text-xs font-black text-slate-500 uppercase tracking-wider" id="label-2">Project Details</p>
-                        <p class="text-[10px] text-slate-600 mt-0.5">Setting, dates, funding & training</p>
+                        <p class="text-[10px] text-slate-600 mt-0.5" id="sublabel-2">Setting, dates, funding & training</p>
                     </div>
                 </div>
                 <div class="flex items-center gap-3.5 px-2 py-2.5 rounded-xl" id="step-nav-3">
                     <div class="step-dot pending" id="dot-3">3</div>
                     <div>
                         <p class="text-xs font-black text-slate-500 uppercase tracking-wider" id="label-3">Contact & Role</p>
-                        <p class="text-[10px] text-slate-600 mt-0.5">Lead status & contact info</p>
+                        <p class="text-[10px] text-slate-600 mt-0.5" id="sublabel-3">Lead status & contact info</p>
                     </div>
                 </div>
                 <div class="flex items-center gap-3.5 px-2 py-2.5 rounded-xl" id="step-nav-4">
                     <div class="step-dot pending" id="dot-4">4</div>
                     <div>
                         <p class="text-xs font-black text-slate-500 uppercase tracking-wider" id="label-4">Preferences & Fit</p>
-                        <p class="text-[10px] text-slate-600 mt-0.5">Coaching style & availability</p>
+                        <p class="text-[10px] text-slate-600 mt-0.5" id="sublabel-4">Coaching style & availability</p>
                     </div>
                 </div>
             </div>
@@ -133,7 +133,7 @@
             </div>
 
             <!-- In-Place Save Confirmation Banner (stays on page) -->
-            <div id="save-toast-banner" class="hidden mb-6 bg-emerald-50 border border-emerald-200 rounded-2xl p-4 flex items-start justify-between gap-3 fadeUp">
+            <div id="save-toast-banner" class="hidden mb-6 bg-emerald-50 border border-emerald-200 rounded-2xl p-4 flex items-start justify-between gap-3">
                 <div class="flex items-start gap-3">
                     <div class="w-7 h-7 rounded-lg bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0 mt-0.5">
                         <i class="fas fa-check text-xs"></i>
@@ -166,7 +166,7 @@
             </div>
 
             <div class="mb-8">
-                <p class="text-[10px] font-black text-indigo-500 uppercase tracking-widest mb-1">Step <span id="step-num">1</span> of 4</p>
+                <p class="text-[10px] font-black text-indigo-500 uppercase tracking-widest mb-1">Step <span id="step-num">1</span> of <span id="step-total">4</span></p>
                 <h1 class="text-2xl font-black text-slate-900 leading-tight" id="step-title">Tell us about yourself & coaching needs</h1>
                 <p class="text-slate-500 text-xs mt-1.5" id="step-subtitle">Questions 1–4 · Background, project problem, and top QI support areas.</p>
             </div>
@@ -175,7 +175,7 @@
             <div class="step-panel active" id="panel-1">
                 <div class="space-y-6">
                     <!-- Q1 (Profile-only: hidden on mode=new) -->
-                    <div id="q1-block">
+                    <div id="q1-block" class="profile-only-block">
                         <label class="block text-xs font-black text-slate-700 uppercase tracking-wider mb-2">
                             <span class="q-num">1</span> Please tell us a little about yourself <span class="text-indigo-500">*</span>
                         </label>
@@ -235,9 +235,9 @@
                 </div>
             </div>
 
-            <!-- STEP 2: Questions 5 - 9 (Please tell us more about your project) -->
+            <!-- STEP 2: Questions 5 - 9 (and Q10 when mode=new) -->
             <div class="step-panel" id="panel-2">
-                <div class="space-y-6">
+                <div class="space-y-6" id="step-2-questions">
                     <!-- Q5 -->
                     <div>
                         <label class="block text-xs font-black text-slate-700 uppercase tracking-wider mb-2">
@@ -311,7 +311,7 @@
                     </div>
 
                     <!-- Q9 (Profile-only: hidden on mode=new) -->
-                    <div id="q9-block">
+                    <div id="q9-block" class="profile-only-block">
                         <label class="block text-xs font-black text-slate-700 uppercase tracking-wider mb-2">
                             <span class="q-num">9</span> Please indicate any quality improvement training you have completed <span class="text-indigo-500">*</span>
                         </label>
@@ -329,15 +329,15 @@
 
                 <div class="flex justify-between mt-10 pb-4">
                     <button class="btn-secondary" onclick="goToStep(1)"><i class="fas fa-arrow-left mr-2"></i> Back</button>
-                    <button class="btn-primary" onclick="goToStep(3)">Continue to Contact & Role <i class="fas fa-arrow-right ml-2"></i></button>
+                    <button class="btn-primary" id="btn-step2-next" onclick="goToStep(isNewProject ? 4 : 3)">Continue to Contact & Role <i class="fas fa-arrow-right ml-2"></i></button>
                 </div>
             </div>
 
             <!-- STEP 3: Questions 10 - 15 (Contact information & Physician Lead) -->
             <div class="step-panel" id="panel-3">
                 <div class="space-y-6">
-                    <!-- Q10 -->
-                    <div>
+                    <!-- Q10 (Moved into Step 2 automatically when mode=new) -->
+                    <div id="q10-block">
                         <label class="block text-xs font-black text-slate-700 uppercase tracking-wider mb-2">
                             <span class="q-num">10</span> Are you the physician lead for this project? <span class="text-indigo-500">*</span>
                         </label>
@@ -373,8 +373,8 @@
                         </div>
                     </div>
 
-                    <!-- Q11, Q12, Q13: Pre-filled Authenticated Account Info -->
-                    <div id="q11-13-block" class="bg-indigo-50/50 border border-indigo-100 rounded-2xl p-5 space-y-4">
+                    <!-- Q11, Q12, Q13: Pre-filled Authenticated Account Info (Profile-only) -->
+                    <div id="q11-13-block" class="profile-only-block bg-indigo-50/50 border border-indigo-100 rounded-2xl p-5 space-y-4">
                         <div class="flex items-center justify-between">
                             <span class="text-[10px] font-black text-indigo-600 uppercase tracking-wider"><i class="fas fa-id-card-clip mr-1.5"></i> Verified Account Information</span>
                             <span class="text-[9px] font-extrabold uppercase bg-emerald-100 text-emerald-700 px-2.5 py-0.5 rounded-full tracking-wider">Linked</span>
@@ -396,7 +396,7 @@
                     </div>
 
                     <!-- Q14 (Profile-only: hidden on mode=new) -->
-                    <div id="q14-block">
+                    <div id="q14-block" class="profile-only-block">
                         <label class="block text-xs font-black text-slate-700 uppercase tracking-wider mb-2">
                             <span class="q-num">14</span> Phone Number <span class="text-indigo-500">*</span>
                         </label>
@@ -405,7 +405,7 @@
                     </div>
 
                     <!-- Q15 (Profile-only: hidden on mode=new) -->
-                    <div id="q15-block">
+                    <div id="q15-block" class="profile-only-block">
                         <label class="block text-xs font-black text-slate-700 uppercase tracking-wider mb-3">
                             <span class="q-num">15</span> What best describes you? <span class="text-indigo-500">*</span>
                         </label>
@@ -619,7 +619,7 @@
                     </div>
 
                     <!-- Q23 (Profile-only: hidden on mode=new) -->
-                    <div id="q23-block">
+                    <div id="q23-block" class="profile-only-block">
                         <label class="block text-xs font-black text-slate-700 uppercase tracking-wider mb-3">
                             <span class="q-num">23</span> How did you hear about the Provincial Physician Coaching Program? <span class="text-indigo-500">*</span>
                         </label>
@@ -659,7 +659,7 @@
                 </div>
 
                 <div class="flex justify-between mt-10 pb-12">
-                    <button class="btn-secondary" onclick="goToStep(3)"><i class="fas fa-arrow-left mr-2"></i> Back</button>
+                    <button class="btn-secondary" id="btn-step4-back" onclick="goToStep(isNewProject ? 2 : 3)"><i class="fas fa-arrow-left mr-2"></i> Back</button>
                     <button class="btn-primary" onclick="submitSetup()">Submit Application <i class="fas fa-check ml-2"></i></button>
                 </div>
             </div>
@@ -688,6 +688,7 @@
     if (coacheeName) sessionStorage.setItem('name', coacheeName);
     if (userEmail) sessionStorage.setItem('email', userEmail);
 
+    // Unified storage key per mode so reopening a normal browser without ?uid= always restores
     const DRAFT_STORAGE_KEY = `pqi_coachee_draft_${isNewProject ? 'new' : 'onboarding'}`;
 
     // Populate Sidebar and Authenticated Identity Card (Q11, Q12, Q13)
@@ -723,24 +724,54 @@
     };
 
     let currentStep = 1;
-    const totalSteps = 4;
+    const activeSteps = isNewProject ? [1, 2, 4] : [1, 2, 3, 4];
 
-    const stepMeta = {
+    const stepMeta = isNewProject ? {
+        1: { title: "Tell us about your project needs", sub: "Questions 1–3 · Problem statement, desired coach fit, and top QI support areas." },
+        2: { title: "Tell us more about your project", sub: "Questions 4–8 · Project title, setting, timeline, funding, and project lead." },
+        4: { title: "Preferences & availability", sub: "Questions 9–15 · Coaching style, session preferences, and availability." }
+    } : {
         1: { title: "Tell us about yourself & coaching needs", sub: "Questions 1–4 · Background, project problem, and top QI support areas." },
         2: { title: "Tell us more about your project", sub: "Questions 5–9 · Project title, setting, timeline, funding, and QI training." },
         3: { title: "Contact information & project lead", sub: "Questions 10–15 · Your information will remain confidential." },
         4: { title: "Preferences & availability", sub: "Questions 16–23 · Coaching style, session availability, and program referral." }
     };
 
-    // If returning user creating a new project (mode=new), hide profile-only questions & show Dashboard link
+    // Configure 3-step consolidated flow & sequential 1-15 numbering when mode=new
     if (isNewProject) {
-        ['q1-block', 'q9-block', 'q11-13-block', 'q14-block', 'q15-block', 'q23-block'].forEach(id => {
-            const el = document.getElementById(id);
-            if (el) el.style.display = 'none';
+        document.querySelectorAll('.profile-only-block').forEach(el => {
+            el.style.display = 'none';
         });
+
+        // Move Q10 (Physician Lead) & conditional lead contact box into Step 2
+        const step2Container = document.getElementById('step-2-questions');
+        const q10Block = document.getElementById('q10-block');
+        const leadDetails = document.getElementById('lead-details-section');
+        if (step2Container && q10Block) step2Container.appendChild(q10Block);
+        if (step2Container && leadDetails) step2Container.appendChild(leadDetails);
+
+        // Hide Step 3 nav item and re-label Step 4 as Step 3 in sidebar
+        const stepNav3 = document.getElementById('step-nav-3');
+        if (stepNav3) stepNav3.style.display = 'none';
+
+        document.getElementById('sublabel-1').textContent = 'Problem, coach fit & QI goals';
+        document.getElementById('label-2').textContent = 'Project & Lead';
+        document.getElementById('sublabel-2').textContent = 'Setting, dates, funding & lead';
+        document.getElementById('dot-4').textContent = '3';
+        document.getElementById('step-total').textContent = '3';
+        document.getElementById('btn-step2-next').innerHTML = 'Continue to Preferences <i class="fas fa-arrow-right ml-2"></i>';
+
         document.getElementById('sidebar-status').textContent = "New Project";
         const backBtn = document.getElementById('btn-back-dashboard');
         if (backBtn) backBtn.classList.remove('hidden');
+
+        // Sequentially renumber visible project questions (1 to 15)
+        let seq = 1;
+        document.querySelectorAll('.q-num').forEach(badge => {
+            if (!badge.closest('.profile-only-block')) {
+                badge.textContent = seq++;
+            }
+        });
     }
 
     function selectSingle(group, value, skipSave = false) {
@@ -815,31 +846,40 @@
     }
 
     function setStepUI(step) {
+        if (!activeSteps.includes(step)) step = 1;
+
         document.getElementById(`panel-${currentStep}`).classList.remove('active');
         document.getElementById(`panel-${step}`).classList.add('active');
 
-        for (let i = 1; i <= totalSteps; i++) {
-            const dot = document.getElementById(`dot-${i}`);
-            if (i < step) {
+        const currentIdx = activeSteps.indexOf(step);
+
+        activeSteps.forEach((stepId, idx) => {
+            const dot = document.getElementById(`dot-${stepId}`);
+            const displayNum = idx + 1;
+            if (idx < currentIdx) {
                 dot.className = 'step-dot done';
                 dot.innerHTML = '<i class="fas fa-check" style="font-size:9px"></i>';
-            } else if (i === step) {
+            } else if (idx === currentIdx) {
                 dot.className = 'step-dot active';
-                dot.textContent = i;
+                dot.textContent = displayNum;
             } else {
                 dot.className = 'step-dot pending';
-                dot.textContent = i;
+                dot.textContent = displayNum;
             }
-            const labelEl = document.getElementById(`label-${i}`);
+            const labelEl = document.getElementById(`label-${stepId}`);
             if (labelEl) {
-                labelEl.className = i <= step
+                labelEl.className = idx <= currentIdx
                     ? 'text-xs font-black text-white uppercase tracking-wider'
                     : 'text-xs font-black text-slate-500 uppercase tracking-wider';
             }
-        }
+        });
 
-        const pct = Math.round(((step - 1) / totalSteps) * 100);
-        document.getElementById('step-num').textContent = step;
+        const logicalStep = currentIdx + 1;
+        const logicalTotal = activeSteps.length;
+        const pct = Math.round(((logicalStep - 1) / logicalTotal) * 100);
+
+        document.getElementById('step-num').textContent = logicalStep;
+        document.getElementById('step-total').textContent = logicalTotal;
         document.getElementById('step-title').textContent = stepMeta[step].title;
         document.getElementById('step-subtitle').textContent = stepMeta[step].sub;
         document.getElementById('progress-bar').style.width = pct + '%';
@@ -849,30 +889,44 @@
     }
 
     function goToStep(step) {
-        // Validate Step 1 (Q1 - Q4)
+        // Validate Step 1
         if (step > 1 && currentStep === 1) {
             const ab = document.getElementById('about').value.trim();
             const prob = document.getElementById('problem').value.trim();
             const lookingFor = document.getElementById('coach-looking-for').value.trim();
             if ((!isNewProject && !ab) || !prob || !lookingFor || tagSelections['support'].size === 0) {
-                alert('Please complete all required fields (Questions 1–4) before continuing.');
+                alert('Please complete all required fields before continuing.');
                 return;
             }
         }
 
-        // Validate Step 2 (Q5 - Q9)
+        // Validate Step 2 (includes Q10 Lead when mode=new)
         if (step > 2 && currentStep === 2) {
             const title = document.getElementById('project-title').value.trim();
             if (!title || !selections['project-setting'] || tagSelections['funding'].size === 0 || (!isNewProject && tagSelections['training'].size === 0)) {
-                alert('Please complete all required project fields (Questions 5–9) before continuing.');
+                alert('Please complete all required project fields before continuing.');
                 return;
+            }
+            if (isNewProject) {
+                if (!selections['is-lead']) {
+                    alert('Please indicate whether you are the Physician Lead for this project.');
+                    return;
+                }
+                if (selections['is-lead'] === 'no') {
+                    const leadName = document.getElementById('physician-lead-name').value.trim();
+                    const leadEmail = document.getElementById('physician-lead-email').value.trim();
+                    if (!leadName || !leadEmail) {
+                        alert('Please provide the Physician Lead name and email address.');
+                        return;
+                    }
+                }
             }
         }
 
-        // Validate Step 3 (Q10 - Q15)
-        if (step > 3 && currentStep === 3) {
+        // Validate Step 3 (Standard onboarding only)
+        if (step > 3 && currentStep === 3 && !isNewProject) {
             if (!selections['is-lead']) {
-                alert('Please indicate whether you are the Physician Lead (Question 10).');
+                alert('Please indicate whether you are the Physician Lead.');
                 return;
             }
             if (selections['is-lead'] === 'no') {
@@ -883,12 +937,10 @@
                     return;
                 }
             }
-            if (!isNewProject) {
-                const ph = document.getElementById('phone').value.trim();
-                if (!ph || !selections['physician-type']) {
-                    alert('Please complete your Phone Number and Role (Questions 14–15).');
-                    return;
-                }
+            const ph = document.getElementById('phone').value.trim();
+            if (!ph || !selections['physician-type']) {
+                alert('Please complete your Phone Number and Role before continuing.');
+                return;
             }
         }
 
@@ -998,9 +1050,12 @@
                 if (supportCounter) supportCounter.textContent = `${tagSelections['support'].size} / 3 Selected`;
             }
 
-            if (draft.step && draft.step >= 1 && draft.step <= totalSteps) {
-                setStepUI(draft.step);
-            }
+            let targetStep = draft.step || 1;
+            if (!activeSteps.includes(targetStep)) targetStep = 1;
+            setStepUI(targetStep);
+
+            const logicalStep = activeSteps.indexOf(targetStep) + 1;
+            const logicalTotal = activeSteps.length;
 
             const statusText = document.getElementById('draft-status-text');
             const clearBtn = document.getElementById('btn-clear-draft');
@@ -1008,7 +1063,7 @@
             const restoredMsg = document.getElementById('restored-draft-msg');
             if (statusText) statusText.textContent = 'Draft restored';
             if (clearBtn) clearBtn.classList.remove('hidden');
-            if (restoredMsg) restoredMsg.textContent = `Welcome back — your previous answers (Step ${draft.step || 1} of 4) have been restored.`;
+            if (restoredMsg) restoredMsg.textContent = `Welcome back — your previous answers (Step ${logicalStep} of ${logicalTotal}) have been restored.`;
             if (restoredBanner) restoredBanner.classList.remove('hidden');
         } catch (e) {
             console.warn('Could not restore draft:', e);
@@ -1084,20 +1139,20 @@
 
     function submitSetup() {
         if (!selections['coach-in-mind']) {
-            alert('Please answer Question 16 (Do you have a coach in mind?).');
+            alert('Please indicate whether you have a coach in mind.');
             return;
         }
         if (selections['coach-in-mind'] === 'yes' && !document.getElementById('preferred-coaches').value.trim()) {
-            alert('Please specify your preferred coach(es) in Question 17.');
+            alert('Please specify your preferred coach(es).');
             return;
         }
         if (!selections['coaching-structure'] || !selections['coaching-challenge'] || 
             !selections['coaching-accountability'] || tagSelections['availability'].size === 0) {
-            alert('Please complete all required preference and availability questions (Questions 18–21).');
+            alert('Please complete all required preference and availability questions.');
             return;
         }
         if (!isNewProject && !selections['referral']) {
-            alert('Please answer Question 23 (How did you hear about the program?).');
+            alert('Please indicate how you heard about the program.');
             return;
         }
 
@@ -1108,7 +1163,7 @@
             const appBtn = document.querySelector('#caspio-app input[type="submit"]');
 
             if (appBtn && (isNewProject || profileBtn)) {
-                // 1. Coachee_Profile DataPage (Q1, Q9, Q14, Q15, Q23)
+                // 1. Coachee_Profile DataPage (Initial onboarding only)
                 if (!isNewProject) {
                     if (currentUid) setFieldValue('#caspio-profile', 'InsertRecordUser_ID', currentUid);
                     setFieldValue('#caspio-profile', 'InsertRecordPhone', document.getElementById('phone').value.trim());
@@ -1118,7 +1173,7 @@
                     setFieldValue('#caspio-profile', 'InsertRecordReferral', referralLabels[selections['referral']] || '');
                 }
 
-                // 2. Coachee_Application DataPage (Q2-8, Q10, Q16-22)
+                // 2. Coachee_Application DataPage (Every application)
                 if (currentUid) setFieldValue('#caspio-app', 'InsertRecordUser_ID', currentUid);
                 setFieldValue('#caspio-app', 'InsertRecordProject_Title', document.getElementById('project-title').value.trim());
                 setFieldValue('#caspio-app', 'InsertRecordIs_Lead', selections['is-lead'] === 'yes' ? 'Yes' : 'No');
